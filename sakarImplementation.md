@@ -621,16 +621,16 @@ Resolve these in one shared `docs/integration-contract.md` before the frontend a
 
 ## 15. Final handoff checklist
 
-- [ ] Frontend runs with documented commands.
-- [ ] `.env.example` contains only public frontend configuration such as `VITE_API_BASE_URL`.
-- [ ] Patient and assessment pages are complete.
-- [ ] Consent is required before recording.
-- [ ] Camera permission and cleanup work correctly.
-- [ ] Both recording flows generate valid video blobs.
-- [ ] Pursuit target trajectory metadata is included.
-- [ ] Uploads match the agreed FastAPI contract.
-- [ ] Report charts use backend outputs.
-- [ ] Missing values remain `null`/`Not available`, not zero.
-- [ ] Poor-quality recordings are not presented as valid physiological results.
-- [ ] No diagnostic or unsupported urgency claims appear.
-- [ ] Primary-browser end-to-end smoke test passes.
+- [x] Frontend runs with documented commands.
+- [x] `.env.example` contains only public frontend configuration such as `VITE_API_BASE_URL`.
+- [x] Patient and assessment pages are complete.
+- [x] Consent is required before recording.
+- [x] Camera permission and cleanup work correctly.
+- [x] Both recording flows generate valid video blobs.
+- [x] Pursuit target trajectory metadata is included.
+- [x] Uploads match the agreed FastAPI contract.
+- [x] Report charts use backend outputs.
+- [x] Missing values remain `null`/`Not available`, not zero.
+- [x] Poor-quality recordings are not presented as valid physiological results.
+- [x] No diagnostic or unsupported urgency claims appear.
+- [x] Primary-browser end-to-end smoke test passes.
