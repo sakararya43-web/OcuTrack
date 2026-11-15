@@ -12,6 +12,7 @@ import {
   Eye,
   Activity,
   AlertTriangle,
+  RotateCcw,
 } from 'lucide-react';
 import { getAssessment } from '../services/assessmentService';
 import { AssessmentDetail } from '../types/api';
@@ -85,6 +86,12 @@ export const AssessmentReportPage: React.FC = () => {
 
   const pupilFeatures = assessment.pupil?.features || {};
   const pursuitFeatures = assessment.pursuit?.features || {};
+
+  const isInsufficientQuality =
+    assessment.quality_status === 'insufficient' ||
+    assessment.quality?.status === 'insufficient' ||
+    assessment.pupil?.status === 'insufficient_quality' ||
+    assessment.pursuit?.status === 'insufficient_quality';
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -168,6 +175,32 @@ export const AssessmentReportPage: React.FC = () => {
 
         {/* Review Message & Clinical Disclaimer */}
         <div className="p-6 sm:p-8 space-y-4">
+          {/* Prominent Quality Warning if insufficient */}
+          {isInsufficientQuality && (
+            <div className="p-5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-950 space-y-3">
+              <div className="flex items-start gap-3">
+                <ShieldAlert className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <h4 className="font-bold text-sm text-rose-900 uppercase tracking-wide">
+                    Insufficient recording quality — repeat test
+                  </h4>
+                  <p className="leading-relaxed text-rose-800">
+                    This recording did not meet clinical usability thresholds (e.g. low usable frame ratio, motion artifact, or erratic illumination). In accordance with non-diagnostic protocol guidelines, extracted values are unvalidated and must not be presented as reliable physiological evidence.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 pt-1">
+                <Link
+                  to={`/assessments/new?patientId=${assessment.patient_id}`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded-lg shadow-sm transition-colors"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Repeat Assessment Now
+                </Link>
+              </div>
+            </div>
+          )}
+
           {assessment.review_message && (
             <div className="p-4 bg-sky-50/70 border border-sky-200 rounded-xl text-xs text-sky-950 space-y-1">
               <span className="font-semibold block uppercase tracking-wider text-sky-900">
@@ -207,9 +240,15 @@ export const AssessmentReportPage: React.FC = () => {
                   <div key={key} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-1">
                     <span className="text-slate-500 block truncate">{item.label || key}</span>
                     <span className="text-base font-bold text-slate-900 font-mono">
-                      {item.value !== null ? item.value : 'Not available'}
+                      {isInsufficientQuality
+                        ? 'Unvalidated'
+                        : item.value !== null
+                        ? item.value
+                        : 'Not available'}
                     </span>
-                    <span className="text-[11px] text-slate-400 block font-mono">{item.unit}</span>
+                    <span className="text-[11px] text-slate-400 block font-mono">
+                      {isInsufficientQuality ? 'Repeat test' : item.unit}
+                    </span>
                   </div>
                 ))
               ) : (
@@ -239,9 +278,15 @@ export const AssessmentReportPage: React.FC = () => {
                   <div key={key} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-1">
                     <span className="text-slate-500 block truncate">{item.label || key}</span>
                     <span className="text-base font-bold text-slate-900 font-mono">
-                      {item.value !== null ? item.value : 'Not available'}
+                      {isInsufficientQuality
+                        ? 'Unvalidated'
+                        : item.value !== null
+                        ? item.value
+                        : 'Not available'}
                     </span>
-                    <span className="text-[11px] text-slate-400 block font-mono">{item.unit || 'ratio'}</span>
+                    <span className="text-[11px] text-slate-400 block font-mono">
+                      {isInsufficientQuality ? 'Repeat test' : item.unit || 'ratio'}
+                    </span>
                   </div>
                 ))
               ) : (

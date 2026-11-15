@@ -83,15 +83,15 @@ export const PatientDetailPage: React.FC = () => {
   // Baseline candidate: usually the earliest accepted assessment
   const baselineCandidate = sortedHistory.length > 0 ? sortedHistory[sortedHistory.length - 1] : null;
 
-  // Prepare trend data points across visits
+  // Prepare trend data points across visits using actual backend-extracted features
   const trendData: LongitudinalDataPoint[] = sortedHistory
     .slice()
     .reverse()
-    .map((item, idx) => ({
+    .map((item) => ({
       assessmentDate: item.assessment_at,
-      latencyMs: 230 + idx * 8, // Derived if features attached or simulated progression
-      velocityMmS: 4.5 - idx * 0.1,
-      trackingGain: 0.94 - idx * 0.02,
+      latencyMs: item.features?.latency_ms ?? null,
+      velocityMmS: item.features?.constriction_velocity ?? null,
+      trackingGain: item.features?.tracking_gain ?? null,
       isBaseline: item.assessment_id === baselineCandidate?.assessment_id,
     }));
 

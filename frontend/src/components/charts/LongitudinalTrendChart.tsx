@@ -72,6 +72,21 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
     isBaseline: Boolean(d.isBaseline),
   }));
 
+  const validDataPoints = chartData.filter(
+    (d) => d.value !== null && d.value !== undefined
+  );
+
+  if (validDataPoints.length < 2) {
+    return (
+      <div className={`p-6 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs text-slate-500 ${className}`}>
+        <p className="font-semibold text-slate-700">Longitudinal History Building</p>
+        <p className="mt-1">
+          At least two accepted assessments with measured biometrics are required to plot longitudinal trajectory across visits.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3 ${className}`}>
       <div className="flex items-center justify-between">

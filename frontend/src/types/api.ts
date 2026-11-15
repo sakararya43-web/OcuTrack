@@ -143,6 +143,12 @@ export interface AssessmentSummary {
   protocol_version: string;
   warnings?: string[];
   review_message?: string;
+  features?: {
+    latency_ms?: number | null;
+    constriction_velocity?: number | null;
+    tracking_gain?: number | null;
+    [key: string]: unknown;
+  };
 }
 
 export interface AssessmentDetail extends AssessmentSummary {

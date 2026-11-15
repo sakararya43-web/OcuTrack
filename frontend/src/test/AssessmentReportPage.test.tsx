@@ -105,4 +105,55 @@ describe('AssessmentReportPage', () => {
     expect(screen.getByText('+25.00')).toBeInTheDocument();
     expect(screen.getByText('-0.40')).toBeInTheDocument();
   });
+
+  it('displays insufficient recording quality warning banner and unvalidated labels when quality is poor', async () => {
+    const mockPoorDetail = {
+      assessment_id: 'asm-poor-quality',
+      patient_id: 'OT-4091',
+      status: 'complete',
+      quality_status: 'insufficient',
+      assessment_at: '2026-11-16T12:00:00Z',
+      protocol_version: 'ocutrack-protocol-0.1',
+      review_message: 'Insufficient recording quality — repeat test',
+      warnings: ['Usable frame ratio below 0.70 threshold', 'Severe subject head motion'],
+      quality: {
+        status: 'insufficient',
+        usable_frame_ratio: 0.52,
+        warnings: ['Usable frame ratio below 0.70 threshold'],
+      },
+      pupil: {
+        status: 'insufficient_quality',
+        features: {
+          constriction_latency: { value: null, unit: 'ms', label: 'Constriction Latency' },
+        },
+      },
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => mockPoorDetail,
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={['/assessments/asm-poor-quality/report']}
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <Routes>
+          <Route path="/assessments/:assessmentId/report" element={<AssessmentReportPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/Insufficient recording quality — repeat test/i).length).toBeGreaterThanOrEqual(1);
+    });
+
+    expect(screen.getByText(/extracted values are unvalidated and must not be presented as reliable/i)).toBeInTheDocument();
+    expect(screen.getByText('Repeat Assessment Now')).toBeInTheDocument();
+  });
 });
