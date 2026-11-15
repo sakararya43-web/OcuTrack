@@ -24,6 +24,7 @@ describe('App Root and Navigation', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Patients')).toBeInTheDocument();
     expect(screen.getByText('New Assessment')).toBeInTheDocument();
+    expect(screen.getByText('Limitations')).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByText('Backend Service Unavailable')).toBeInTheDocument();
     });

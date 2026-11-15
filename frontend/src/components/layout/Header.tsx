@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Eye, Activity, Users, PlusCircle, Server, RefreshCw } from 'lucide-react';
+import { Eye, Activity, Users, PlusCircle, Server, RefreshCw, Info } from 'lucide-react';
 import { checkBackendHealth } from '../../services/healthService';
 import { APP_NAME } from '../../lib/constants';
 
@@ -60,6 +60,10 @@ export const Header: React.FC = () => {
               <NavLink to="/assessments/new" className={navLinkClass}>
                 <PlusCircle className="w-4 h-4" />
                 New Assessment
+              </NavLink>
+              <NavLink to="/about" className={navLinkClass}>
+                <Info className="w-4 h-4" />
+                Limitations
               </NavLink>
             </nav>
           </div>
