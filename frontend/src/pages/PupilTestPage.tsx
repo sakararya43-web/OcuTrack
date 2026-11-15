@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
+import { useRecordingQuality } from '../hooks/useRecordingQuality';
 import { CameraPreview } from '../components/capture/CameraPreview';
 import { SampleVideoFallback } from '../components/capture/SampleVideoFallback';
 import { uploadPupilVideo } from '../services/assessmentService';
@@ -130,6 +131,18 @@ export const PupilTestPage: React.FC = () => {
 
   const recordedVideo = recorder.recordedVideo;
 
+  const qualityFeedback = useRecordingQuality(
+    recordedVideo
+      ? {
+          durationMs: recordedVideo.durationMs,
+          sizeBytes: recordedVideo.sizeBytes,
+          observedSettings: camera.observedSettings,
+          testType: 'pupil_reflex',
+          isFallback: isFallbackMode,
+        }
+      : null
+  );
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Breadcrumb & Navigation */}
@@ -227,6 +240,49 @@ export const PupilTestPage: React.FC = () => {
                   <span className="font-semibold text-slate-900">{PROTOCOL_VERSION}</span>
                 </div>
               </div>
+
+              {/* Basic Capture Quality Feedback */}
+              {qualityFeedback && (
+                <div
+                  className={`p-3.5 rounded-xl border text-xs space-y-2 ${
+                    qualityFeedback.isAcceptable
+                      ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                      : 'bg-rose-50 border-rose-200 text-rose-900'
+                  }`}
+                >
+                  <div className="flex items-center justify-between font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      {qualityFeedback.isAcceptable ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      ) : (
+                        <ShieldAlert className="w-4 h-4 text-rose-600" />
+                      )}
+                      Capture Quality Assessment:
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                        qualityFeedback.isAcceptable
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-rose-100 text-rose-800'
+                      }`}
+                    >
+                      {qualityFeedback.reviewMessage}
+                    </span>
+                  </div>
+                  {qualityFeedback.warnings.length > 0 && (
+                    <ul className="list-disc list-inside space-y-0.5 text-[11px] opacity-90">
+                      {qualityFeedback.warnings.map((w, idx) => (
+                        <li key={idx}>{w}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {!qualityFeedback.isAcceptable && (
+                    <p className="text-[11px] font-medium text-rose-700">
+                      Quality check failed. Please discard and retake before sending for analysis.
+                    </p>
+                  )}
+                </div>
+              )}
 
               <p className="text-xs text-slate-500 leading-relaxed">
                 Review the recorded pupil video. Verify that the eye is in focus and visible throughout the duration. Click below to upload video to the backend and advance to the smooth-pursuit evaluation.
