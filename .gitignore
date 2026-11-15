@@ -4,12 +4,15 @@ dist/
 dist-ssr/
 *.local
 
+# Build info & compiled configs
+*.tsbuildinfo
+frontend/*.d.ts
+frontend/vite.config.js
+frontend/vitest.config.js
+
 # Environment files
 .env
 .env*.local
-
-# Build info
-*.tsbuildinfo
 
 # Logs
 npm-debug.log*

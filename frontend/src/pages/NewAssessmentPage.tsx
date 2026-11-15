@@ -145,21 +145,22 @@ export const NewAssessmentPage: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-center gap-3 pt-4">
+            <Link
+              to={`/assessments/${createdAssessment.assessment_id}/pupil-test`}
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-colors flex items-center gap-2"
+            >
+              <Video className="w-4 h-4" />
+              Proceed to Pupil Reflex Test
+            </Link>
             <button
               onClick={() => {
                 setCreatedAssessment(null);
                 setConsentConfirmed(false);
               }}
-              className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+              className="px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
             >
               Start Another Session
             </button>
-            <Link
-              to={`/patients/${selectedPatientId}`}
-              className="px-4 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors"
-            >
-              Return to Patient History
-            </Link>
           </div>
         </div>
       ) : (
