@@ -42,6 +42,10 @@ export const DashboardPage: React.FC = () => {
   }, []);
 
   const patientCount = patients.length;
+  const totalAssessmentsCount = patients.reduce(
+    (acc, p) => acc + (p.assessment_count !== undefined ? p.assessment_count : (p.last_assessment_date ? 1 : 0)),
+    0
+  );
   const pendingReviewCount = patients.filter(
     (p) => p.last_quality_status === 'insufficient' || p.feature_change_recorded === true
   ).length;
@@ -103,24 +107,24 @@ export const DashboardPage: React.FC = () => {
 
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Quality / Delta Reviews</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Recent Assessments</span>
+            <FileCheck className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900">
+            {loading ? '—' : error ? '0' : totalAssessmentsCount}
+          </div>
+          <p className="text-xs text-slate-500 mt-1">Recorded ocular test sessions</p>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Requiring Review</span>
             <AlertCircle className="w-5 h-5 text-amber-500" />
           </div>
           <div className="text-2xl font-bold text-slate-900">
             {loading ? '—' : error ? '0' : pendingReviewCount}
           </div>
-          <p className="text-xs text-slate-500 mt-1">Requiring repeat test or clinical check</p>
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Protocol Status</span>
-            <FileCheck className="w-5 h-5 text-emerald-600" />
-          </div>
-          <div className="text-base font-semibold text-slate-800">
-            Calibrated Suite
-          </div>
-          <p className="text-xs text-slate-500 mt-1">Standardized timing &amp; target path</p>
+          <p className="text-xs text-slate-500 mt-1">Quality flags or feature deltas</p>
         </div>
       </div>
 
@@ -189,12 +193,19 @@ export const DashboardPage: React.FC = () => {
                       <td className="px-6 py-4">
                         <StatusBadge type="quality" status={patient.last_quality_status} />
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right space-x-2">
+                        <Link
+                          to={`/patients/${patient.patient_id}`}
+                          className="text-xs font-medium text-slate-600 hover:text-slate-900"
+                        >
+                          History
+                        </Link>
+                        <span className="text-slate-300">&bull;</span>
                         <Link
                           to={`/assessments/new?patientId=${patient.patient_id}`}
-                          className="text-xs font-medium text-sky-700 hover:text-sky-900"
+                          className="text-xs font-semibold text-sky-700 hover:text-sky-900"
                         >
-                          New Assessment &rarr;
+                          New Test &rarr;
                         </Link>
                       </td>
                     </tr>
