@@ -358,10 +358,10 @@ export const ProcessingPage: React.FC = () => {
 
           {isComplete && (
             <Link
-              to={assessment?.patient_id ? `/patients/${assessment.patient_id}` : '/patients'}
+              to={`/assessments/${assessmentId}/report`}
               className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-colors"
             >
-              Complete Assessment Flow
+              Open Full Assessment Report
               <ArrowRight className="w-4 h-4" />
             </Link>
           )}
