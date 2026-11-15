@@ -1,18 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Play, Square, RotateCcw, ArrowRight, ShieldAlert, CheckCircle2, SunMedium, Eye } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Play,
+  Square,
+  RotateCcw,
+  ArrowRight,
+  ShieldAlert,
+  CheckCircle2,
+  SunMedium,
+  Eye,
+  UploadCloud,
+  Loader2,
+} from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
 import { CameraPreview } from '../components/capture/CameraPreview';
 import { SampleVideoFallback } from '../components/capture/SampleVideoFallback';
+import { uploadPupilVideo } from '../services/assessmentService';
 import { PROTOCOL_VERSION } from '../lib/constants';
+import { ErrorAlert } from '../components/common/ErrorAlert';
+import { ApiClientError } from '../services/apiClient';
 
 export const PupilTestPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
+  const navigate = useNavigate();
 
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isStimulusActive, setIsStimulusActive] = useState<boolean>(false);
   const [isFallbackMode, setIsFallbackMode] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
 
   const TARGET_DURATION_S = 15;
 
@@ -21,12 +38,12 @@ export const PupilTestPage: React.FC = () => {
     maxDurationSeconds: TARGET_DURATION_S,
   });
 
-  // When recording starts, schedule standard screen stimulus or prompt at 5 seconds into the test
+  // Schedule diffuse screen flash stimulus at 5-second mark
   useEffect(() => {
     if (recorder.isRecording) {
       const stimulusTimer = setTimeout(() => {
         setIsStimulusActive(true);
-        setTimeout(() => setIsStimulusActive(false), 1500); // 1.5s flash prompt
+        setTimeout(() => setIsStimulusActive(false), 1500);
       }, 5000);
 
       return () => clearTimeout(stimulusTimer);
@@ -65,12 +82,50 @@ export const PupilTestPage: React.FC = () => {
 
   const handleSampleSelected = (sampleVideo: RecordedVideo) => {
     setIsFallbackMode(true);
-    // Bind fallback video directly into recorded state
-    // We can simulate recorder stop with this video
     recorder.discardRecording();
-    // Setting up the recorded video through recorder state:
     (recorder as any).recordedVideo = sampleVideo;
     camera.stopCamera();
+  };
+
+  const handleUploadAndProceed = async () => {
+    if (!assessmentId || !recorder.recordedVideo) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    const metadata = {
+      protocol_version: PROTOCOL_VERSION,
+      test_type: 'pupil_reflex',
+      captured_at: recorder.recordedVideo.recordedAt,
+      duration_ms: recorder.recordedVideo.durationMs,
+      mime_type: recorder.recordedVideo.mimeType,
+      is_fallback: isFallbackMode,
+      device_metadata: {
+        user_agent: navigator.userAgent,
+        width: camera.observedSettings?.width || 1280,
+        height: camera.observedSettings?.height || 720,
+        frame_rate: camera.observedSettings?.frameRate || 30,
+      },
+      lighting_metadata: {
+        method: 'controlled_ambient_screen_flash',
+        notes: isFallbackMode ? 'Labelled Benchmark Sample Fallback' : 'Standard live diffuse ambient session',
+      },
+    };
+
+    try {
+      await uploadPupilVideo(assessmentId, recorder.recordedVideo.blob, metadata);
+      navigate(`/assessments/${assessmentId}/pursuit-test`);
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError) {
+        setUploadError({ message: err.message, isUnavailable: err.isUnavailable });
+      } else if (err instanceof Error) {
+        setUploadError({ message: err.message, isUnavailable: false });
+      } else {
+        setUploadError({ message: 'Failed to upload pupil video to backend server.', isUnavailable: true });
+      }
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const recordedVideo = recorder.recordedVideo;
@@ -134,6 +189,14 @@ export const PupilTestPage: React.FC = () => {
             )}
           </div>
 
+          {uploadError && (
+            <ErrorAlert
+              message={uploadError.message}
+              isUnavailable={uploadError.isUnavailable}
+              onRetry={handleUploadAndProceed}
+            />
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             {/* Video playback */}
             <div className="bg-slate-950 rounded-xl overflow-hidden aspect-video border border-slate-800">
@@ -166,7 +229,7 @@ export const PupilTestPage: React.FC = () => {
               </div>
 
               <p className="text-xs text-slate-500 leading-relaxed">
-                Review the recorded pupil video. Verify that the eye is in focus and visible throughout the duration. You may discard and retake or proceed to the Smooth Pursuit test.
+                Review the recorded pupil video. Verify that the eye is in focus and visible throughout the duration. Click below to upload video to the backend and advance to the smooth-pursuit evaluation.
               </p>
 
               <div className="flex items-center gap-3 pt-2">
@@ -175,19 +238,34 @@ export const PupilTestPage: React.FC = () => {
                   onClick={() => {
                     recorder.discardRecording();
                     setIsFallbackMode(false);
+                    setUploadError(null);
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm"
+                  disabled={isUploading}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm disabled:opacity-50"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   Discard &amp; Retake
                 </button>
-                <Link
-                  to={`/assessments/${assessmentId}/pursuit-test`}
-                  className="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-colors ml-auto"
+
+                <button
+                  type="button"
+                  onClick={handleUploadAndProceed}
+                  disabled={isUploading}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-colors ml-auto disabled:opacity-50"
                 >
-                  Proceed to Pursuit Test
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Uploading Video...
+                    </>
+                  ) : (
+                    <>
+                      <UploadCloud className="w-4 h-4" />
+                      Upload &amp; Continue to Pursuit
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>

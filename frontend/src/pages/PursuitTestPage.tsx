@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Play, Square, RotateCcw, CheckCircle2, Crosshair } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Play,
+  Square,
+  RotateCcw,
+  CheckCircle2,
+  Crosshair,
+  UploadCloud,
+  Loader2,
+  ArrowRight,
+} from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
 import { CameraPreview } from '../components/capture/CameraPreview';
@@ -12,15 +21,21 @@ import {
   generateFullTrajectory,
 } from '../components/capture/SmoothPursuitTarget';
 import { SampleVideoFallback } from '../components/capture/SampleVideoFallback';
+import { uploadPursuitVideo, triggerAnalysis } from '../services/assessmentService';
 import { PROTOCOL_VERSION } from '../lib/constants';
+import { ErrorAlert } from '../components/common/ErrorAlert';
+import { ApiClientError } from '../services/apiClient';
 
 export const PursuitTestPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
+  const navigate = useNavigate();
 
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isTargetActive, setIsTargetActive] = useState<boolean>(false);
   const [isFallbackMode, setIsFallbackMode] = useState<boolean>(false);
   const [trajectoryMetadata, setTrajectoryMetadata] = useState<TargetTrajectoryMetadata | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
 
   const TARGET_DURATION_S = PURSUIT_DURATION_MS / 1000;
 
@@ -77,8 +92,53 @@ export const PursuitTestPage: React.FC = () => {
     recorder.discardRecording();
     (recorder as any).recordedVideo = sampleVideo;
     camera.stopCamera();
-    // Use pre-computed canonical trajectory for the sample
     setTrajectoryMetadata(generateFullTrajectory());
+  };
+
+  const handleUploadAndAnalyze = async () => {
+    if (!assessmentId || !recorder.recordedVideo) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    const activeTrajectory = trajectoryMetadata || generateFullTrajectory();
+
+    const metadata = {
+      protocol_version: PROTOCOL_VERSION,
+      test_type: 'smooth_pursuit',
+      captured_at: recorder.recordedVideo.recordedAt,
+      duration_ms: recorder.recordedVideo.durationMs,
+      mime_type: recorder.recordedVideo.mimeType,
+      is_fallback: isFallbackMode,
+      target_path: activeTrajectory,
+      device_metadata: {
+        user_agent: navigator.userAgent,
+        width: camera.observedSettings?.width || 1280,
+        height: camera.observedSettings?.height || 720,
+        frame_rate: camera.observedSettings?.frameRate || 30,
+      },
+    };
+
+    try {
+      // Step 1: Upload pursuit video and target coordinates to Parth's FastAPI backend
+      await uploadPursuitVideo(assessmentId, recorder.recordedVideo.blob, metadata);
+
+      // Step 2: Trigger analysis pipeline execution
+      await triggerAnalysis(assessmentId);
+
+      // Step 3: Transition to honest processing / polling page
+      navigate(`/assessments/${assessmentId}/processing`);
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError) {
+        setUploadError({ message: err.message, isUnavailable: err.isUnavailable });
+      } else if (err instanceof Error) {
+        setUploadError({ message: err.message, isUnavailable: false });
+      } else {
+        setUploadError({ message: 'Failed to upload pursuit video or trigger analysis.', isUnavailable: true });
+      }
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const recordedVideo = recorder.recordedVideo;
@@ -129,6 +189,14 @@ export const PursuitTestPage: React.FC = () => {
             )}
           </div>
 
+          {uploadError && (
+            <ErrorAlert
+              message={uploadError.message}
+              isUnavailable={uploadError.isUnavailable}
+              onRetry={handleUploadAndAnalyze}
+            />
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             {/* Video preview */}
             <div className="bg-slate-950 rounded-xl overflow-hidden aspect-video border border-slate-800">
@@ -166,12 +234,9 @@ export const PursuitTestPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>
-                  <strong>Phase 2 Capture Complete:</strong> Both pupil-reflex and smooth-pursuit tests have produced decodable video files and contract-compliant target trajectory metadata.
-                </span>
-              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Both test recordings are now ready. Clicking <strong>Upload &amp; Trigger Analysis</strong> will transmit the video files and trajectory coordinates to the backend to begin computer vision extraction.
+              </p>
 
               <div className="flex items-center gap-3 pt-2">
                 <button
@@ -180,19 +245,34 @@ export const PursuitTestPage: React.FC = () => {
                     recorder.discardRecording();
                     setIsFallbackMode(false);
                     setTrajectoryMetadata(null);
+                    setUploadError(null);
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm"
+                  disabled={isUploading}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm disabled:opacity-50"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   Discard &amp; Retake
                 </button>
 
-                <Link
-                  to={`/assessments/${assessmentId}/pupil-test`}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900"
+                <button
+                  type="button"
+                  onClick={handleUploadAndAnalyze}
+                  disabled={isUploading}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-colors ml-auto disabled:opacity-50"
                 >
-                  Review Pupil Test
-                </Link>
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Uploading &amp; Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <UploadCloud className="w-4 h-4" />
+                      Upload &amp; Trigger Analysis
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>

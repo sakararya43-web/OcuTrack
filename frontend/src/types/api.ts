@@ -76,6 +76,64 @@ export interface CreateAssessmentPayload {
   lighting_metadata?: LightingMetadata;
 }
 
+export interface FeatureValue {
+  value: number | null;
+  unit: string;
+  label: string;
+}
+
+export interface TimeSeriesPoint {
+  t_ms: number;
+  value: number | null;
+  valid: boolean;
+}
+
+export interface PursuitSeriesPoint {
+  t_ms: number;
+  target_x: number | null;
+  eye_x: number | null;
+  valid: boolean;
+}
+
+export interface QualityMetrics {
+  status: QualityStatus;
+  usable_frame_ratio?: number | null;
+  warnings: string[];
+}
+
+export interface PupilTestResult {
+  status: TestStatus;
+  features?: Record<string, FeatureValue>;
+  series?: TimeSeriesPoint[];
+}
+
+export interface PursuitTestResult {
+  status: TestStatus;
+  features?: Record<string, FeatureValue>;
+  series?: PursuitSeriesPoint[];
+}
+
+export interface TemporalModelResult {
+  status: ModelStatus;
+  model_name?: string;
+  model_version?: string;
+  output?: unknown;
+  notes?: string;
+}
+
+export interface FeatureDelta {
+  delta: number | null;
+  unit: string;
+  direction?: 'increased' | 'decreased' | 'stable' | 'unknown';
+}
+
+export interface LongitudinalComparisonResult {
+  status: ComparisonStatus;
+  baseline_id?: string | null;
+  comparability_reason?: string | null;
+  feature_deltas?: Record<string, FeatureDelta>;
+}
+
 export interface AssessmentSummary {
   assessment_id: string;
   patient_id: string;
@@ -85,6 +143,15 @@ export interface AssessmentSummary {
   protocol_version: string;
   warnings?: string[];
   review_message?: string;
+}
+
+export interface AssessmentDetail extends AssessmentSummary {
+  quality?: QualityMetrics;
+  pupil?: PupilTestResult;
+  pursuit?: PursuitTestResult;
+  temporal_model?: TemporalModelResult;
+  longitudinal_comparison?: LongitudinalComparisonResult;
+  non_diagnostic_notice?: string;
 }
 
 export interface HealthResponse {
