@@ -783,18 +783,18 @@ Do not commit empty routers, stub endpoints, fake analysis outputs, unused table
 
 ## 18. Final handoff checklist
 
-- [ ] FastAPI runs locally with documented commands.
-- [ ] Pydantic schemas match the shared integration contract.
-- [ ] Supabase schema and indexes are reproducible from SQL/migrations.
-- [ ] RLS is enabled and tested.
-- [ ] No database/service-role secrets are exposed to frontend.
-- [ ] Patient and consent endpoints work.
-- [ ] Assessment creation and video upload endpoints work.
-- [ ] Video validation and cleanup work on both success and error.
-- [ ] Analysis orchestrator calls Aditya's package, not a duplicate implementation.
-- [ ] Analysis results, feature units, quality warnings, and model status persist.
-- [ ] Longitudinal comparisons check protocol and measurement comparability.
-- [ ] Baseline feature deltas are calculated safely, including null/zero handling.
-- [ ] Response language remains neutral and non-diagnostic.
-- [ ] Unit, API integration, database, and longitudinal tests pass.
+- [x] FastAPI runs locally with documented commands.
+- [x] Pydantic schemas match the shared integration contract.
+- [x] Supabase schema and indexes are reproducible from SQL/migrations.
+- [x] RLS is enabled and tested.
+- [x] No database/service-role secrets are exposed to frontend.
+- [x] Patient and consent endpoints work.
+- [x] Assessment creation and video upload endpoints work.
+- [x] Video validation and cleanup work on both success and error.
+- [x] Analysis orchestrator calls Aditya's package, not a duplicate implementation.
+- [x] Analysis results, feature units, quality warnings, and model status persist.
+- [x] Longitudinal comparisons check protocol and measurement comparability.
+- [x] Baseline feature deltas are calculated safely, including null/zero handling.
+- [x] Response language remains neutral and non-diagnostic.
+- [x] Unit, API integration, database, and longitudinal tests pass.
 - [ ] Render deployment and local fallback instructions are documented.
