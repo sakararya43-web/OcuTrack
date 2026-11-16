@@ -15,6 +15,7 @@ from analysis.contracts import (
     to_json_serializable,
 )
 from analysis.frame_sampling import sample_frames
+from analysis.ml.inference import TemporalModelRunner
 from analysis.pupil_features import extract_pupil_features
 from analysis.pupil_tracking import PupilTracker
 from analysis.pursuit_tracking import PursuitTracker
@@ -269,6 +270,15 @@ def analyze_assessment(
             sum(usable_ratios) / len(usable_ratios) if usable_ratios else 0.0
         )
 
+    # Phase 4: Temporal Model Inference (Data-Gated)
+    weights_path = (model_config or {}).get("weights_path") if model_config else None
+    is_exp = bool((model_config or {}).get("enable_experimental_tcn", False)) if model_config else False
+    model_runner = TemporalModelRunner(weights_path=weights_path, is_experimental=is_exp)
+    temporal_model_result = model_runner.run_inference(
+        pupil_series=pupil_result.get("series"),
+        pursuit_series=pursuit_result.get("series"),
+    )
+
     output = {
         "pipeline_version": PIPELINE_VERSION,
         "quality": {
@@ -279,13 +289,7 @@ def analyze_assessment(
         },
         "pupil": pupil_result,
         "pursuit": pursuit_result,
-        "temporal_model": {
-            "status": ModelStatus.NOT_CONFIGURED.value,
-            "model_name": "ocutrack-tcn-experimental",
-            "model_version": None,
-            "output": None,
-            "notes": "Temporal TCN model not configured; Phase 3 physiological features and pursuit tracking active.",
-        },
+        "temporal_model": temporal_model_result,
         "warnings": warnings,
     }
 

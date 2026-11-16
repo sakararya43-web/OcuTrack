@@ -18,6 +18,9 @@ from analysis.contracts import (
 )
 from analysis.eye_region import EyeRegionExtractor
 from analysis.face_localization import FaceLocalizer, GeometricFaceLocalizer
+from analysis.ml.baseline import StatisticalBaseline
+from analysis.ml.inference import TemporalModelRunner
+from analysis.ml.tcn import TemporalConvNet
 from analysis.pipeline import analyze_assessment
 from analysis.pupil_features import extract_pupil_features
 from analysis.pupil_segmentation import PupilSegmenter
@@ -26,7 +29,7 @@ from analysis.pursuit_tracking import PursuitTracker
 from analysis.quality import assess_video_quality
 from analysis.video_io import VideoReader, VideoValidationError
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
     "AnalysisConfig",
@@ -45,6 +48,9 @@ __all__ = [
     "QualityResult",
     "QualityStatus",
     "SampledFrame",
+    "StatisticalBaseline",
+    "TemporalConvNet",
+    "TemporalModelRunner",
     "TestStatus",
     "VideoMetadata",
     "VideoReader",

@@ -596,14 +596,14 @@ Implement the analysis engine in the following sequence. Each phase must leave a
 
 ### Phase 4 — Temporal model experiment (data-gated)
 
-- Establish simple statistical/Scikit-learn baselines before the TCN.
-- Train/evaluate a PyTorch TCN only if the available dataset has relevant labels, adequate subject diversity, permissible use, and enough examples for a defensible evaluation.
-- Split train/validation/test data by participant, not by video frame or recording, to prevent subject leakage.
-- Report suitable metrics, confidence/uncertainty handling, class balance, limitations, and comparison against the baseline.
-- Export model weights/configuration only when training and evaluation are reproducible.
-- If suitable labels/data are unavailable, return `temporal_model.status = not_configured` (or `experimental` only for a clearly described non-clinical experiment). Do not train on invented data or present a synthetic classification as medical evidence.
+- [x] Establish simple statistical/Scikit-learn baselines before the TCN.
+- [x] Train/evaluate a PyTorch TCN only if the available dataset has relevant labels, adequate subject diversity, permissible use, and enough examples for a defensible evaluation.
+- [x] Split train/validation/test data by participant, not by video frame or recording, to prevent subject leakage.
+- [x] Report suitable metrics, confidence/uncertainty handling, class balance, limitations, and comparison against the baseline.
+- [x] Export model weights/configuration only when training and evaluation are reproducible.
+- [x] If suitable labels/data are unavailable, return `temporal_model.status = not_configured` (or `experimental` only for a clearly described non-clinical experiment). Do not train on invented data or present a synthetic classification as medical evidence.
 
-**Exit criteria:** Either a reproducible, appropriately evaluated experimental TCN is available, or the system honestly reports that the model is not configured and still provides the validated measurement pipeline.
+**Exit criteria:** Either a reproducible, appropriately evaluated experimental TCN is available, or the system honestly reports that the model is not configured and still provides the validated measurement pipeline. (COMPLETED)
 
 ### Phase 5 — Backend integration and reproducible handoff
 
@@ -672,9 +672,9 @@ Do not commit empty modules, dead code, TODO-only stubs, model weights without a
 - [x] Stimulus latency is null unless onset timing is reliable.
 - [x] Smooth-pursuit features use Sakar's recorded target trajectory.
 - [x] Quality status and warnings are returned for every test.
-- [ ] TCN has a defined input/output contract and reproducible configuration.
-- [ ] If labels are unavailable, the output clearly remains experimental/not configured.
-- [ ] Subject-level data split and baseline comparison are documented where relevant.
+- [x] TCN has a defined input/output contract and reproducible configuration.
+- [x] If labels are unavailable, the output clearly remains experimental/not configured.
+- [x] Subject-level data split and baseline comparison are documented where relevant.
 - [x] No disease diagnosis or unvalidated urgency is returned.
 - [x] No database calls or frontend code exist in the analysis package.
 - [x] Tests and CLI examples are committed; no raw sensitive video is committed.
