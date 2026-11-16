@@ -18,10 +18,6 @@
 **AI for Medicine: A Global Student Hackathon on the Future of Care**  
 *Track: Ocular Biometrics, Neurology & Longitudinal Change Monitoring*
 
-### [Open the Repeatable Demo Guide &rarr;](docs/demo-guide.md)
-
-A standardized, repeatable browser demonstration designed for laptops with a webcam. Includes an explicitly labelled **calibrated benchmark sample fallback** for environments lacking uniform lighting. To run the full stack locally, see [Run It Yourself](#run-it-yourself).
-
 </div>
 
 ---
