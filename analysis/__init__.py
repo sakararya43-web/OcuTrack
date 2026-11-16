@@ -28,6 +28,7 @@ from analysis.pupil_tracking import PupilTracker
 from analysis.pursuit_tracking import PursuitTracker
 from analysis.quality import assess_video_quality
 from analysis.video_io import VideoReader, VideoValidationError
+from analysis.visualization import plot_pupil_response, plot_pursuit_tracking
 
 __version__ = "0.4.0"
 
@@ -58,4 +59,6 @@ __all__ = [
     "analyze_assessment",
     "assess_video_quality",
     "extract_pupil_features",
+    "plot_pupil_response",
+    "plot_pursuit_tracking",
 ]

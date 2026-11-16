@@ -247,3 +247,32 @@ def test_cli_produces_identical_schema_to_direct_python_call(
     assert cli_out["pupil"]["status"] == direct_out["pupil"]["status"]
     assert cli_out["pursuit"]["status"] == direct_out["pursuit"]["status"]
     assert cli_out["temporal_model"]["status"] == direct_out["temporal_model"]["status"]
+
+
+def test_cli_save_plots_generates_debug_figures(
+    pupil_video: Path,
+    pursuit_video: Path,
+    temp_dir: Path,
+):
+    """Verifies that running CLI with --save-plots exports PNG visualizations."""
+    plots_dir = temp_dir / "plots"
+    cmd = [
+        sys.executable,
+        "-m",
+        "analysis.cli",
+        "--pupil",
+        str(pupil_video),
+        "--pursuit",
+        str(pursuit_video),
+        "--save-plots",
+        str(plots_dir),
+        "--json",
+    ]
+
+    subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+    pupil_plot = plots_dir / "pupil_response_plot.png"
+    pursuit_plot = plots_dir / "pursuit_tracking_plot.png"
+
+    assert pupil_plot.exists() and pupil_plot.stat().st_size > 1000
+    assert pursuit_plot.exists() and pursuit_plot.stat().st_size > 1000

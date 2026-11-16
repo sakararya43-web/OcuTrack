@@ -20,6 +20,7 @@ from analysis.pupil_tracking import PupilTracker
 from analysis.pursuit_tracking import PursuitTracker
 from analysis.quality import assess_video_quality
 from analysis.video_io import VideoReader
+from analysis.visualization import plot_pupil_response, plot_pursuit_tracking
 
 
 def _load_metadata(raw_arg: Optional[str]) -> Optional[Dict[str, Any]]:
@@ -91,6 +92,11 @@ def main() -> int:
         "--debug-frames-dir",
         type=str,
         help="Directory path to save annotated visual debug frames.",
+    )
+    parser.add_argument(
+        "--save-plots",
+        type=str,
+        help="Directory path to save time-series debug plots (pupil response and pursuit tracking).",
     )
     parser.add_argument(
         "--json",
@@ -180,6 +186,26 @@ def main() -> int:
                     print(f"  - {fv['label']:26s}: {val_str}")
             print("==================================================")
 
+        if args.save_plots:
+            plot_dir = Path(args.save_plots)
+            plot_dir.mkdir(parents=True, exist_ok=True)
+            if result.get("pupil", {}).get("series"):
+                p_path = plot_pupil_response(
+                    result["pupil"]["series"],
+                    result["pupil"].get("features"),
+                    output_path=plot_dir / "pupil_response_plot.png",
+                )
+                if not args.json:
+                    print(f"Pupil plot saved to   : {p_path}")
+            if result.get("pursuit", {}).get("series"):
+                pu_path = plot_pursuit_tracking(
+                    result["pursuit"]["series"],
+                    result["pursuit"].get("features"),
+                    output_path=plot_dir / "pursuit_tracking_plot.png",
+                )
+                if not args.json:
+                    print(f"Pursuit plot saved to : {pu_path}")
+
         return 0 if result["quality"]["status"] == QualityStatus.ACCEPTABLE.value else 1
 
     # Mode 2: Pupil tracking on single video
@@ -234,6 +260,16 @@ def main() -> int:
             if debug_dir:
                 print(f"Debug Frames Saved : {debug_dir}")
             print("==================================================")
+
+        if args.save_plots:
+            plot_dir = Path(args.save_plots)
+            plot_dir.mkdir(parents=True, exist_ok=True)
+            p_path = plot_pupil_response(
+                summary["series"],
+                output_path=plot_dir / "pupil_response_plot.png",
+            )
+            if not args.json:
+                print(f"Pupil plot saved to   : {p_path}")
 
         return 0 if valid_count > 0 else 1
 
@@ -297,6 +333,17 @@ def main() -> int:
             if debug_dir:
                 print(f"Debug Frames Saved : {debug_dir}")
             print("==================================================")
+
+        if args.save_plots:
+            plot_dir = Path(args.save_plots)
+            plot_dir.mkdir(parents=True, exist_ok=True)
+            pu_path = plot_pursuit_tracking(
+                summary["series"],
+                summary.get("features"),
+                output_path=plot_dir / "pursuit_tracking_plot.png",
+            )
+            if not args.json:
+                print(f"Pursuit plot saved to : {pu_path}")
 
         return 0 if valid_count > 0 else 1
 
