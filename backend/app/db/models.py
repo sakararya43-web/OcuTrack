@@ -97,6 +97,13 @@ class AssessmentModel(Base):
         cascade="all, delete-orphan",
         order_by="desc(ModelRunModel.created_at)",
     )
+    comparisons = relationship(
+        "ComparisonModel",
+        foreign_keys="ComparisonModel.current_assessment_id",
+        back_populates="current_assessment",
+        cascade="all, delete-orphan",
+        order_by="desc(ComparisonModel.created_at)",
+    )
 
 
 class MeasurementModel(Base):
@@ -128,4 +135,23 @@ class ModelRunModel(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     assessment = relationship("AssessmentModel", back_populates="model_runs")
+
+
+class ComparisonModel(Base):
+    __tablename__ = "comparisons"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    patient_id = Column(String(36), ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
+    current_assessment_id = Column(String(36), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False, index=True)
+    baseline_assessment_id = Column(String(36), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
+    comparable = Column(Boolean, nullable=False, default=False)
+    feature_deltas = Column(JSON, nullable=True)
+    reason = Column(Text, nullable=True)
+    review_message = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    patient = relationship("PatientModel")
+    current_assessment = relationship("AssessmentModel", foreign_keys=[current_assessment_id], back_populates="comparisons")
+    baseline_assessment = relationship("AssessmentModel", foreign_keys=[baseline_assessment_id])
+
 

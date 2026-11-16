@@ -793,8 +793,8 @@ Do not commit empty routers, stub endpoints, fake analysis outputs, unused table
 - [x] Video validation and cleanup work on both success and error.
 - [x] Analysis orchestrator calls Aditya's package, not a duplicate implementation.
 - [x] Analysis results, feature units, quality warnings, and model status persist.
-- [ ] Longitudinal comparisons check protocol and measurement comparability.
-- [ ] Baseline feature deltas are calculated safely, including null/zero handling.
-- [ ] Response language remains neutral and non-diagnostic.
+- [x] Longitudinal comparisons check protocol and measurement comparability.
+- [x] Baseline feature deltas are calculated safely, including null/zero handling.
+- [x] Response language remains neutral and non-diagnostic.
 - [ ] Unit, API integration, database, and longitudinal tests pass.
 - [ ] Render deployment and local fallback instructions are documented.

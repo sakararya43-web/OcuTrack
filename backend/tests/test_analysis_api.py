@@ -152,7 +152,7 @@ def test_analyze_success_and_persistence(
     assert data["assessment_id"] == asm_id
     assert data["status"] == "complete"
     assert data["quality_status"] == "acceptable"
-    assert data["review_message"] == "Recording quality acceptable."
+    assert "Baseline established" in data["review_message"]
     assert "not a diagnostic device" in data["non_diagnostic_notice"].lower()
 
     # Verify features in response

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 
 from app.db.connection import get_db
@@ -20,6 +21,7 @@ from app.schemas.assessments import (
     TemporalModelResult,
     LongitudinalComparisonResult,
     FeatureValue,
+    FeatureDelta,
 )
 from app.core.errors import NotFoundError, ValidationError
 from app.services.upload_service import (
@@ -28,6 +30,7 @@ from app.services.upload_service import (
     cleanup_file,
 )
 from app.services.analysis_orchestrator import orchestrate_analysis
+from app.longitudinal.comparison import evaluate_longitudinal_comparison
 
 router = APIRouter(prefix="/assessments", tags=["Assessments"])
 
@@ -96,6 +99,36 @@ def build_assessment_detail(assessment: AssessmentModel) -> AssessmentDetail:
             notes="Experimental model output; not clinically validated.",
         )
 
+    # Longitudinal comparison mapping
+    longitudinal_res = LongitudinalComparisonResult(status=ComparisonStatus.NOT_AVAILABLE)
+    if assessment.comparisons:
+        latest_comp = assessment.comparisons[0]
+        comp_status = (
+            ComparisonStatus.COMPARABLE
+            if latest_comp.comparable
+            else ComparisonStatus.NOT_COMPARABLE
+        )
+        deltas = {}
+        for feat_name, d_val in (latest_comp.feature_deltas or {}).items():
+            deltas[feat_name] = FeatureDelta(
+                delta=d_val.get("delta"),
+                unit=d_val.get("unit", ""),
+                direction=d_val.get("direction"),
+            )
+        longitudinal_res = LongitudinalComparisonResult(
+            status=comp_status,
+            baseline_id=latest_comp.baseline_assessment_id,
+            comparability_reason=latest_comp.reason,
+            feature_deltas=deltas,
+        )
+    elif assessment.is_baseline:
+        longitudinal_res = LongitudinalComparisonResult(
+            status=ComparisonStatus.NOT_AVAILABLE,
+            baseline_id=assessment.id,
+            comparability_reason="First visit: baseline established.",
+            feature_deltas={},
+        )
+
     return AssessmentDetail(
         assessment_id=assessment.id,
         patient_id=assessment.patient_id,
@@ -122,7 +155,7 @@ def build_assessment_detail(assessment: AssessmentModel) -> AssessmentDetail:
             series=pursuit_series,
         ),
         temporal_model=tm_result,
-        longitudinal_comparison=LongitudinalComparisonResult(status=ComparisonStatus.NOT_AVAILABLE),
+        longitudinal_comparison=longitudinal_res,
     )
 
 
@@ -264,4 +297,27 @@ def analyze_assessment_endpoint(
     """
     updated_assessment = orchestrate_analysis(assessment_id, db)
     return build_assessment_detail(updated_assessment)
+
+
+class CompareAssessmentPayload(BaseModel):
+    baseline_id: Optional[str] = None
+
+
+@router.post("/{assessment_id}/compare", response_model=AssessmentDetail, summary="Trigger longitudinal comparison")
+def compare_assessment_endpoint(
+    assessment_id: str,
+    payload: Optional[CompareAssessmentPayload] = None,
+    db: Session = Depends(get_db),
+):
+    """
+    Evaluates or re-evaluates longitudinal comparison against a baseline.
+    """
+    assessment = db.query(AssessmentModel).filter(AssessmentModel.id == assessment_id).first()
+    if not assessment:
+        raise NotFoundError(f"Assessment with ID '{assessment_id}' not found.")
+
+    preferred_baseline_id = payload.baseline_id if payload else None
+    evaluate_longitudinal_comparison(assessment, db, preferred_baseline_id=preferred_baseline_id)
+    return build_assessment_detail(assessment)
+
 

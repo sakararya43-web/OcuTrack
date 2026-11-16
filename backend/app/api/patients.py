@@ -19,6 +19,20 @@ def _build_patient_response(patient: PatientModel) -> PatientResponse:
     latest_consent = patient.consents[0] if patient.consents else None
     latest_assessment = patient.assessments[0] if patient.assessments else None
 
+    # Check whether any longitudinal comparison recorded a feature change
+    has_change = None
+    for a in (patient.assessments or []):
+        for c in (a.comparisons or []):
+            if c.comparable and c.feature_deltas:
+                for f_info in c.feature_deltas.values():
+                    if isinstance(f_info, dict) and f_info.get("direction") in ["increased", "decreased"]:
+                        has_change = True
+                        break
+        if has_change is True:
+            break
+    if has_change is None and len(patient.assessments or []) > 1:
+        has_change = False
+
     return PatientResponse(
         patient_id=patient.id,
         pseudonymous_code=patient.pseudonymous_code,
@@ -29,7 +43,7 @@ def _build_patient_response(patient: PatientModel) -> PatientResponse:
         created_at=patient.created_at,
         last_assessment_date=latest_assessment.assessment_at if latest_assessment else None,
         last_quality_status=latest_assessment.quality_status if latest_assessment else None,
-        feature_change_recorded=None,
+        feature_change_recorded=has_change,
         assessment_count=len(patient.assessments),
     )
 
@@ -116,17 +130,30 @@ def get_patient_history(patient_id: str, db: Session = Depends(get_db)):
         AssessmentModel.patient_id == patient_id
     ).order_by(AssessmentModel.assessment_at.desc()).all()
 
-    return [
-        AssessmentSummary(
-            assessment_id=a.id,
-            patient_id=a.patient_id,
-            status=a.status,
-            quality_status=a.quality_status,
-            assessment_at=a.assessment_at,
-            protocol_version=a.protocol_version,
-            warnings=[],
-            review_message=None,
-            features=None,
+    summaries = []
+    for a in assessments:
+        features_dict = {}
+        for m in (a.measurements or []):
+            if m.feature_name in ["constriction_latency", "latency_ms"]:
+                features_dict["latency_ms"] = m.feature_value
+            elif m.feature_name == "constriction_velocity":
+                features_dict["constriction_velocity"] = m.feature_value
+            elif m.feature_name == "tracking_gain":
+                features_dict["tracking_gain"] = m.feature_value
+            features_dict[m.feature_name] = m.feature_value
+
+        summaries.append(
+            AssessmentSummary(
+                assessment_id=a.id,
+                patient_id=a.patient_id,
+                status=a.status,
+                quality_status=a.quality_status,
+                assessment_at=a.assessment_at,
+                protocol_version=a.protocol_version,
+                warnings=a.warnings or [],
+                review_message=a.review_message,
+                features=features_dict if features_dict else None,
+            )
         )
-        for a in assessments
-    ]
+
+    return summaries

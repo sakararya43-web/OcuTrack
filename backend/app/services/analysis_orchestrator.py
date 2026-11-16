@@ -7,6 +7,7 @@ from app.core.errors import AppException, NotFoundError, ValidationError
 from app.db.models import AssessmentModel, MeasurementModel, ModelRunModel, utc_now
 from app.schemas.common import AssessmentStatus, QualityStatus, ModelStatus
 from app.services.upload_service import cleanup_file
+from app.longitudinal.comparison import evaluate_longitudinal_comparison
 
 # Check for Aditya's analysis package
 try:
@@ -180,6 +181,11 @@ def orchestrate_analysis(
         assessment.status = AssessmentStatus.COMPLETE.value
 
         db.commit()
+        db.refresh(assessment)
+
+        # 5. Longitudinal comparison against patient's baseline
+        evaluate_longitudinal_comparison(assessment, db)
+
         db.refresh(assessment)
         return assessment
 
