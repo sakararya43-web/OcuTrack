@@ -32,6 +32,67 @@ class ModelStatus(str, Enum):
     FAILED = "failed"
 
 
+class EyeSide(str, Enum):
+    LEFT = "left"
+    RIGHT = "right"
+    AUTO = "auto"
+
+
+@dataclass
+class FaceLocalizationResult:
+    """Localized facial and ocular boundaries extracted from a frame."""
+
+    face_detected: bool
+    face_count: int = 0
+    face_bbox: Optional[tuple[int, int, int, int]] = None  # (x, y, w, h)
+    left_eye_bbox: Optional[tuple[int, int, int, int]] = None
+    right_eye_bbox: Optional[tuple[int, int, int, int]] = None
+    left_eye_open_ratio: Optional[float] = None
+    right_eye_open_ratio: Optional[float] = None
+    head_yaw: Optional[float] = None
+    head_pitch: Optional[float] = None
+    landmarks_count: int = 0
+    detector_backend: str = "mediapipe"
+
+
+@dataclass
+class PupilMeasurement:
+    """Per-frame pupil localization and metric estimation."""
+
+    frame_index: int
+    t_ms: int
+    eye_side: str
+    center_x: Optional[float] = None
+    center_y: Optional[float] = None
+    crop_center_x: Optional[float] = None
+    crop_center_y: Optional[float] = None
+    diameter: Optional[float] = None
+    confidence: float = 0.0
+    valid: bool = True
+    error_reason: Optional[str] = None
+
+    def to_series_point(self) -> Dict[str, Any]:
+        """Converts to the schema series point for integration output."""
+        return {
+            "t_ms": int(self.t_ms),
+            "diameter": round(float(self.diameter), 2) if (self.valid and self.diameter is not None) else None,
+            "valid": bool(self.valid),
+        }
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "frame_index": int(self.frame_index),
+            "t_ms": int(self.t_ms),
+            "eye_side": self.eye_side,
+            "center_x": round(float(self.center_x), 2) if self.center_x is not None else None,
+            "center_y": round(float(self.center_y), 2) if self.center_y is not None else None,
+            "diameter": round(float(self.diameter), 2) if self.diameter is not None else None,
+            "confidence": round(float(self.confidence), 4),
+            "valid": bool(self.valid),
+            "error_reason": self.error_reason,
+        }
+
+
 @dataclass
 class VideoMetadata:
     """Metadata extracted during video decoding and probing."""
@@ -114,3 +175,4 @@ def to_json_serializable(val: Any) -> Any:
     if isinstance(val, np.ndarray):
         return [to_json_serializable(x) for x in val.tolist()]
     return str(val)
+

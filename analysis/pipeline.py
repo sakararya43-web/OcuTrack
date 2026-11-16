@@ -14,7 +14,10 @@ from analysis.contracts import (
     TestStatus,
     to_json_serializable,
 )
+from analysis.frame_sampling import sample_frames
+from analysis.pupil_tracking import PupilTracker
 from analysis.quality import assess_video_quality
+from analysis.video_io import VideoReader
 
 
 PIPELINE_VERSION = "0.1.0"
@@ -83,8 +86,8 @@ def analyze_assessment(
 ) -> Dict[str, Any]:
     """Top-level callable entry point for OcuTrack analysis engine.
 
-    Validates files, performs deterministic video decoding, frame sampling,
-    and recording-quality assessment. Never fabricates physiological measurements.
+    Validates files, decodes frames, performs eye localization and OpenCV pupil segmentation,
+    and returns a structured schema report. Never fabricates physiological measurements.
     """
     cfg = config or (
         AnalysisConfig.from_dict(model_config) if model_config else DEFAULT_CONFIG
@@ -114,11 +117,49 @@ def analyze_assessment(
                 "series": [],
             }
         else:
-            pupil_result = {
-                "status": TestStatus.COMPLETE.value,
-                "features": _empty_pupil_features(),
-                "series": [],
-            }
+            # Phase 2: Execute actual eye localization & pupil tracking
+            try:
+                with VideoReader(pupil_video_path, cfg) as reader:
+                    sampled_frames, total_read, _ = sample_frames(reader, cfg)
+                    preferred_eye = (pupil_metadata or {}).get("preferred_eye", "auto")
+                    tracker = PupilTracker(preferred_eye_side=preferred_eye)
+                    measurements = tracker.track_sequence(sampled_frames)
+
+                    series_data = [m.to_series_point() for m in measurements]
+                    valid_count = sum(1 for m in measurements if m.valid)
+                    total_pts = len(measurements)
+                    continuity = (valid_count / total_pts) if total_pts > 0 else 0.0
+
+                    quality_details["pupil"]["tracked_eye_side"] = tracker.tracked_eye_side
+                    quality_details["pupil"]["valid_pupil_frames"] = valid_count
+                    quality_details["pupil"]["total_pupil_frames"] = total_pts
+                    quality_details["pupil"]["pupil_tracking_continuity"] = round(continuity, 4)
+
+                    if valid_count == 0:
+                        pupil_result = {
+                            "status": TestStatus.INSUFFICIENT_QUALITY.value,
+                            "features": _empty_pupil_features(),
+                            "series": series_data,
+                        }
+                        warnings.append("[Pupil] Pupil localization failed across all sampled frames.")
+                    else:
+                        if continuity < 0.50:
+                            warnings.append(
+                                f"[Pupil] Low pupil tracking continuity: {continuity * 100:.1f}% valid frames."
+                            )
+
+                        pupil_result = {
+                            "status": TestStatus.COMPLETE.value,
+                            "features": _empty_pupil_features(),
+                            "series": series_data,
+                        }
+            except Exception as e:
+                pupil_result = {
+                    "status": TestStatus.FAILED.value,
+                    "features": _empty_pupil_features(),
+                    "series": [],
+                }
+                warnings.append(f"[Pupil] Pupil tracking pipeline error: {str(e)}")
     else:
         pupil_result = {
             "status": TestStatus.NOT_PROVIDED.value,
@@ -126,7 +167,7 @@ def analyze_assessment(
             "series": None,
         }
 
-    # Handle Pursuit Video
+    # Handle Pursuit Video (Phase 3 will add target kinematics)
     pursuit_quality_status = QualityStatus.ACCEPTABLE
     if pursuit_video_path is not None:
         pu_res = assess_video_quality(pursuit_video_path, cfg)
@@ -187,7 +228,7 @@ def analyze_assessment(
             "model_name": "ocutrack-tcn-experimental",
             "model_version": None,
             "output": None,
-            "notes": "Temporal TCN model not configured; video quality and frame ingestion active.",
+            "notes": "Temporal TCN model not configured; Phase 2 pupil tracking active.",
         },
         "warnings": warnings,
     }

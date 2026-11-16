@@ -45,11 +45,13 @@ def create_synthetic_video(
 
     try:
         for i in range(total_frames):
-            frame = np.zeros((height, width, 3), dtype=np.uint8)
-            # Draw moving circle to simulate visual content
-            cx = int((i / max(1, total_frames)) * (width - 100)) + 50
-            cy = height // 2
-            cv2.circle(frame, (cx, cy), 30, (255, 255, 255), -1)
+            frame = np.full((height, width, 3), 230, dtype=np.uint8)
+            # Draw face oval
+            fx, fy, fw, fh = int(width * 0.25), int(height * 0.15), int(width * 0.5), int(height * 0.7)
+            cv2.ellipse(frame, (fx + fw // 2, fy + fh // 2), (fw // 2, fh // 2), 0, 0, 360, (200, 180, 160), -1)
+            # Draw eyes with dark pupils
+            cv2.circle(frame, (fx + int(fw * 0.3), fy + int(fh * 0.35)), 12, (20, 20, 20), -1)
+            cv2.circle(frame, (fx + int(fw * 0.7), fy + int(fh * 0.35)), 12, (20, 20, 20), -1)
             writer.write(frame)
     finally:
         writer.release()
@@ -344,3 +346,4 @@ def test_cli_assessment_mode(valid_video: Path):
     data = json.loads(proc.stdout)
     assert data["pipeline_version"] == "0.1.0"
     assert data["quality"]["status"] == "acceptable"
+

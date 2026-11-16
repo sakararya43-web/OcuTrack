@@ -576,13 +576,13 @@ Implement the analysis engine in the following sequence. Each phase must leave a
 
 ### Phase 2 — Eye localization and pupil segmentation
 
-- Implement MediaPipe Face Landmarker or the agreed equivalent for face/eye localization.
-- Implement actual pupil-region segmentation/tracking with OpenCV; do not treat facial landmarks as a pupil boundary.
-- Handle no-face, closed-eye, occlusion, glare, low-resolution, and tracking-loss cases.
-- Produce timestamped per-frame pupil diameter/position values, validity flags, and optional annotated debug frames for development only.
-- Evaluate detections against a manually annotated subset where available.
+- [x] Implement MediaPipe Face Landmarker or the agreed equivalent for face/eye localization.
+- [x] Implement actual pupil-region segmentation/tracking with OpenCV; do not treat facial landmarks as a pupil boundary.
+- [x] Handle no-face, closed-eye, occlusion, glare, low-resolution, and tracking-loss cases.
+- [x] Produce timestamped per-frame pupil diameter/position values, validity flags, and optional annotated debug frames for development only.
+- [x] Evaluate detections against a manually annotated subset where available.
 
-**Exit criteria:** The pipeline can process the agreed sample recording and produce a pupil time series with explicit invalid frames and measurable evaluation evidence.
+**Exit criteria:** The pipeline can process the agreed sample recording and produce a pupil time series with explicit invalid frames and measurable evaluation evidence. (COMPLETED)
 
 ### Phase 3 — Physiological feature extraction and pursuit tracking
 
@@ -666,9 +666,9 @@ Do not commit empty modules, dead code, TODO-only stubs, model weights without a
 - [x] `analysis/pipeline.py` exposes the agreed callable entry point.
 - [x] `analysis/contracts.py` and example output match the integration contract.
 - [x] Video decoder validates format, duration, FPS, and frame count.
-- [ ] MediaPipe locates the face/eye region and handles no-face cases.
-- [ ] OpenCV estimates pupil region separately from MediaPipe landmarks.
-- [ ] Pupil time-series includes timestamps, validity, and unit metadata.
+- [x] MediaPipe locates the face/eye region and handles no-face cases.
+- [x] OpenCV estimates pupil region separately from MediaPipe landmarks.
+- [x] Pupil time-series includes timestamps, validity, and unit metadata.
 - [ ] Stimulus latency is null unless onset timing is reliable.
 - [ ] Smooth-pursuit features use Sakar's recorded target trajectory.
 - [x] Quality status and warnings are returned for every test.

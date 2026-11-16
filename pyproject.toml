@@ -19,3 +19,4 @@ ocutrack-analyze = "analysis.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["analysis*"]
+

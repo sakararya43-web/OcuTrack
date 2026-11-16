@@ -54,6 +54,10 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Model weights & task bundles
+*.task
+analysis/models/
+
 # Editor / OS files
 .vscode/
 .idea/

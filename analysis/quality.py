@@ -154,3 +154,4 @@ def assess_video_quality(
         warnings=warnings,
         details=details,
     )
+
