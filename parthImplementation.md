@@ -791,8 +791,8 @@ Do not commit empty routers, stub endpoints, fake analysis outputs, unused table
 - [x] Patient and consent endpoints work.
 - [x] Assessment creation and video upload endpoints work.
 - [x] Video validation and cleanup work on both success and error.
-- [ ] Analysis orchestrator calls Aditya's package, not a duplicate implementation.
-- [ ] Analysis results, feature units, quality warnings, and model status persist.
+- [x] Analysis orchestrator calls Aditya's package, not a duplicate implementation.
+- [x] Analysis results, feature units, quality warnings, and model status persist.
 - [ ] Longitudinal comparisons check protocol and measurement comparability.
 - [ ] Baseline feature deltas are calculated safely, including null/zero handling.
 - [ ] Response language remains neutral and non-diagnostic.

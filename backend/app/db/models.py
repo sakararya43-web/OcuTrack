@@ -6,6 +6,7 @@ from sqlalchemy import (
     Text,
     DateTime,
     Boolean,
+    Float,
     ForeignKey,
     JSON,
 )
@@ -84,3 +85,47 @@ class AssessmentModel(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     patient = relationship("PatientModel", back_populates="assessments")
+    measurements = relationship(
+        "MeasurementModel",
+        back_populates="assessment",
+        cascade="all, delete-orphan",
+        order_by="MeasurementModel.created_at",
+    )
+    model_runs = relationship(
+        "ModelRunModel",
+        back_populates="assessment",
+        cascade="all, delete-orphan",
+        order_by="desc(ModelRunModel.created_at)",
+    )
+
+
+class MeasurementModel(Base):
+    __tablename__ = "measurements"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    assessment_id = Column(String(36), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False, index=True)
+    test_type = Column(String(50), nullable=False)
+    feature_name = Column(String(100), nullable=False)
+    feature_value = Column(Float, nullable=True)
+    unit = Column(String(50), nullable=False)
+    series_data = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    assessment = relationship("AssessmentModel", back_populates="measurements")
+
+
+class ModelRunModel(Base):
+    __tablename__ = "model_runs"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    assessment_id = Column(String(36), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False, index=True)
+    model_name = Column(String(100), nullable=False)
+    model_version = Column(String(50), nullable=True)
+    input_schema_version = Column(String(50), nullable=False, default="v1")
+    status = Column(String(50), nullable=False)
+    output = Column(JSON, nullable=True)
+    evaluation_context = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    assessment = relationship("AssessmentModel", back_populates="model_runs")
+
