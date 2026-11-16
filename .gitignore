@@ -3,7 +3,6 @@ node_modules/
 dist/
 dist-ssr/
 *.local
-frontend/
 
 # Python dependencies & cache
 __pycache__/
@@ -43,6 +42,9 @@ tmp/
 
 # Build info & compiled configs
 *.tsbuildinfo
+frontend/*.d.ts
+frontend/vite.config.js
+frontend/vitest.config.js
 
 # Environment files
 .env

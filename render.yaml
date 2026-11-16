@@ -1,0 +1,33 @@
+# Render Blueprint Deployment Configuration for OcuTrack Backend
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: ocutrack-backend
+    runtime: python
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/health
+    plan: standard
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+      - key: APP_ENV
+        value: production
+      - key: FRONTEND_ORIGINS
+        sync: false
+        # e.g. "https://ocutrack.vercel.app,http://localhost:5173"
+      - key: DATABASE_URL
+        sync: false
+        # Supabase PostgreSQL connection string e.g. "postgresql://postgres:...@...supabase.co:5432/postgres"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: MAX_UPLOAD_MB
+        value: "50"
+      - key: MAX_VIDEO_SECONDS
+        value: "30"
+      - key: TEMP_UPLOAD_DIR
+        value: "/tmp/ocutrack"
