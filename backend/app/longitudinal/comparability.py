@@ -49,3 +49,4 @@ def check_comparability(
             return False, f"Measurement unit mismatch on feature '{name}' ({curr_features[name].unit} vs {base_features[name].unit})."
 
     return True, "Matching protocol version and acceptable recording quality."
+

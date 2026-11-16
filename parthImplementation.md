@@ -786,7 +786,7 @@ Do not commit empty routers, stub endpoints, fake analysis outputs, unused table
 - [x] FastAPI runs locally with documented commands.
 - [x] Pydantic schemas match the shared integration contract.
 - [x] Supabase schema and indexes are reproducible from SQL/migrations.
-- [ ] RLS is enabled and tested.
+- [x] RLS is enabled and tested.
 - [x] No database/service-role secrets are exposed to frontend.
 - [x] Patient and consent endpoints work.
 - [x] Assessment creation and video upload endpoints work.
@@ -796,5 +796,5 @@ Do not commit empty routers, stub endpoints, fake analysis outputs, unused table
 - [x] Longitudinal comparisons check protocol and measurement comparability.
 - [x] Baseline feature deltas are calculated safely, including null/zero handling.
 - [x] Response language remains neutral and non-diagnostic.
-- [ ] Unit, API integration, database, and longitudinal tests pass.
-- [ ] Render deployment and local fallback instructions are documented.
+- [x] Unit, API integration, database, and longitudinal tests pass.
+- [x] Render deployment and local fallback instructions are documented.
