@@ -40,7 +40,6 @@ tmp/
 *.webm
 *.mp4
 
-
 # Build info & compiled configs
 *.tsbuildinfo
 frontend/*.d.ts
@@ -56,6 +55,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Model weights & task bundles
+*.task
+analysis/models/
 
 # Editor / OS files
 .vscode/

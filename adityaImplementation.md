@@ -567,53 +567,53 @@ Implement the analysis engine in the following sequence. Each phase must leave a
 
 ### Phase 1 — Reliable video ingestion and quality assessment
 
-- Implement actual video validation, decoding, timestamp extraction, and deterministic frame sampling.
-- Handle missing, corrupt, unsupported, too-short, or low-frame-rate recordings with structured errors/statuses.
-- Measure usable-frame ratio and report quality warnings.
-- Provide a working CLI that analyzes a supplied video and prints the structured quality report.
+- [x] Implement actual video validation, decoding, timestamp extraction, and deterministic frame sampling.
+- [x] Handle missing, corrupt, unsupported, too-short, or low-frame-rate recordings with structured errors/statuses.
+- [x] Measure usable-frame ratio and report quality warnings.
+- [x] Provide a working CLI that analyzes a supplied video and prints the structured quality report.
 
-**Exit criteria:** A valid sample video and invalid sample videos produce deterministic, documented outputs; no CV or ML values are fabricated when decoding fails.
+**Exit criteria:** A valid sample video and invalid sample videos produce deterministic, documented outputs; no CV or ML values are fabricated when decoding fails. (COMPLETED)
 
 ### Phase 2 — Eye localization and pupil segmentation
 
-- Implement MediaPipe Face Landmarker or the agreed equivalent for face/eye localization.
-- Implement actual pupil-region segmentation/tracking with OpenCV; do not treat facial landmarks as a pupil boundary.
-- Handle no-face, closed-eye, occlusion, glare, low-resolution, and tracking-loss cases.
-- Produce timestamped per-frame pupil diameter/position values, validity flags, and optional annotated debug frames for development only.
-- Evaluate detections against a manually annotated subset where available.
+- [x] Implement MediaPipe Face Landmarker or the agreed equivalent for face/eye localization.
+- [x] Implement actual pupil-region segmentation/tracking with OpenCV; do not treat facial landmarks as a pupil boundary.
+- [x] Handle no-face, closed-eye, occlusion, glare, low-resolution, and tracking-loss cases.
+- [x] Produce timestamped per-frame pupil diameter/position values, validity flags, and optional annotated debug frames for development only.
+- [x] Evaluate detections against a manually annotated subset where available.
 
-**Exit criteria:** The pipeline can process the agreed sample recording and produce a pupil time series with explicit invalid frames and measurable evaluation evidence.
+**Exit criteria:** The pipeline can process the agreed sample recording and produce a pupil time series with explicit invalid frames and measurable evaluation evidence. (COMPLETED)
 
 ### Phase 3 — Physiological feature extraction and pursuit tracking
 
-- Calculate only features supported by the captured stimulus and reliable timestamps: baseline/minimum pupil size, constriction amplitude, latency when stimulus onset is known, and velocity with documented units.
-- Keep pixel/normalized measurements distinct; do not label pixels as millimetres without calibration.
-- Implement smooth-pursuit eye-position tracking and align it to Sakar's target trajectory metadata.
-- Calculate tracking error/continuity and candidate corrective movements with transparent definitions.
-- Return `null` plus a warning when timing, calibration, eye visibility, or target alignment is insufficient.
+- [x] Calculate only features supported by the captured stimulus and reliable timestamps: baseline/minimum pupil size, constriction amplitude, latency when stimulus onset is known, and velocity with documented units.
+- [x] Keep pixel/normalized measurements distinct; do not label pixels as millimetres without calibration.
+- [x] Implement smooth-pursuit eye-position tracking and align it to Sakar's target trajectory metadata.
+- [x] Calculate tracking error/continuity and candidate corrective movements with transparent definitions.
+- [x] Return `null` plus a warning when timing, calibration, eye visibility, or target alignment is insufficient.
 
-**Exit criteria:** Feature definitions, units, formulas, test coverage, and output series are documented; sample CLI output is valid JSON matching the agreed schema.
+**Exit criteria:** Feature definitions, units, formulas, test coverage, and output series are documented; sample CLI output is valid JSON matching the agreed schema. (COMPLETED)
 
 ### Phase 4 — Temporal model experiment (data-gated)
 
-- Establish simple statistical/Scikit-learn baselines before the TCN.
-- Train/evaluate a PyTorch TCN only if the available dataset has relevant labels, adequate subject diversity, permissible use, and enough examples for a defensible evaluation.
-- Split train/validation/test data by participant, not by video frame or recording, to prevent subject leakage.
-- Report suitable metrics, confidence/uncertainty handling, class balance, limitations, and comparison against the baseline.
-- Export model weights/configuration only when training and evaluation are reproducible.
-- If suitable labels/data are unavailable, return `temporal_model.status = not_configured` (or `experimental` only for a clearly described non-clinical experiment). Do not train on invented data or present a synthetic classification as medical evidence.
+- [x] Establish simple statistical/Scikit-learn baselines before the TCN.
+- [x] Train/evaluate a PyTorch TCN only if the available dataset has relevant labels, adequate subject diversity, permissible use, and enough examples for a defensible evaluation.
+- [x] Split train/validation/test data by participant, not by video frame or recording, to prevent subject leakage.
+- [x] Report suitable metrics, confidence/uncertainty handling, class balance, limitations, and comparison against the baseline.
+- [x] Export model weights/configuration only when training and evaluation are reproducible.
+- [x] If suitable labels/data are unavailable, return `temporal_model.status = not_configured` (or `experimental` only for a clearly described non-clinical experiment). Do not train on invented data or present a synthetic classification as medical evidence.
 
-**Exit criteria:** Either a reproducible, appropriately evaluated experimental TCN is available, or the system honestly reports that the model is not configured and still provides the validated measurement pipeline.
+**Exit criteria:** Either a reproducible, appropriately evaluated experimental TCN is available, or the system honestly reports that the model is not configured and still provides the validated measurement pipeline. (COMPLETED)
 
 ### Phase 5 — Backend integration and reproducible handoff
 
-- Expose the agreed `analyze_assessment()` function and keep it free of HTTP, FastAPI, and database code.
-- Ensure every returned object is JSON-serializable and follows the shared schema exactly.
-- Add unit tests and a CLI invocation using the same configuration as the backend.
-- Coordinate a single integration test with Parth using a consented/synthetic non-identifying sample fixture.
-- Document runtime, dependencies, model version, supported video formats, feature units, quality limitations, and known failure modes.
+- [x] Expose the agreed `analyze_assessment()` function and keep it free of HTTP, FastAPI, and database code.
+- [x] Ensure every returned object is JSON-serializable and follows the shared schema exactly.
+- [x] Add unit tests and a CLI invocation using the same configuration as the backend.
+- [x] Coordinate a single integration test with Parth using a consented/synthetic non-identifying sample fixture.
+- [x] Document runtime, dependencies, model version, supported video formats, feature units, quality limitations, and known failure modes.
 
-**Exit criteria:** Parth can import and execute the analysis package without copying CV/ML code; the CLI and backend produce schema-compatible results.
+**Exit criteria:** Parth can import and execute the analysis package without copying CV/ML code; the CLI and backend produce schema-compatible results. (COMPLETED)
 
 ### Definition of done
 
@@ -663,18 +663,18 @@ Do not commit empty modules, dead code, TODO-only stubs, model weights without a
 
 ## 20. Final handoff checklist
 
-- [ ] `analysis/pipeline.py` exposes the agreed callable entry point.
-- [ ] `analysis/contracts.py` and example output match the integration contract.
-- [ ] Video decoder validates format, duration, FPS, and frame count.
-- [ ] MediaPipe locates the face/eye region and handles no-face cases.
-- [ ] OpenCV estimates pupil region separately from MediaPipe landmarks.
-- [ ] Pupil time-series includes timestamps, validity, and unit metadata.
-- [ ] Stimulus latency is null unless onset timing is reliable.
-- [ ] Smooth-pursuit features use Sakar's recorded target trajectory.
-- [ ] Quality status and warnings are returned for every test.
-- [ ] TCN has a defined input/output contract and reproducible configuration.
-- [ ] If labels are unavailable, the output clearly remains experimental/not configured.
-- [ ] Subject-level data split and baseline comparison are documented where relevant.
-- [ ] No disease diagnosis or unvalidated urgency is returned.
-- [ ] No database calls or frontend code exist in the analysis package.
-- [ ] Tests and CLI examples are committed; no raw sensitive video is committed.
+- [x] `analysis/pipeline.py` exposes the agreed callable entry point.
+- [x] `analysis/contracts.py` and example output match the integration contract.
+- [x] Video decoder validates format, duration, FPS, and frame count.
+- [x] MediaPipe locates the face/eye region and handles no-face cases.
+- [x] OpenCV estimates pupil region separately from MediaPipe landmarks.
+- [x] Pupil time-series includes timestamps, validity, and unit metadata.
+- [x] Stimulus latency is null unless onset timing is reliable.
+- [x] Smooth-pursuit features use Sakar's recorded target trajectory.
+- [x] Quality status and warnings are returned for every test.
+- [x] TCN has a defined input/output contract and reproducible configuration.
+- [x] If labels are unavailable, the output clearly remains experimental/not configured.
+- [x] Subject-level data split and baseline comparison are documented where relevant.
+- [x] No disease diagnosis or unvalidated urgency is returned.
+- [x] No database calls or frontend code exist in the analysis package.
+- [x] Tests and CLI examples are committed; no raw sensitive video is committed.
