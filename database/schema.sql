@@ -30,11 +30,18 @@ CREATE TABLE IF NOT EXISTS assessments (
     patient_id UUID NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
     assessment_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
     status TEXT NOT NULL DEFAULT 'created' CHECK (status IN ('created', 'uploaded', 'processing', 'complete', 'failed')),
+    test_type TEXT NOT NULL DEFAULT 'both' CHECK (test_type IN ('pupil_reflex', 'smooth_pursuit', 'both')),
     protocol_version TEXT NOT NULL DEFAULT 'ocutrack-protocol-0.1',
     device_metadata JSONB NULL,
     lighting_metadata JSONB NULL,
     quality_status TEXT NOT NULL DEFAULT 'pending' CHECK (quality_status IN ('pending', 'acceptable', 'insufficient')),
     is_baseline BOOLEAN NOT NULL DEFAULT false,
+    pupil_video_path TEXT NULL,
+    pursuit_video_path TEXT NULL,
+    pupil_metadata JSONB NULL,
+    pursuit_metadata JSONB NULL,
+    warnings JSONB NULL,
+    review_message TEXT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 

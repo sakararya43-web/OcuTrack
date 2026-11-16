@@ -64,11 +64,23 @@ class AssessmentModel(Base):
     patient_id = Column(String(36), ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
     assessment_at = Column(DateTime(timezone=True), default=utc_now, nullable=False, index=True)
     status = Column(String(50), nullable=False, default="created")
+    test_type = Column(String(50), nullable=False, default="both")
     protocol_version = Column(String(100), nullable=False, default="ocutrack-protocol-0.1")
     device_metadata = Column(JSON, nullable=True)
     lighting_metadata = Column(JSON, nullable=True)
     quality_status = Column(String(50), nullable=False, default="pending")
     is_baseline = Column(Boolean, nullable=False, default=False)
+    
+    # Upload tracking and temporary file paths
+    pupil_video_path = Column(String(500), nullable=True)
+    pursuit_video_path = Column(String(500), nullable=True)
+    pupil_metadata = Column(JSON, nullable=True)
+    pursuit_metadata = Column(JSON, nullable=True)
+    
+    # Analysis & report summary fields
+    warnings = Column(JSON, nullable=True, default=list)
+    review_message = Column(Text, nullable=True)
+
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     patient = relationship("PatientModel", back_populates="assessments")

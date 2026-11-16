@@ -35,6 +35,11 @@ wheels/
 htmlcov/
 *.db
 *.sqlite3
+backend/tmp/
+tmp/
+*.webm
+*.mp4
+
 
 # Build info & compiled configs
 *.tsbuildinfo
