@@ -797,4 +797,4 @@ Do not commit empty routers, stub endpoints, fake analysis outputs, unused table
 - [x] Baseline feature deltas are calculated safely, including null/zero handling.
 - [x] Response language remains neutral and non-diagnostic.
 - [x] Unit, API integration, database, and longitudinal tests pass.
-- [x] Render deployment and local fallback instructions are documented.
+- [ ] Render deployment and local fallback instructions are documented.
