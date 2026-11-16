@@ -567,12 +567,12 @@ Implement the analysis engine in the following sequence. Each phase must leave a
 
 ### Phase 1 — Reliable video ingestion and quality assessment
 
-- Implement actual video validation, decoding, timestamp extraction, and deterministic frame sampling.
-- Handle missing, corrupt, unsupported, too-short, or low-frame-rate recordings with structured errors/statuses.
-- Measure usable-frame ratio and report quality warnings.
-- Provide a working CLI that analyzes a supplied video and prints the structured quality report.
+- [x] Implement actual video validation, decoding, timestamp extraction, and deterministic frame sampling.
+- [x] Handle missing, corrupt, unsupported, too-short, or low-frame-rate recordings with structured errors/statuses.
+- [x] Measure usable-frame ratio and report quality warnings.
+- [x] Provide a working CLI that analyzes a supplied video and prints the structured quality report.
 
-**Exit criteria:** A valid sample video and invalid sample videos produce deterministic, documented outputs; no CV or ML values are fabricated when decoding fails.
+**Exit criteria:** A valid sample video and invalid sample videos produce deterministic, documented outputs; no CV or ML values are fabricated when decoding fails. (COMPLETED)
 
 ### Phase 2 — Eye localization and pupil segmentation
 
@@ -663,18 +663,18 @@ Do not commit empty modules, dead code, TODO-only stubs, model weights without a
 
 ## 20. Final handoff checklist
 
-- [ ] `analysis/pipeline.py` exposes the agreed callable entry point.
-- [ ] `analysis/contracts.py` and example output match the integration contract.
-- [ ] Video decoder validates format, duration, FPS, and frame count.
+- [x] `analysis/pipeline.py` exposes the agreed callable entry point.
+- [x] `analysis/contracts.py` and example output match the integration contract.
+- [x] Video decoder validates format, duration, FPS, and frame count.
 - [ ] MediaPipe locates the face/eye region and handles no-face cases.
 - [ ] OpenCV estimates pupil region separately from MediaPipe landmarks.
 - [ ] Pupil time-series includes timestamps, validity, and unit metadata.
 - [ ] Stimulus latency is null unless onset timing is reliable.
 - [ ] Smooth-pursuit features use Sakar's recorded target trajectory.
-- [ ] Quality status and warnings are returned for every test.
+- [x] Quality status and warnings are returned for every test.
 - [ ] TCN has a defined input/output contract and reproducible configuration.
 - [ ] If labels are unavailable, the output clearly remains experimental/not configured.
 - [ ] Subject-level data split and baseline comparison are documented where relevant.
-- [ ] No disease diagnosis or unvalidated urgency is returned.
-- [ ] No database calls or frontend code exist in the analysis package.
-- [ ] Tests and CLI examples are committed; no raw sensitive video is committed.
+- [x] No disease diagnosis or unvalidated urgency is returned.
+- [x] No database calls or frontend code exist in the analysis package.
+- [x] Tests and CLI examples are committed; no raw sensitive video is committed.
