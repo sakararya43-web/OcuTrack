@@ -94,6 +94,50 @@ class PupilMeasurement:
 
 
 @dataclass
+class PursuitMeasurement:
+    """Per-frame eye position, target alignment, and tracking error."""
+
+    frame_index: int
+    t_ms: int
+    eye_x: Optional[float] = None
+    eye_y: Optional[float] = None
+    target_x: Optional[float] = None
+    target_y: Optional[float] = None
+    tracking_error: Optional[float] = None
+    head_yaw: Optional[float] = None
+    head_pitch: Optional[float] = None
+    valid: bool = True
+    error_reason: Optional[str] = None
+
+    def to_series_point(self) -> Dict[str, Any]:
+        """Converts to the schema series point for integration output."""
+        return {
+            "t_ms": int(self.t_ms),
+            "eye_x": round(float(self.eye_x), 4) if (self.valid and self.eye_x is not None) else None,
+            "eye_y": round(float(self.eye_y), 4) if (self.valid and self.eye_y is not None) else None,
+            "target_x": round(float(self.target_x), 4) if self.target_x is not None else None,
+            "target_y": round(float(self.target_y), 4) if self.target_y is not None else None,
+            "tracking_error": round(float(self.tracking_error), 4) if (self.valid and self.tracking_error is not None) else None,
+            "valid": bool(self.valid),
+        }
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "frame_index": int(self.frame_index),
+            "t_ms": int(self.t_ms),
+            "eye_x": round(float(self.eye_x), 4) if self.eye_x is not None else None,
+            "eye_y": round(float(self.eye_y), 4) if self.eye_y is not None else None,
+            "target_x": round(float(self.target_x), 4) if self.target_x is not None else None,
+            "target_y": round(float(self.target_y), 4) if self.target_y is not None else None,
+            "tracking_error": round(float(self.tracking_error), 4) if self.tracking_error is not None else None,
+            "head_yaw": round(float(self.head_yaw), 1) if self.head_yaw is not None else None,
+            "head_pitch": round(float(self.head_pitch), 1) if self.head_pitch is not None else None,
+            "valid": bool(self.valid),
+            "error_reason": self.error_reason,
+        }
+
+
+@dataclass
 class VideoMetadata:
     """Metadata extracted during video decoding and probing."""
 

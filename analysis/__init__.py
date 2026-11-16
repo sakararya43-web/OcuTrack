@@ -9,6 +9,7 @@ from analysis.contracts import (
     FaceLocalizationResult,
     ModelStatus,
     PupilMeasurement,
+    PursuitMeasurement,
     QualityResult,
     QualityStatus,
     SampledFrame,
@@ -18,12 +19,14 @@ from analysis.contracts import (
 from analysis.eye_region import EyeRegionExtractor
 from analysis.face_localization import FaceLocalizer, GeometricFaceLocalizer
 from analysis.pipeline import analyze_assessment
+from analysis.pupil_features import extract_pupil_features
 from analysis.pupil_segmentation import PupilSegmenter
 from analysis.pupil_tracking import PupilTracker
+from analysis.pursuit_tracking import PursuitTracker
 from analysis.quality import assess_video_quality
 from analysis.video_io import VideoReader, VideoValidationError
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "AnalysisConfig",
@@ -37,6 +40,8 @@ __all__ = [
     "PupilMeasurement",
     "PupilSegmenter",
     "PupilTracker",
+    "PursuitMeasurement",
+    "PursuitTracker",
     "QualityResult",
     "QualityStatus",
     "SampledFrame",
@@ -46,4 +51,5 @@ __all__ = [
     "VideoValidationError",
     "analyze_assessment",
     "assess_video_quality",
+    "extract_pupil_features",
 ]

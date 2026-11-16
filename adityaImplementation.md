@@ -586,13 +586,13 @@ Implement the analysis engine in the following sequence. Each phase must leave a
 
 ### Phase 3 — Physiological feature extraction and pursuit tracking
 
-- Calculate only features supported by the captured stimulus and reliable timestamps: baseline/minimum pupil size, constriction amplitude, latency when stimulus onset is known, and velocity with documented units.
-- Keep pixel/normalized measurements distinct; do not label pixels as millimetres without calibration.
-- Implement smooth-pursuit eye-position tracking and align it to Sakar's target trajectory metadata.
-- Calculate tracking error/continuity and candidate corrective movements with transparent definitions.
-- Return `null` plus a warning when timing, calibration, eye visibility, or target alignment is insufficient.
+- [x] Calculate only features supported by the captured stimulus and reliable timestamps: baseline/minimum pupil size, constriction amplitude, latency when stimulus onset is known, and velocity with documented units.
+- [x] Keep pixel/normalized measurements distinct; do not label pixels as millimetres without calibration.
+- [x] Implement smooth-pursuit eye-position tracking and align it to Sakar's target trajectory metadata.
+- [x] Calculate tracking error/continuity and candidate corrective movements with transparent definitions.
+- [x] Return `null` plus a warning when timing, calibration, eye visibility, or target alignment is insufficient.
 
-**Exit criteria:** Feature definitions, units, formulas, test coverage, and output series are documented; sample CLI output is valid JSON matching the agreed schema.
+**Exit criteria:** Feature definitions, units, formulas, test coverage, and output series are documented; sample CLI output is valid JSON matching the agreed schema. (COMPLETED)
 
 ### Phase 4 — Temporal model experiment (data-gated)
 
@@ -669,8 +669,8 @@ Do not commit empty modules, dead code, TODO-only stubs, model weights without a
 - [x] MediaPipe locates the face/eye region and handles no-face cases.
 - [x] OpenCV estimates pupil region separately from MediaPipe landmarks.
 - [x] Pupil time-series includes timestamps, validity, and unit metadata.
-- [ ] Stimulus latency is null unless onset timing is reliable.
-- [ ] Smooth-pursuit features use Sakar's recorded target trajectory.
+- [x] Stimulus latency is null unless onset timing is reliable.
+- [x] Smooth-pursuit features use Sakar's recorded target trajectory.
 - [x] Quality status and warnings are returned for every test.
 - [ ] TCN has a defined input/output contract and reproducible configuration.
 - [ ] If labels are unavailable, the output clearly remains experimental/not configured.

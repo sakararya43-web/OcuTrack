@@ -253,16 +253,16 @@ def test_analyze_assessment_both_valid(valid_video: Path):
     assert output["pursuit"]["status"] == "complete"
     assert output["temporal_model"]["status"] == "not_configured"
 
-    # Verify no fabricated values
+    # Verify schema compliance and units
     for feat_name, feat_obj in output["pupil"]["features"].items():
-        assert feat_obj["value"] is None
         assert "unit" in feat_obj
         assert "label" in feat_obj
+        assert feat_obj["value"] is None or isinstance(feat_obj["value"], (int, float))
 
     for feat_name, feat_obj in output["pursuit"]["features"].items():
-        assert feat_obj["value"] is None
         assert "unit" in feat_obj
         assert "label" in feat_obj
+        assert feat_obj["value"] is None or isinstance(feat_obj["value"], (int, float))
 
 
 def test_analyze_assessment_pupil_only_valid(valid_video: Path):

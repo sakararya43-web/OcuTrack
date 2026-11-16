@@ -15,7 +15,9 @@ from analysis.contracts import (
     to_json_serializable,
 )
 from analysis.frame_sampling import sample_frames
+from analysis.pupil_features import extract_pupil_features
 from analysis.pupil_tracking import PupilTracker
+from analysis.pursuit_tracking import PursuitTracker
 from analysis.quality import assess_video_quality
 from analysis.video_io import VideoReader
 
@@ -148,9 +150,17 @@ def analyze_assessment(
                                 f"[Pupil] Low pupil tracking continuity: {continuity * 100:.1f}% valid frames."
                             )
 
+                        # Phase 3: Extract physiological pupil features
+                        pupil_feats, feat_warnings = extract_pupil_features(
+                            measurements=measurements,
+                            metadata=pupil_metadata,
+                            config=cfg,
+                        )
+                        warnings.extend(feat_warnings)
+
                         pupil_result = {
                             "status": TestStatus.COMPLETE.value,
-                            "features": _empty_pupil_features(),
+                            "features": pupil_feats,
                             "series": series_data,
                         }
             except Exception as e:
@@ -167,7 +177,7 @@ def analyze_assessment(
             "series": None,
         }
 
-    # Handle Pursuit Video (Phase 3 will add target kinematics)
+    # Handle Pursuit Video (Phase 3: Smooth-pursuit tracking & target alignment)
     pursuit_quality_status = QualityStatus.ACCEPTABLE
     if pursuit_video_path is not None:
         pu_res = assess_video_quality(pursuit_video_path, cfg)
@@ -183,11 +193,57 @@ def analyze_assessment(
                 "series": [],
             }
         else:
-            pursuit_result = {
-                "status": TestStatus.COMPLETE.value,
-                "features": _empty_pursuit_features(),
-                "series": [],
-            }
+            try:
+                with VideoReader(pursuit_video_path, cfg) as reader:
+                    sampled_frames, _, _ = sample_frames(reader, cfg)
+                    preferred_eye = (pursuit_metadata or {}).get("preferred_eye", "auto")
+                    tracker = PursuitTracker(preferred_eye_side=preferred_eye)
+                    raw_measurements = tracker.track_sequence(sampled_frames)
+
+                    pursuit_feats, aligned_measurements, pursuit_warnings = (
+                        PursuitTracker.align_and_extract_features(
+                            measurements=raw_measurements,
+                            metadata=pursuit_metadata,
+                            config=cfg,
+                        )
+                    )
+                    warnings.extend(pursuit_warnings)
+
+                    series_data = [m.to_series_point() for m in aligned_measurements]
+                    valid_count = sum(1 for m in aligned_measurements if m.valid and m.eye_x is not None)
+                    total_pts = len(aligned_measurements)
+                    continuity = (valid_count / total_pts) if total_pts > 0 else 0.0
+
+                    quality_details["pursuit"]["tracked_eye_side"] = tracker.tracked_eye_side
+                    quality_details["pursuit"]["valid_pursuit_frames"] = valid_count
+                    quality_details["pursuit"]["total_pursuit_frames"] = total_pts
+                    quality_details["pursuit"]["pursuit_tracking_continuity"] = round(continuity, 4)
+
+                    if valid_count == 0:
+                        pursuit_result = {
+                            "status": TestStatus.INSUFFICIENT_QUALITY.value,
+                            "features": _empty_pursuit_features(),
+                            "series": series_data,
+                        }
+                        warnings.append("[Pursuit] Eye localization failed across all sampled frames.")
+                    else:
+                        if continuity < 0.50:
+                            warnings.append(
+                                f"[Pursuit] Low pursuit tracking continuity: {continuity * 100:.1f}% valid frames."
+                            )
+
+                        pursuit_result = {
+                            "status": TestStatus.COMPLETE.value,
+                            "features": pursuit_feats,
+                            "series": series_data,
+                        }
+            except Exception as e:
+                pursuit_result = {
+                    "status": TestStatus.FAILED.value,
+                    "features": _empty_pursuit_features(),
+                    "series": [],
+                }
+                warnings.append(f"[Pursuit] Pursuit tracking pipeline error: {str(e)}")
     else:
         pursuit_result = {
             "status": TestStatus.NOT_PROVIDED.value,
@@ -228,7 +284,7 @@ def analyze_assessment(
             "model_name": "ocutrack-tcn-experimental",
             "model_version": None,
             "output": None,
-            "notes": "Temporal TCN model not configured; Phase 2 pupil tracking active.",
+            "notes": "Temporal TCN model not configured; Phase 3 physiological features and pursuit tracking active.",
         },
         "warnings": warnings,
     }
