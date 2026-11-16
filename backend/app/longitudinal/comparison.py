@@ -82,6 +82,7 @@ def calculate_feature_deltas(
             base_m = base_map[name]
             if curr_m.feature_value is not None and base_m.feature_value is not None:
                 delta = round(curr_m.feature_value - base_m.feature_value, 3)
+                pct_delta = round((delta / abs(base_m.feature_value)) * 100.0, 2) if base_m.feature_value != 0 else None
                 threshold = FEATURE_CHANGE_THRESHOLDS.get(name, 0.05)
 
                 if abs(delta) < threshold:
@@ -95,12 +96,14 @@ def calculate_feature_deltas(
 
                 feature_deltas[name] = {
                     "delta": delta,
+                    "percentage_delta": pct_delta,
                     "unit": curr_m.unit,
                     "direction": direction,
                 }
             else:
                 feature_deltas[name] = {
                     "delta": None,
+                    "percentage_delta": None,
                     "unit": curr_m.unit,
                     "direction": "unknown",
                 }

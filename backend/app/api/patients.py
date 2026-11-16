@@ -11,6 +11,7 @@ from app.schemas.patients import (
     AssessmentSummary,
 )
 from app.core.errors import NotFoundError, ConflictError
+from app.services.report_service import build_patient_history_summary
 
 router = APIRouter(prefix="/patients", tags=["Patients"])
 
@@ -130,30 +131,4 @@ def get_patient_history(patient_id: str, db: Session = Depends(get_db)):
         AssessmentModel.patient_id == patient_id
     ).order_by(AssessmentModel.assessment_at.desc()).all()
 
-    summaries = []
-    for a in assessments:
-        features_dict = {}
-        for m in (a.measurements or []):
-            if m.feature_name in ["constriction_latency", "latency_ms"]:
-                features_dict["latency_ms"] = m.feature_value
-            elif m.feature_name == "constriction_velocity":
-                features_dict["constriction_velocity"] = m.feature_value
-            elif m.feature_name == "tracking_gain":
-                features_dict["tracking_gain"] = m.feature_value
-            features_dict[m.feature_name] = m.feature_value
-
-        summaries.append(
-            AssessmentSummary(
-                assessment_id=a.id,
-                patient_id=a.patient_id,
-                status=a.status,
-                quality_status=a.quality_status,
-                assessment_at=a.assessment_at,
-                protocol_version=a.protocol_version,
-                warnings=a.warnings or [],
-                review_message=a.review_message,
-                features=features_dict if features_dict else None,
-            )
-        )
-
-    return summaries
+    return [build_patient_history_summary(a) for a in assessments]
