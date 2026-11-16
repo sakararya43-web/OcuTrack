@@ -783,12 +783,12 @@ Do not commit empty routers, stub endpoints, fake analysis outputs, unused table
 
 ## 18. Final handoff checklist
 
-- [ ] FastAPI runs locally with documented commands.
-- [ ] Pydantic schemas match the shared integration contract.
-- [ ] Supabase schema and indexes are reproducible from SQL/migrations.
+- [x] FastAPI runs locally with documented commands.
+- [x] Pydantic schemas match the shared integration contract.
+- [x] Supabase schema and indexes are reproducible from SQL/migrations.
 - [ ] RLS is enabled and tested.
-- [ ] No database/service-role secrets are exposed to frontend.
-- [ ] Patient and consent endpoints work.
+- [x] No database/service-role secrets are exposed to frontend.
+- [x] Patient and consent endpoints work.
 - [ ] Assessment creation and video upload endpoints work.
 - [ ] Video validation and cleanup work on both success and error.
 - [ ] Analysis orchestrator calls Aditya's package, not a duplicate implementation.
