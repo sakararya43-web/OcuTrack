@@ -124,6 +124,18 @@ def build_assessment_detail(assessment: AssessmentModel) -> AssessmentDetail:
             feature_deltas={},
         )
 
+    # Extract usable_frame_ratio if available from metadata or measurements
+    usable_ratio = None
+    if assessment.pupil_metadata and isinstance(assessment.pupil_metadata, dict):
+        usable_ratio = assessment.pupil_metadata.get("usable_frame_ratio")
+    elif assessment.device_metadata and isinstance(assessment.device_metadata, dict):
+        usable_ratio = assessment.device_metadata.get("usable_frame_ratio")
+    if usable_ratio is None:
+        for m in (assessment.measurements or []):
+            if m.feature_name == "usable_frame_ratio":
+                usable_ratio = m.feature_value
+                break
+
     return AssessmentDetail(
         assessment_id=assessment.id,
         patient_id=assessment.patient_id,
@@ -137,8 +149,8 @@ def build_assessment_detail(assessment: AssessmentModel) -> AssessmentDetail:
         features=features_summary if features_summary else None,
         quality=QualityMetrics(
             status=QualityStatus(assessment.quality_status),
-            usable_frame_ratio=None,
-            warnings=[],
+            usable_frame_ratio=usable_ratio,
+            warnings=assessment.warnings or [],
         ),
         pupil=PupilTestResult(
             status=pupil_status,

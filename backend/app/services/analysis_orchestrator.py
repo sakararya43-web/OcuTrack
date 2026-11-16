@@ -113,6 +113,10 @@ def orchestrate_analysis(
         assessment.quality_status = (
             q_status_str if q_status_str in QualityStatus._value2member_map_ else QualityStatus.PENDING.value
         )
+        if quality_data.get("usable_frame_ratio") is not None:
+            curr_pupil_meta = dict(assessment.pupil_metadata or {})
+            curr_pupil_meta["usable_frame_ratio"] = quality_data.get("usable_frame_ratio")
+            assessment.pupil_metadata = curr_pupil_meta
 
         # 2. Clear old measurements and persist new
         db.query(MeasurementModel).filter(MeasurementModel.assessment_id == assessment.id).delete()

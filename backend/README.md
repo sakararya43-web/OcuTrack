@@ -85,7 +85,7 @@ From the `backend` directory:
 pytest -v
 ```
 
-All 35+ unit and integration tests cover health, patient lifecycle, video validation, temporary cleanup, analysis orchestration, and longitudinal comparisons.
+All 43+ unit and integration tests cover health, patient lifecycle, video validation, temporary cleanup, analysis orchestration, security isolation, and longitudinal comparisons.
 
 ## Deployment to Render
 

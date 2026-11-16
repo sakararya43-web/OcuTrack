@@ -114,3 +114,25 @@ def test_cleanup_file_utility():
     assert test_file.exists()
     assert cleanup_file(str(test_file)) is True
     assert not test_file.exists()
+
+
+def test_frontend_has_no_service_role_or_database_secrets():
+    """Verifies that no backend service role or database secrets exist in frontend files."""
+    frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
+    if not frontend_dir.exists():
+        return
+
+    forbidden_patterns = [
+        "service_role",
+        "supabase_service_role_key",
+        "postgresql://",
+        "postgres://",
+    ]
+
+    for ext in ["*.env*", "*.ts", "*.tsx", "*.js", "*.html"]:
+        for file_path in frontend_dir.rglob(ext):
+            if "node_modules" in file_path.parts:
+                continue
+            content = file_path.read_text(encoding="utf-8", errors="ignore").lower()
+            for pattern in forbidden_patterns:
+                assert pattern not in content, f"Forbidden secret '{pattern}' detected in {file_path}"

@@ -6,7 +6,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.db.models import AssessmentModel, MeasurementModel, ModelRunModel
-from app.services.analysis_orchestrator import set_analysis_engine, reset_analysis_engine
+from app.services.analysis_orchestrator import (
+    set_analysis_engine,
+    reset_analysis_engine,
+    ANALYSIS_ENGINE_AVAILABLE,
+)
 from tests.test_assessments import generate_test_video_bytes
 
 
@@ -152,6 +156,8 @@ def test_analyze_success_and_persistence(
     assert data["assessment_id"] == asm_id
     assert data["status"] == "complete"
     assert data["quality_status"] == "acceptable"
+    assert data["quality"]["status"] == "acceptable"
+    assert data["quality"]["usable_frame_ratio"] == 0.942
     assert "Baseline established" in data["review_message"]
     assert "not a diagnostic device" in data["non_diagnostic_notice"].lower()
 
@@ -220,3 +226,22 @@ def test_analyze_pipeline_exception_sets_failed_and_cleans_up(
     # Verify temporary video files are cleaned up even on exception
     assert not Path(pupil_file).exists()
     assert not Path(pursuit_file).exists()
+
+
+@pytest.mark.skipif(
+    not ANALYSIS_ENGINE_AVAILABLE,
+    reason="Aditya's analysis package not yet installed or merged into main",
+)
+def test_aditya_real_analysis_engine_integration(client: TestClient, uploaded_assessment: dict):
+    """
+    Direct integration test against Aditya's actual analysis package.
+    Automatically activates when Aditya's package is installed/merged.
+    """
+    asm_id = uploaded_assessment["assessment_id"]
+    reset_analysis_engine()
+
+    response = client.post(f"/api/assessments/{asm_id}/analyze")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["assessment_id"] == asm_id
+    assert data["status"] in ["complete", "failed"]
