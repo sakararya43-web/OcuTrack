@@ -42,6 +42,27 @@ def assess_video_quality(
     # 2. Decoder initialization
     try:
         reader = VideoReader(path, cfg)
+        with reader:
+            try:
+                meta = reader.probe_metadata()
+            except Exception as e:
+                return QualityResult(
+                    status=QualityStatus.INSUFFICIENT,
+                    usable_frame_ratio=0.0,
+                    warnings=[f"Failed to probe video stream metadata: {str(e)}"],
+                    details={"path": str(path), "file_size_bytes": file_size},
+                )
+
+            # 3. Sample frames and detect corruption/dropped frames
+            try:
+                sampled, total_read, corrupt_count = sample_frames(reader, cfg)
+            except Exception as e:
+                return QualityResult(
+                    status=QualityStatus.INSUFFICIENT,
+                    usable_frame_ratio=0.0,
+                    warnings=[f"Error occurred during frame decoding: {str(e)}"],
+                    details=meta.to_dict(),
+                )
     except VideoValidationError as e:
         return QualityResult(
             status=QualityStatus.INSUFFICIENT,
@@ -49,28 +70,13 @@ def assess_video_quality(
             warnings=[f"Failed to initialize video decoder: {str(e)}"],
             details={"path": str(path), "file_size_bytes": file_size},
         )
-
-    with reader:
-        try:
-            meta = reader.probe_metadata()
-        except Exception as e:
-            return QualityResult(
-                status=QualityStatus.INSUFFICIENT,
-                usable_frame_ratio=0.0,
-                warnings=[f"Failed to probe video stream metadata: {str(e)}"],
-                details={"path": str(path), "file_size_bytes": file_size},
-            )
-
-        # 3. Sample frames and detect corruption/dropped frames
-        try:
-            sampled, total_read, corrupt_count = sample_frames(reader, cfg)
-        except Exception as e:
-            return QualityResult(
-                status=QualityStatus.INSUFFICIENT,
-                usable_frame_ratio=0.0,
-                warnings=[f"Error occurred during frame decoding: {str(e)}"],
-                details=meta.to_dict(),
-            )
+    except Exception as e:
+        return QualityResult(
+            status=QualityStatus.INSUFFICIENT,
+            usable_frame_ratio=0.0,
+            warnings=[f"Failed to initialize video decoder: {str(e)}"],
+            details={"path": str(path), "file_size_bytes": file_size},
+        )
 
     # 4. Compute usable frame ratio
     if total_read > 0:
