@@ -11,7 +11,7 @@ import {
 import { PursuitSeriesPoint } from '../../types/api';
 
 interface SmoothPursuitChartProps {
-  series?: PursuitSeriesPoint[];
+  series?: PursuitSeriesPoint[] | null;
   className?: string;
 }
 

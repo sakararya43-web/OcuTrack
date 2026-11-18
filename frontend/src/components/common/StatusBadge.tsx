@@ -1,119 +1,130 @@
 import React from 'react';
-import { QualityStatus, AssessmentStatus } from '../../types/api';
+import { QualityStatus, AssessmentStatus, ConsentStatus } from '../../types/api';
 import { formatStatusLabel } from '../../lib/formatters';
+import { Badge } from '../ui/Badge';
 
 interface StatusBadgeProps {
   type: 'quality' | 'assessment' | 'consent' | 'change';
-  status?: QualityStatus | AssessmentStatus | 'granted' | 'denied' | boolean | null;
+  status?: QualityStatus | AssessmentStatus | ConsentStatus | boolean | null;
   className?: string;
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, status, className = '' }) => {
   if (status === null || status === undefined) {
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 ${className}`}>
+      <Badge variant="default" className={className}>
         Not available
-      </span>
+      </Badge>
     );
   }
 
-  // Quality Status: acceptable, insufficient, pending
   if (type === 'quality') {
     switch (status) {
       case 'acceptable':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-50 text-teal-800 border border-teal-200 ${className}`}>
+          <Badge variant="teal" className={className}>
             Quality Acceptable
-          </span>
+          </Badge>
         );
       case 'insufficient':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200 ${className}`}>
+          <Badge variant="destructive" className={className}>
             Quality Insufficient
-          </span>
+          </Badge>
         );
       case 'pending':
       default:
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 ${className}`}>
+          <Badge variant="default" className={className}>
             Quality Pending
-          </span>
+          </Badge>
         );
     }
   }
 
-  // Assessment Status: created, uploaded, processing, complete, failed
   if (type === 'assessment') {
     switch (status) {
       case 'complete':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800 border border-slate-300 ${className}`}>
+          <Badge variant="teal" className={className}>
             Completed
-          </span>
+          </Badge>
         );
       case 'processing':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-50 text-sky-800 border border-sky-200 animate-pulse ${className}`}>
+          <Badge variant="medical" className={className}>
             Processing
-          </span>
+          </Badge>
         );
       case 'uploaded':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-800 border border-indigo-200 ${className}`}>
+          <Badge variant="medical" className={className}>
             Uploaded
-          </span>
+          </Badge>
         );
       case 'failed':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-800 border border-rose-200 ${className}`}>
+          <Badge variant="destructive" className={className}>
             Failed
-          </span>
+          </Badge>
         );
       case 'created':
       default:
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 ${className}`}>
+          <Badge variant="default" className={className}>
             Created
-          </span>
+          </Badge>
         );
     }
   }
 
-  // Consent Status: granted, denied
   if (type === 'consent') {
     if (status === 'granted') {
       return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 ${className}`}>
+        <Badge variant="teal" className={className}>
           Consent Confirmed
-        </span>
+        </Badge>
+      );
+    }
+    if (status === 'withdrawn') {
+      return (
+        <Badge variant="destructive" className={className}>
+          Consent Withdrawn
+        </Badge>
+      );
+    }
+    if (status === 'denied') {
+      return (
+        <Badge variant="destructive" className={className}>
+          Consent Denied
+        </Badge>
       );
     }
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-800 border border-rose-200 ${className}`}>
+      <Badge variant="default" className={className}>
         Consent Pending
-      </span>
+      </Badge>
     );
   }
 
-  // Change detected: boolean
   if (type === 'change') {
     if (status === true) {
       return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-900 border border-amber-300 ${className}`}>
+        <Badge variant="medical" className={className}>
           Delta Flagged
-        </span>
+        </Badge>
       );
     }
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200 ${className}`}>
+      <Badge variant="default" className={className}>
         No Notable Delta
-      </span>
+      </Badge>
     );
   }
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 ${className}`}>
+    <Badge variant="default" className={className}>
       {formatStatusLabel(String(status))}
-    </span>
+    </Badge>
   );
 };

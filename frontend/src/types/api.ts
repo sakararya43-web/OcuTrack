@@ -27,15 +27,21 @@ export type ComparisonStatus =
   | 'comparable'
   | 'not_comparable';
 
+export type ConsentStatus =
+  | 'granted'
+  | 'denied'
+  | 'withdrawn'
+  | 'not_recorded';
+
 export interface ConsentPayload {
-  consent_status: 'granted' | 'denied';
+  consent_status: ConsentStatus;
   purpose: string;
-  granted_at?: string;
+  granted_at?: string | null;
 }
 
 export interface CreatePatientPayload {
   pseudonymous_code: string;
-  age_band: string;
+  age_band?: string | null;
   context_notes?: string | null;
   consent: ConsentPayload;
 }
@@ -43,11 +49,11 @@ export interface CreatePatientPayload {
 export interface Patient {
   patient_id: string;
   pseudonymous_code: string;
-  age_band: string;
+  age_band: string | null;
   context_notes: string | null;
   created_at: string;
-  consent_status: 'granted' | 'denied';
-  consent_purpose?: string;
+  consent_status: ConsentStatus;
+  consent_purpose?: string | null;
   last_assessment_date?: string | null;
   last_quality_status?: QualityStatus | null;
   feature_change_recorded?: boolean | null;
@@ -65,15 +71,15 @@ export interface DeviceMetadata {
 
 export interface LightingMetadata {
   method: string;
-  notes: string;
+  notes?: string | null;
 }
 
 export interface CreateAssessmentPayload {
   patient_id: string;
   protocol_version: string;
   test_type: 'pupil_reflex' | 'smooth_pursuit' | 'both';
-  device_metadata?: DeviceMetadata;
-  lighting_metadata?: LightingMetadata;
+  device_metadata?: DeviceMetadata | Record<string, unknown>;
+  lighting_metadata?: LightingMetadata | Record<string, unknown>;
 }
 
 export interface FeatureValue {
@@ -98,40 +104,41 @@ export interface PursuitSeriesPoint {
 export interface QualityMetrics {
   status: QualityStatus;
   usable_frame_ratio?: number | null;
-  warnings: string[];
+  warnings?: string[];
 }
 
 export interface PupilTestResult {
   status: TestStatus;
-  features?: Record<string, FeatureValue>;
-  series?: TimeSeriesPoint[];
+  features?: Record<string, FeatureValue> | null;
+  series?: TimeSeriesPoint[] | null;
 }
 
 export interface PursuitTestResult {
   status: TestStatus;
-  features?: Record<string, FeatureValue>;
-  series?: PursuitSeriesPoint[];
+  features?: Record<string, FeatureValue> | null;
+  series?: PursuitSeriesPoint[] | null;
 }
 
 export interface TemporalModelResult {
   status: ModelStatus;
-  model_name?: string;
-  model_version?: string;
-  output?: unknown;
-  notes?: string;
+  model_name?: string | null;
+  model_version?: string | null;
+  output?: Record<string, unknown> | null;
+  notes?: string | null;
 }
 
 export interface FeatureDelta {
   delta: number | null;
+  percentage_delta?: number | null;
   unit: string;
-  direction?: 'increased' | 'decreased' | 'stable' | 'unknown';
+  direction?: 'increased' | 'decreased' | 'stable' | 'unknown' | null;
 }
 
 export interface LongitudinalComparisonResult {
   status: ComparisonStatus;
   baseline_id?: string | null;
   comparability_reason?: string | null;
-  feature_deltas?: Record<string, FeatureDelta>;
+  feature_deltas?: Record<string, FeatureDelta> | null;
 }
 
 export interface AssessmentSummary {
@@ -142,22 +149,22 @@ export interface AssessmentSummary {
   assessment_at: string;
   protocol_version: string;
   warnings?: string[];
-  review_message?: string;
+  review_message?: string | null;
   features?: {
     latency_ms?: number | null;
     constriction_velocity?: number | null;
     tracking_gain?: number | null;
     [key: string]: unknown;
-  };
+  } | null;
 }
 
 export interface AssessmentDetail extends AssessmentSummary {
-  quality?: QualityMetrics;
-  pupil?: PupilTestResult;
-  pursuit?: PursuitTestResult;
-  temporal_model?: TemporalModelResult;
-  longitudinal_comparison?: LongitudinalComparisonResult;
-  non_diagnostic_notice?: string;
+  quality?: QualityMetrics | null;
+  pupil?: PupilTestResult | null;
+  pursuit?: PursuitTestResult | null;
+  temporal_model?: TemporalModelResult | null;
+  longitudinal_comparison?: LongitudinalComparisonResult | null;
+  non_diagnostic_notice?: string | null;
 }
 
 export interface HealthResponse {

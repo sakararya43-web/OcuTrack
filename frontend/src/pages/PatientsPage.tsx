@@ -44,7 +44,7 @@ export const PatientsPage: React.FC = () => {
     const q = searchQuery.toLowerCase().trim();
     return patients.filter((p) =>
       p.pseudonymous_code.toLowerCase().includes(q) ||
-      p.age_band.toLowerCase().includes(q) ||
+      (p.age_band && p.age_band.toLowerCase().includes(q)) ||
       (p.context_notes && p.context_notes.toLowerCase().includes(q))
     );
   }, [patients, searchQuery]);

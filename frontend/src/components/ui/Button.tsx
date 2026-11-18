@@ -1,0 +1,54 @@
+import React from 'react';
+import { cn } from '../../lib/utils';
+
+export type ButtonVariant =
+  | 'primary'
+  | 'navy'
+  | 'teal'
+  | 'secondary'
+  | 'outline'
+  | 'ghost'
+  | 'destructive';
+
+export type ButtonSize = 'sm' | 'md' | 'lg';
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+}
+
+const variantClasses: Record<ButtonVariant, string> = {
+  primary: 'bg-sky-700 text-white hover:bg-sky-800 border border-sky-700 shadow-sm',
+  navy: 'bg-slate-900 text-white hover:bg-slate-800 border border-slate-900 shadow-sm',
+  teal: 'bg-teal-700 text-white hover:bg-teal-800 border border-teal-700 shadow-sm',
+  secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 border border-slate-200',
+  outline: 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm',
+  ghost: 'bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent',
+  destructive: 'bg-rose-700 text-white hover:bg-rose-800 border border-rose-700 shadow-sm',
+};
+
+const sizeClasses: Record<ButtonSize, string> = {
+  sm: 'px-3 py-1.5 text-xs',
+  md: 'px-4 py-2 text-sm',
+  lg: 'px-5 py-2.5 text-sm',
+};
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant = 'primary', size = 'md', type = 'button', ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={cn(
+          'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50',
+          variantClasses[variant],
+          sizeClasses[size],
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+
+Button.displayName = 'Button';

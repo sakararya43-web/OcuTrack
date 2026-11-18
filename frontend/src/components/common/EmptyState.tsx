@@ -1,5 +1,6 @@
 import React from 'react';
 import { FolderOpen } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 interface EmptyStateProps {
   title: string;
@@ -17,12 +18,17 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center p-12 text-center bg-white border border-dashed border-slate-300 rounded-xl ${className}`}>
-      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 mb-4">
-        {icon || <FolderOpen className="w-6 h-6" />}
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center p-10 text-center bg-white border border-dashed border-slate-300 rounded-md',
+        className
+      )}
+    >
+      <div className="w-11 h-11 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 mb-4">
+        {icon || <FolderOpen className="w-5 h-5" aria-hidden="true" />}
       </div>
-      <h3 className="text-base font-medium text-slate-900 mb-1">{title}</h3>
-      <p className="text-sm text-slate-500 max-w-sm mb-6">{description}</p>
+      <h3 className="text-base font-semibold text-slate-900 mb-1">{title}</h3>
+      <p className="text-sm text-slate-600 max-w-md mb-6 leading-relaxed">{description}</p>
       {action && <div>{action}</div>}
     </div>
   );

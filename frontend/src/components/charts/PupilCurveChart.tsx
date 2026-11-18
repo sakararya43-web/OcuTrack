@@ -13,7 +13,7 @@ import {
 import { TimeSeriesPoint } from '../../types/api';
 
 interface PupilCurveChartProps {
-  series?: TimeSeriesPoint[];
+  series?: TimeSeriesPoint[] | null;
   stimulusOnsetMs?: number;
   stimulusDurationMs?: number;
   className?: string;
