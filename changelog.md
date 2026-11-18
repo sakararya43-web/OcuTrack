@@ -43,3 +43,13 @@ This log tracks every phase of the OcuTrack frontend reconstruction against `PRD
 - Rebuilt `AboutLimitationsPage.tsx`: removed `rounded-full` pill tag, em dashes, amber/orange warning boxes, purple TCN card, and fixed unrendered `($\Delta$)` LaTeX text.
 - Wired `/privacy` and `/terms` in `frontend/src/routes/index.tsx`.
 - Updated `App.test.tsx` and `AboutLimitationsPage.test.tsx`; verified `tsc -b`, `vite build`, and `vitest run` (11 test files, 40 tests passing).
+
+---
+
+## Phase 3: Home / Dashboard, Patient Registry, Patient Profile & Longitudinal Views (Completed)
+- Rebuilt `DashboardPage.tsx` with direct functional copy ("OcuTrack: Ocular Measurement and Longitudinal Monitoring Prototype"), crisp `Card`/`Button`/`Badge` primitives, cool clinical KPI strip (removed amber icon and em-dash loading placeholders), and patient roster handling nullable `age_band`.
+- Rebuilt `CreatePatientModal.tsx` on top of the accessible `Dialog` primitive with explicit `<label htmlFor>` bindings, Escape-key dismissal, and clean state reset on reopen.
+- Rebuilt `PatientsPage.tsx` and `PatientCard.tsx` with crisp `rounded-md` geometry, accessible search label, and safe nullable `age_band` handling.
+- Rebuilt `PatientDetailPage.tsx` with baseline status badge in profile header, clinical slate safety alert (removed amber/orange), navy baseline role tag (removed indigo), accessible trajectory metric buttons, and sanitized review summaries.
+- Rebuilt `LongitudinalTrendChart.tsx` using strictly clinical chart colors (`#0369a1` medical blue, `#0f766e` medical teal, `#1e293b` dark navy; removed indigo `#4f46e5` and `as any` accessor; disabled chart animations for clean clinical rendering).
+- Added `PatientsAndDashboard.test.tsx`; verified `tsc -b`, `vite build`, and `vitest run` (12 test files, 42 tests passing).

@@ -7,6 +7,8 @@ import { ErrorAlert } from '../components/common/ErrorAlert';
 import { EmptyState } from '../components/common/EmptyState';
 import { PatientCard } from '../components/patients/PatientCard';
 import { CreatePatientModal } from '../components/patients/CreatePatientModal';
+import { Button } from '../components/ui/Button';
+import { Card, CardContent } from '../components/ui/Card';
 import { ApiClientError } from '../services/apiClient';
 
 export const PatientsPage: React.FC = () => {
@@ -42,10 +44,11 @@ export const PatientsPage: React.FC = () => {
   const filteredPatients = useMemo(() => {
     if (!searchQuery.trim()) return patients;
     const q = searchQuery.toLowerCase().trim();
-    return patients.filter((p) =>
-      p.pseudonymous_code.toLowerCase().includes(q) ||
-      (p.age_band && p.age_band.toLowerCase().includes(q)) ||
-      (p.context_notes && p.context_notes.toLowerCase().includes(q))
+    return patients.filter(
+      (p) =>
+        p.pseudonymous_code.toLowerCase().includes(q) ||
+        (p.age_band && p.age_band.toLowerCase().includes(q)) ||
+        (p.context_notes && p.context_notes.toLowerCase().includes(q))
     );
   }, [patients, searchQuery]);
 
@@ -54,37 +57,45 @@ export const PatientsPage: React.FC = () => {
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Pseudonymous Patient Registry</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            De-identified patient cohorts and longitudinal observation records.
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            Pseudonymous Patient Registry
+          </h1>
+          <p className="text-sm text-slate-600 mt-1">
+            De-identified participant records and personal-baseline monitoring cohorts.
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-sm transition-colors self-start sm:self-auto"
-        >
-          <PlusCircle className="w-4 h-4" />
+        <Button variant="navy" onClick={() => setIsModalOpen(true)} className="self-start sm:self-auto">
+          <PlusCircle className="w-4 h-4" aria-hidden="true" />
           Register Patient
-        </button>
+        </Button>
       </div>
 
       {/* Search Bar */}
       <div className="relative max-w-md">
-        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <label htmlFor="patient-search-input" className="sr-only">
+          Filter patients by pseudonymous code, age band, or notes
+        </label>
+        <Search
+          className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+          aria-hidden="true"
+        />
         <input
+          id="patient-search-input"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Filter by pseudonymous ID (e.g. OT-1001)..."
-          className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
+          className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-600"
         />
       </div>
 
       {/* States */}
       {loading ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12">
-          <LoadingSpinner label="Loading patient directory..." />
-        </div>
+        <Card>
+          <CardContent className="p-12">
+            <LoadingSpinner label="Loading patient directory..." />
+          </CardContent>
+        </Card>
       ) : error ? (
         <ErrorAlert
           message={error.message}
@@ -95,27 +106,28 @@ export const PatientsPage: React.FC = () => {
         <EmptyState
           title="No patients registered"
           description="Register a pseudonymous patient to capture ocular recordings and review longitudinal history."
-          icon={<Users className="w-6 h-6" />}
+          icon={<Users className="w-5 h-5" aria-hidden="true" />}
           action={
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-sm"
-            >
-              <PlusCircle className="w-4 h-4" />
+            <Button variant="navy" onClick={() => setIsModalOpen(true)}>
+              <PlusCircle className="w-4 h-4" aria-hidden="true" />
               Register First Patient
-            </button>
+            </Button>
           }
         />
       ) : filteredPatients.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
-          <p className="text-sm text-slate-500">No patients matched &quot;{searchQuery}&quot;</p>
-          <button
-            onClick={() => setSearchQuery('')}
-            className="mt-2 text-xs text-sky-700 hover:underline"
-          >
-            Clear filter
-          </button>
-        </div>
+        <Card>
+          <CardContent className="text-center py-12">
+            <p className="text-sm text-slate-600">No patients matched &quot;{searchQuery}&quot;</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSearchQuery('')}
+              className="mt-2 text-sky-800"
+            >
+              Clear filter
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredPatients.map((patient) => (
