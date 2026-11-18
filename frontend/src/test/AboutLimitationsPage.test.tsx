@@ -20,7 +20,7 @@ describe('AboutLimitationsPage', () => {
       screen.getByText(/About OcuTrack & System Limitations/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Investigational Prototype — Not a Diagnostic Medical Device/i)
+      screen.getByText(/Investigational Prototype: Not a Diagnostic Medical Device/i)
     ).toBeInTheDocument();
     expect(
       screen.getByText(/What OcuTrack Measures/i)

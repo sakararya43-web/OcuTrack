@@ -31,3 +31,15 @@ This log tracks every phase of the OcuTrack frontend reconstruction against `PRD
 - Implemented modular, accessible `shadcn/ui`-style UI primitives in `frontend/src/components/ui/`: `Button.tsx` (crisp `rounded-md`, zero pill buttons), `Card.tsx`, `Badge.tsx`, `Alert.tsx`, and `Dialog.tsx`.
 - Rebuilt shared common components (`StatusBadge.tsx`, `ErrorAlert.tsx`, `EmptyState.tsx`, `LoadingSpinner.tsx`) with clinical palette, WCAG roles/labels, and zero disallowed colors or animations.
 - Updated `formatters.test.ts`; verified `tsc -b` (0 errors) and `vitest run` (11 test files, 39 tests passing).
+
+---
+
+## Phase 2: Layout Shell, Routing, Header, Footer & Legal/Transparency Pages (Completed)
+- Rebuilt `DisclaimerBanner.tsx` with dark-navy clinical palette (`bg-slate-900 text-slate-100`), WCAG landmark region, zero amber/orange, and zero em dashes.
+- Rebuilt `Header.tsx` with minimalistic clinical navigation, crisp `rounded-md` backend health indicator (removed `rounded-full` pill and `animate-pulse`), and responsive mobile navigation toggle.
+- Implemented `Footer.tsx` with explicit sections and links for **Privacy Policy** (`/privacy`), **Terms and Conditions** (`/terms`), and **Methodology & System Limitations** (`/about`), plus active protocol version and non-diagnostic scope notice.
+- Rebuilt `AppLayout.tsx` with accessible skip-to-content link, `DisclaimerBanner`, `Header`, `<main>`, and `Footer`.
+- Implemented complete `PrivacyPolicyPage.tsx` and `TermsConditionsPage.tsx` grounded in `PRD.md` (zero placeholders or scaffolding).
+- Rebuilt `AboutLimitationsPage.tsx`: removed `rounded-full` pill tag, em dashes, amber/orange warning boxes, purple TCN card, and fixed unrendered `($\Delta$)` LaTeX text.
+- Wired `/privacy` and `/terms` in `frontend/src/routes/index.tsx`.
+- Updated `App.test.tsx` and `AboutLimitationsPage.test.tsx`; verified `tsc -b`, `vite build`, and `vitest run` (11 test files, 40 tests passing).
