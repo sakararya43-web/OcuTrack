@@ -25,6 +25,7 @@ export interface UseMediaRecorderReturn {
   startRecording: (stream: MediaStream) => boolean;
   stopRecording: () => void;
   discardRecording: () => void;
+  setExternalRecording: (video: RecordedVideo) => void;
   supportedMimeType: string | null;
 }
 
@@ -65,7 +66,7 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const startTimeRef = useRef<number>(0);
-  const timerIntervalRef = useRef<any>(null);
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const chosenMimeTypeRef = useRef<string>('');
 
   const cleanupTimer = useCallback(() => {
@@ -76,13 +77,33 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
   }, []);
 
   const discardRecording = useCallback(() => {
-    if (recordedVideo?.previewUrl) {
-      URL.revokeObjectURL(recordedVideo.previewUrl);
-    }
-    setRecordedVideo(null);
+    setRecordedVideo((prev) => {
+      if (prev?.previewUrl && typeof URL.revokeObjectURL === 'function') {
+        URL.revokeObjectURL(prev.previewUrl);
+      }
+      return null;
+    });
     setElapsedMs(0);
     setError(null);
-  }, [recordedVideo]);
+  }, []);
+
+  const setExternalRecording = useCallback((video: RecordedVideo) => {
+    cleanupTimer();
+    setIsRecording(false);
+    setIsPaused(false);
+    setError(null);
+    setElapsedMs(video.durationMs);
+    setRecordedVideo((prev) => {
+      if (
+        prev?.previewUrl &&
+        prev.previewUrl !== video.previewUrl &&
+        typeof URL.revokeObjectURL === 'function'
+      ) {
+        URL.revokeObjectURL(prev.previewUrl);
+      }
+      return video;
+    });
+  }, [cleanupTimer]);
 
   const stopRecording = useCallback(() => {
     cleanupTimer();
@@ -124,8 +145,7 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
       let recorder: MediaRecorder;
       try {
         recorder = new MediaRecorder(stream, recorderOptions);
-      } catch (err: unknown) {
-        // Fallback without mimeType option
+      } catch {
         try {
           recorder = new MediaRecorder(stream);
         } catch (innerErr: unknown) {
@@ -143,14 +163,17 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
           chunksRef.current.push(event.data);
           const totalSize = chunksRef.current.reduce((acc, c) => acc + c.size, 0);
           if (totalSize > maxSizeBytes) {
-            setError(`Recording exceeded maximum allowable file size (${(maxSizeBytes / (1024 * 1024)).toFixed(0)}MB). Auto-stopped.`);
+            setError(
+              `Recording exceeded maximum allowable file size (${(maxSizeBytes / (1024 * 1024)).toFixed(0)}MB). Auto-stopped.`
+            );
             stopRecording();
           }
         }
       };
 
       recorder.onerror = (event: Event) => {
-        const errorDetail = (event as any).error ? (event as any).error.message : 'Unknown recorder error';
+        const errorEvent = event as Event & { error?: { message?: string } };
+        const errorDetail = errorEvent.error?.message || 'Unknown recorder error';
         setError(`Recording failed: ${errorDetail}`);
         cleanupTimer();
         setIsRecording(false);
@@ -180,12 +203,10 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
         }
       };
 
-      // Request data chunks every 1000ms for continuous streaming and progressive sizing
       recorder.start(1000);
       setIsRecording(true);
       setElapsedMs(0);
 
-      // Start elapsed timer and check max duration
       timerIntervalRef.current = setInterval(() => {
         const elapsed = Date.now() - startTimeRef.current;
         setElapsedMs(elapsed);
@@ -207,11 +228,8 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
   useEffect(() => {
     return () => {
       cleanupTimer();
-      if (recordedVideo?.previewUrl) {
-        URL.revokeObjectURL(recordedVideo.previewUrl);
-      }
     };
-  }, [cleanupTimer, recordedVideo]);
+  }, [cleanupTimer]);
 
   return {
     isRecording,
@@ -222,6 +240,7 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
     startRecording,
     stopRecording,
     discardRecording,
+    setExternalRecording,
     supportedMimeType: chosenMimeTypeRef.current || getBestSupportedMimeType(),
   };
 }

@@ -53,3 +53,14 @@ This log tracks every phase of the OcuTrack frontend reconstruction against `PRD
 - Rebuilt `PatientDetailPage.tsx` with baseline status badge in profile header, clinical slate safety alert (removed amber/orange), navy baseline role tag (removed indigo), accessible trajectory metric buttons, and sanitized review summaries.
 - Rebuilt `LongitudinalTrendChart.tsx` using strictly clinical chart colors (`#0369a1` medical blue, `#0f766e` medical teal, `#1e293b` dark navy; removed indigo `#4f46e5` and `as any` accessor; disabled chart animations for clean clinical rendering).
 - Added `PatientsAndDashboard.test.tsx`; verified `tsc -b`, `vite build`, and `vitest run` (12 test files, 42 tests passing).
+
+---
+
+## Phase 4: Capture Interface (Assessment Setup, Camera, Pupil Test, Smooth Pursuit, Fallback) (Completed)
+- Refactored `useMediaRecorder.ts`: replaced `useRef<any>` and `(event as any)` with strict TypeScript types; added `setExternalRecording(video)` with safe `URL.revokeObjectURL` cleanup to fix the broken direct mutation bug when selecting fallback samples.
+- Rebuilt `NewAssessmentPage.tsx`: removed `"Next Stage (Phase 2)"` scaffolding text, added battery-aware routing (`smooth_pursuit` routes directly to `/pursuit-test`, `pupil_reflex` routes to `/pupil-test?mode=pupil_only`), replaced amber alert with clinical slate styling, and added explicit `<label htmlFor>` bindings.
+- Rebuilt `CameraPreview.tsx`: crisp `rounded-md` framing, removed `animate-pulse` and pill label overlays, replaced amber torch state with medical sky blue, added ARIA labels.
+- Rebuilt `SmoothPursuitTarget.tsx`: removed cosmetic `animate-pulse` and neon glow on the fixation target for clean clinical tracking.
+- Rebuilt `SampleVideoFallback.tsx`: removed prohibited `<Sparkles />` icon, removed amber button styling, replaced identical ternary branches with `BENCHMARK_DURATION_MS`, and removed invalid `DEMO_VIDEO_FALLBACK_PAYLOAD` dummy blob fallback in favor of an honest error prompting file upload.
+- Rebuilt `PupilTestPage.tsx` and `PursuitTestPage.tsx`: replaced broken `(recorder as any).recordedVideo = sampleVideo` with `recorder.setExternalRecording(sampleVideo)`, added proper countdown/stimulus timer cleanup on unmount, added single-test `pupil_only` analysis trigger path, removed `animate-bounce`/`animate-ping` and personal teammate comments.
+- Updated `useMediaRecorder.test.ts` with `setExternalRecording` state + URL cleanup test; verified `tsc -b`, `vite build`, and `vitest run` (12 test files, 43 tests passing).

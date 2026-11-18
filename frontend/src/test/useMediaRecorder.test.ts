@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getBestSupportedMimeType } from '../hooks/useMediaRecorder';
+import { renderHook, act } from '@testing-library/react';
+import { getBestSupportedMimeType, useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
 import {
   calculateTargetPosition,
   generateFullTrajectory,
@@ -9,13 +10,49 @@ import {
 
 describe('useMediaRecorder & Pursuit Trajectory', () => {
   it('identifies best supported MIME type when MediaRecorder is available', () => {
-    // Mock MediaRecorder.isTypeSupported
-    (global as any).MediaRecorder = {
+    (globalThis as unknown as { MediaRecorder: { isTypeSupported: (mime: string) => boolean } }).MediaRecorder = {
       isTypeSupported: vi.fn((mime: string) => mime.includes('video/webm;codecs=vp9,opus')),
     };
 
     const bestMime = getBestSupportedMimeType();
     expect(bestMime).toBe('video/webm;codecs=vp9,opus');
+  });
+
+  it('sets and discards external fallback recordings via React state properly', () => {
+    const originalRevoke = URL.revokeObjectURL;
+    const revokeMock = vi.fn();
+    URL.revokeObjectURL = revokeMock;
+
+    try {
+      const { result } = renderHook(() => useMediaRecorder());
+
+      expect(result.current.recordedVideo).toBeNull();
+
+      const sampleVideo: RecordedVideo = {
+        blob: new Blob(['sample'], { type: 'video/webm' }),
+        previewUrl: 'blob:http://localhost/sample-1',
+        durationMs: 5000,
+        mimeType: 'video/webm',
+        recordedAt: '2026-11-18T12:00:00Z',
+        sizeBytes: 6,
+      };
+
+      act(() => {
+        result.current.setExternalRecording(sampleVideo);
+      });
+
+      expect(result.current.recordedVideo).toEqual(sampleVideo);
+      expect(result.current.elapsedMs).toBe(5000);
+
+      act(() => {
+        result.current.discardRecording();
+      });
+
+      expect(result.current.recordedVideo).toBeNull();
+      expect(revokeMock).toHaveBeenCalledWith('blob:http://localhost/sample-1');
+    } finally {
+      URL.revokeObjectURL = originalRevoke;
+    }
   });
 
   it('calculates deterministic pursuit target position starting at center (0.5, 0.5)', () => {
@@ -33,7 +70,7 @@ describe('useMediaRecorder & Pursuit Trajectory', () => {
     }
   });
 
-  it('generates contract-compliant full trajectory metadata for Aditya', () => {
+  it('generates contract-compliant full trajectory metadata for analysis pipeline', () => {
     const trajectory = generateFullTrajectory(PURSUIT_DURATION_MS, 50);
     expect(trajectory.path_version).toBe(PURSUIT_PATH_VERSION);
     expect(trajectory.duration_ms).toBe(PURSUIT_DURATION_MS);
