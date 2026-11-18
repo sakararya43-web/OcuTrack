@@ -106,9 +106,9 @@ export function useCamera(): UseCameraReturn {
         const videoTrack = mediaStream.getVideoTracks()[0];
         if (videoTrack) {
           const settings = videoTrack.getSettings ? videoTrack.getSettings() : {};
-          const capabilities =
-            typeof (videoTrack as any).getCapabilities === 'function'
-              ? (videoTrack as any).getCapabilities()
+          const capabilities: MediaTrackCapabilities & { torch?: boolean } =
+            typeof videoTrack.getCapabilities === 'function'
+              ? (videoTrack.getCapabilities() as MediaTrackCapabilities & { torch?: boolean })
               : {};
 
           setObservedSettings({
@@ -162,13 +162,17 @@ export function useCamera(): UseCameraReturn {
   const toggleTorch = useCallback(
     async (enabled: boolean): Promise<boolean> => {
       if (!streamRef.current) return false;
-      const videoTrack = streamRef.current.getVideoTracks()[0];
-      if (!videoTrack || typeof (videoTrack as any).applyConstraints !== 'function') {
+      const videoTrack = streamRef.current.getVideoTracks()[0] as
+        | (MediaStreamTrack & {
+            applyConstraints?: (constraints: MediaTrackConstraints & { advanced?: Array<{ torch?: boolean }> }) => Promise<void>;
+          })
+        | undefined;
+      if (!videoTrack || typeof videoTrack.applyConstraints !== 'function') {
         return false;
       }
 
       try {
-        await (videoTrack as any).applyConstraints({
+        await videoTrack.applyConstraints({
           advanced: [{ torch: enabled }],
         });
         return true;

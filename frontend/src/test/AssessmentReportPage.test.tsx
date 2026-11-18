@@ -8,7 +8,7 @@ describe('AssessmentReportPage', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders report with extracted features, units, charts, and non-diagnostic disclaimer', async () => {
+  it('renders report with extracted features, units, percentage deltas, TCN outputs, and non-diagnostic disclaimer', async () => {
     const mockDetail = {
       assessment_id: 'asm-test-report',
       patient_id: 'OT-4091',
@@ -51,13 +51,28 @@ describe('AssessmentReportPage', () => {
         status: 'comparable',
         baseline_id: 'asm-baseline-001',
         feature_deltas: {
-          constriction_latency: { delta: 25.0, unit: 'ms', direction: 'increased' },
-          constriction_velocity: { delta: -0.4, unit: 'mm/s', direction: 'decreased' },
+          constriction_latency: {
+            delta: 25.0,
+            percentage_delta: 11.4,
+            unit: 'ms',
+            direction: 'increased',
+          },
+          constriction_velocity: {
+            delta: -0.4,
+            percentage_delta: -8.5,
+            unit: 'mm/s',
+            direction: 'decreased',
+          },
         },
       },
       temporal_model: {
         status: 'experimental',
         model_name: 'TCN-Temporal-Evaluator-v0.1',
+        model_version: '1.0.0',
+        output: {
+          sequence_embedding_variance: 0.082,
+          temporal_smoothness_index: 0.91,
+        },
         notes: 'Sequence dynamics evaluated. Experimental model output; not clinically validated.',
       },
     };
@@ -86,9 +101,11 @@ describe('AssessmentReportPage', () => {
       expect(screen.getByText('Ocular Measurement & Biomarker Report')).toBeInTheDocument();
     });
 
-    // Verify patient ID & review finding
+    // Verify patient ID & sanitized review finding (no em dashes rendered)
     expect(screen.getByText('OT-4091')).toBeInTheDocument();
-    expect(screen.getByText(/Change detected — consider repeat measurement and clinical review/i)).toBeInTheDocument();
+    expect(
+      screen.getByText('Change detected: consider repeat measurement and clinical review')
+    ).toBeInTheDocument();
 
     // Verify feature values and units
     expect(screen.getAllByText('Constriction Latency').length).toBeGreaterThanOrEqual(1);
@@ -96,14 +113,22 @@ describe('AssessmentReportPage', () => {
     expect(screen.getAllByText('Constriction Velocity').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('4.3')).toBeInTheDocument();
 
-    // Verify TCN model card and mandatory non-diagnostic notice
+    // Verify TCN model card, output metrics, and mandatory non-diagnostic notice
     expect(screen.getByText('Experimental Model Output')).toBeInTheDocument();
     expect(screen.getByText(/TCN-Temporal-Evaluator-v0.1/i)).toBeInTheDocument();
+    expect(screen.getByText('0.082')).toBeInTheDocument();
+    expect(screen.getByText('0.910')).toBeInTheDocument();
     expect(screen.getByText('Notice of Regulatory & Clinical Status')).toBeInTheDocument();
 
-    // Verify delta table
+    // Verify absolute and percentage deltas
     expect(screen.getByText('+25.00')).toBeInTheDocument();
+    expect(screen.getByText('+11.4%')).toBeInTheDocument();
     expect(screen.getByText('-0.40')).toBeInTheDocument();
+    expect(screen.getByText('-8.5%')).toBeInTheDocument();
+
+    // Verify export and re-evaluate controls
+    expect(screen.getByRole('button', { name: /Export assessment report as CSV/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Re-evaluate Baseline/i })).toBeInTheDocument();
   });
 
   it('displays insufficient recording quality warning banner and unvalidated labels when quality is poor', async () => {
@@ -150,10 +175,14 @@ describe('AssessmentReportPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Insufficient recording quality — repeat test/i).length).toBeGreaterThanOrEqual(1);
+      expect(
+        screen.getAllByText(/Insufficient recording quality: repeat test/i).length
+      ).toBeGreaterThanOrEqual(1);
     });
 
-    expect(screen.getByText(/extracted values are unvalidated and must not be presented as reliable/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/extracted values are unvalidated and must not be presented as reliable/i)
+    ).toBeInTheDocument();
     expect(screen.getByText('Repeat Assessment Now')).toBeInTheDocument();
   });
 });
