@@ -16,7 +16,7 @@ describe('AssessmentReportPage', () => {
       quality_status: 'acceptable',
       assessment_at: '2026-11-16T12:00:00Z',
       protocol_version: 'ocutrack-protocol-0.1',
-      review_message: 'Change detected — consider repeat measurement and clinical review',
+      review_message: 'Change detected: consider repeat measurement and clinical review',
       warnings: ['Transient motion artifact at 12.1s'],
       quality: {
         status: 'acceptable',
@@ -139,7 +139,7 @@ describe('AssessmentReportPage', () => {
       quality_status: 'insufficient',
       assessment_at: '2026-11-16T12:00:00Z',
       protocol_version: 'ocutrack-protocol-0.1',
-      review_message: 'Insufficient recording quality — repeat test',
+      review_message: 'Insufficient recording quality: repeat test',
       warnings: ['Usable frame ratio below 0.70 threshold', 'Severe subject head motion'],
       quality: {
         status: 'insufficient',

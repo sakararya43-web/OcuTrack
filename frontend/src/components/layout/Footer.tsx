@@ -59,7 +59,16 @@ export const Footer: React.FC = () => {
                   className="inline-flex items-center gap-1.5 text-sky-800 hover:text-sky-900 hover:underline font-medium"
                 >
                   <Info className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
-                  Methodology &amp; System Limitations
+                  About OcuTrack
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/limitations"
+                  className="inline-flex items-center gap-1.5 text-sky-800 hover:text-sky-900 hover:underline font-medium"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
+                  System Boundaries &amp; Limitations
                 </Link>
               </li>
             </ul>
@@ -81,14 +90,17 @@ export const Footer: React.FC = () => {
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
           <p>{APP_NAME} Prototype. Pseudonymous research records only.</p>
           <div className="flex items-center gap-4">
+            <Link to="/about" className="hover:text-slate-900 hover:underline">
+              About
+            </Link>
+            <Link to="/limitations" className="hover:text-slate-900 hover:underline">
+              Limitations
+            </Link>
             <Link to="/privacy" className="hover:text-slate-900 hover:underline">
               Privacy Policy
             </Link>
             <Link to="/terms" className="hover:text-slate-900 hover:underline">
               Terms and Conditions
-            </Link>
-            <Link to="/about" className="hover:text-slate-900 hover:underline">
-              Limitations
             </Link>
           </div>
         </div>

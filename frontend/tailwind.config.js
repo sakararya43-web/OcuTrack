@@ -40,6 +40,26 @@ export default {
       transitionDuration: {
         DEFAULT: '150ms',
       },
+      keyframes: {
+        'pupil-constrict': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.9' },
+          '35%': { transform: 'scale(0.55)', opacity: '1' },
+          '65%': { transform: 'scale(0.75)', opacity: '0.92' },
+        },
+        'telemetry-draw': {
+          '0%': { strokeDashoffset: '400' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        'calm-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.4' },
+        },
+      },
+      animation: {
+        'pupil-constrict': 'pupil-constrict 2.4s ease-in-out infinite',
+        'telemetry-draw': 'telemetry-draw 3s ease-out infinite',
+        'calm-pulse': 'calm-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
     },
   },
   plugins: [],

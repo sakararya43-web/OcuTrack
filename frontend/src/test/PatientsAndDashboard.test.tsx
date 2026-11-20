@@ -74,7 +74,7 @@ describe('DashboardPage and PatientDetailPage', () => {
         quality_status: 'acceptable',
         assessment_at: '2026-11-17T10:00:00Z',
         protocol_version: 'ocutrack-protocol-0.1',
-        review_message: 'Change detected — consider repeat measurement and clinical review',
+        review_message: 'Change detected: consider repeat measurement and clinical review',
         features: { latency_ms: 280, constriction_velocity: 3.9, tracking_gain: 0.89 },
       },
       {

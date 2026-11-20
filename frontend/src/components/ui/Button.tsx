@@ -18,13 +18,13 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-sky-700 text-white hover:bg-sky-800 border border-sky-700 shadow-sm',
-  navy: 'bg-slate-900 text-white hover:bg-slate-800 border border-slate-900 shadow-sm',
-  teal: 'bg-teal-700 text-white hover:bg-teal-800 border border-teal-700 shadow-sm',
-  secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 border border-slate-200',
-  outline: 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm',
+  primary: 'bg-sky-700 text-white hover:bg-sky-800 border border-sky-700 hover:border-sky-800 shadow-sm',
+  navy: 'bg-slate-900 text-white hover:bg-slate-800 border border-slate-900 hover:border-slate-800 shadow-sm',
+  teal: 'bg-teal-700 text-white hover:bg-teal-800 border border-teal-700 hover:border-teal-800 shadow-sm',
+  secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 border border-slate-200 hover:border-slate-300',
+  outline: 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 hover:border-slate-400 shadow-sm',
   ghost: 'bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent',
-  destructive: 'bg-rose-700 text-white hover:bg-rose-800 border border-rose-700 shadow-sm',
+  destructive: 'bg-rose-700 text-white hover:bg-rose-800 border border-rose-700 hover:border-rose-800 shadow-sm',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -40,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         className={cn(
-          'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50',
+          'group inline-flex items-center justify-center gap-2 rounded-md font-medium transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
           variantClasses[variant],
           sizeClasses[size],
           className

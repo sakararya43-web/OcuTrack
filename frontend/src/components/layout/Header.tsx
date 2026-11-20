@@ -64,7 +64,7 @@ export const Header: React.FC = () => {
               </NavLink>
               <NavLink to="/about" className={navLinkClass}>
                 <Info className="w-4 h-4" aria-hidden="true" />
-                Limitations
+                About
               </NavLink>
             </nav>
           </div>
@@ -89,7 +89,7 @@ export const Header: React.FC = () => {
               )}
               {backendStatus === 'connected' && (
                 <span className="inline-flex items-center gap-1.5 text-teal-800 font-medium">
-                  <span className="w-2 h-2 rounded-sm bg-teal-600" aria-hidden="true"></span>
+                  <span className="w-2 h-2 rounded-sm bg-teal-600 motion-safe:animate-calm-pulse" aria-hidden="true"></span>
                   Connected
                 </span>
               )}
@@ -111,9 +111,9 @@ export const Header: React.FC = () => {
 
             <NavLink
               to="/assessments/new"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium text-white bg-sky-700 hover:bg-sky-800 rounded-md shadow-sm transition-colors duration-150"
+              className="group hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium text-white bg-sky-700 hover:bg-sky-800 active:scale-[0.98] rounded-md shadow-sm transition-all duration-150 ease-out"
             >
-              <PlusCircle className="w-4 h-4" aria-hidden="true" />
+              <PlusCircle className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true" />
               <span>Start Assessment</span>
             </NavLink>
 
@@ -153,7 +153,7 @@ export const Header: React.FC = () => {
             </NavLink>
             <NavLink to="/about" onClick={() => setMobileMenuOpen(false)} className={navLinkClass}>
               <Info className="w-4 h-4" aria-hidden="true" />
-              Limitations
+              About
             </NavLink>
           </nav>
         )}

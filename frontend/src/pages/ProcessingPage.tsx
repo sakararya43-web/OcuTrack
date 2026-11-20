@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  Loader2,
   ArrowRight,
   RotateCcw,
   Cpu,
@@ -18,6 +17,8 @@ import { getAssessment, triggerAnalysis } from '../services/assessmentService';
 import { AssessmentDetail } from '../types/api';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { ErrorAlert } from '../components/common/ErrorAlert';
+import { OpticalPupilLoader } from '../components/common/OpticalPupilLoader';
+import { TelemetryWaveform } from '../components/common/TelemetryWaveform';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
@@ -180,17 +181,17 @@ export const ProcessingPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
             <div className="flex items-center gap-3">
               {isProcessing && (
-                <div className="w-10 h-10 rounded-md bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center">
-                  <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                <div className="w-11 h-11 rounded-md bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center p-1">
+                  <OpticalPupilLoader size="sm" />
                 </div>
               )}
               {isComplete && (
-                <div className="w-10 h-10 rounded-md bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-md bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center">
                   <CheckCircle2 className="w-5 h-5" aria-hidden="true" />
                 </div>
               )}
               {isFailed && (
-                <div className="w-10 h-10 rounded-md bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-md bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center">
                   <XCircle className="w-5 h-5" aria-hidden="true" />
                 </div>
               )}
@@ -211,6 +212,17 @@ export const ProcessingPage: React.FC = () => {
 
             <StatusBadge type="assessment" status={assessment?.status} />
           </div>
+
+          {/* Active Ocular Telemetry Stream Visual for Processing State */}
+          {isProcessing && (
+            <div className="space-y-2">
+              <TelemetryWaveform
+                variant="reflex"
+                label="Ocular Telemetry: Feature Extraction Stream"
+                height={70}
+              />
+            </div>
+          )}
 
           {error && (
             <ErrorAlert

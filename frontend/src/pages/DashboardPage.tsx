@@ -20,6 +20,7 @@ import { CreatePatientModal } from '../components/patients/CreatePatientModal';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { ScrollReveal } from '../components/common/ScrollReveal';
 import { ApiClientError } from '../services/apiClient';
 import { formatDate } from '../lib/formatters';
 
@@ -64,47 +65,49 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Clinical Workspace Overview */}
-      <Card>
-        <CardContent className="p-6 sm:p-8">
-          <div className="max-w-3xl space-y-3">
-            <Badge variant="medical">
-              <ShieldCheck className="w-3.5 h-3.5 text-sky-700" aria-hidden="true" />
-              Active Protocol: {PROTOCOL_VERSION}
-            </Badge>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              {APP_NAME}: {APP_TAGLINE}
-            </h1>
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Standardized browser capture for pupil light reflex and smooth-pursuit eye movement
-              measurements, quality verification, and personal-baseline comparison across visits.
-            </p>
-          </div>
+      <ScrollReveal>
+        <Card>
+          <CardContent className="p-6 sm:p-8">
+            <div className="max-w-3xl space-y-3">
+              <Badge variant="medical">
+                <ShieldCheck className="w-3.5 h-3.5 text-sky-700" aria-hidden="true" />
+                Active Protocol: {PROTOCOL_VERSION}
+              </Badge>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                {APP_NAME}: {APP_TAGLINE}
+              </h1>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Standardized browser capture for pupil light reflex and smooth-pursuit eye movement
+                measurements, quality verification, and personal-baseline comparison across visits.
+              </p>
+            </div>
 
-          <div className="mt-6 pt-6 border-t border-slate-200 flex flex-wrap items-center gap-3">
-            <Button variant="navy" onClick={() => setIsModalOpen(true)}>
-              <PlusCircle className="w-4 h-4" aria-hidden="true" />
-              New Pseudonymous Patient
-            </Button>
-            <Link
-              to="/assessments/new"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-700 hover:bg-sky-800 border border-sky-700 rounded-md shadow-sm transition-colors duration-150"
-            >
-              <ClipboardList className="w-4 h-4" aria-hidden="true" />
-              Initiate Assessment
-            </Link>
-            <Link
-              to="/patients"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors duration-150 sm:ml-auto"
-            >
-              All Patients
-              <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="mt-6 pt-6 border-t border-slate-200 flex flex-wrap items-center gap-3">
+              <Button variant="navy" onClick={() => setIsModalOpen(true)}>
+                <PlusCircle className="w-4 h-4" aria-hidden="true" />
+                New Pseudonymous Patient
+              </Button>
+              <Link
+                to="/assessments/new"
+                className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-700 hover:bg-sky-800 active:scale-[0.98] border border-sky-700 rounded-md shadow-sm transition-all duration-150 ease-out"
+              >
+                <ClipboardList className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true" />
+                Initiate Assessment
+              </Link>
+              <Link
+                to="/patients"
+                className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors duration-150 sm:ml-auto"
+              >
+                All Patients
+                <ArrowRight className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true" />
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </ScrollReveal>
 
       {/* Metrics Summary Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <ScrollReveal delayMs={100} className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <Card>
           <CardContent className="p-5">
             <div className="flex items-center justify-between text-slate-500 mb-2">
@@ -143,10 +146,10 @@ export const DashboardPage: React.FC = () => {
             <p className="text-xs text-slate-500 mt-1">Quality flags or longitudinal feature deltas</p>
           </CardContent>
         </Card>
-      </div>
+      </ScrollReveal>
 
       {/* Patient Roster Table */}
-      <section aria-labelledby="recent-patients-heading" className="space-y-4">
+      <ScrollReveal delayMs={150} as="section" className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 id="recent-patients-heading" className="text-lg font-semibold text-slate-900">
             Recent Patients &amp; Assessments
@@ -235,7 +238,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           </Card>
         )}
-      </section>
+      </ScrollReveal>
 
       <CreatePatientModal
         isOpen={isModalOpen}

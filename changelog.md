@@ -80,3 +80,35 @@ This log tracks every phase of the OcuTrack frontend reconstruction against `PRD
   - **0** `animate-bounce`, `animate-ping`, or `animate-pulse` animations.
   - **0** `TODO`/`FIXME`/placeholder/scaffolding strings, **0** personal teammate references, **0** empty files, **0** `as any` casts.
 - Updated `AssessmentReportPage.test.tsx`; verified `tsc -b` (0 errors), `vite build` (clean production bundle), and `vitest run` (12 test files, 43 tests passing).
+
+---
+
+## Phase 6: UI Enhancements, Healthcare-Themed Animations, Tactile Controls & Dedicated About Page (Completed)
+- **Medical Instrument Tactile Button Feedback:**
+  - Upgraded `frontend/src/components/ui/Button.tsx` with precision instrument micro-feedback (`active:scale-[0.98] transition-all duration-150 ease-out`, `focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2`).
+  - Added subtle hover border/surface shifts across all variants (`primary`, `navy`, `teal`, `secondary`, `outline`, `ghost`, `destructive`).
+  - Configured `group` styling to support crisp icon nudge micro-interactions (`group-hover:translate-x-0.5`).
+- **Healthcare-Themed Ocular Animations:**
+  - Configured `pupil-constrict`, `telemetry-draw`, and `calm-pulse` keyframes and animations in `frontend/tailwind.config.js`.
+  - Implemented `frontend/src/components/common/OpticalPupilLoader.tsx`: custom SVG/CSS concentric optical ring aperture animation mirroring the pupillary light reflex (calibrated graticule ticks, alignment marks, contracting pupil core, and corneal light reflection) with full `motion-safe:` support.
+  - Implemented `frontend/src/components/common/TelemetryWaveform.tsx`: restrained SVG ocular-response curve animation (`stroke-dashoffset`) rendering pupillary light reflex dynamics and smooth-pursuit kinematic sinusoidal waveforms.
+  - Enhanced `frontend/src/components/common/LoadingSpinner.tsx` with `variant="pupil"` option to render `OpticalPupilLoader`.
+  - Updated `frontend/src/pages/ProcessingPage.tsx`: replaced generic spinner with `OpticalPupilLoader` and added real-time `TelemetryWaveform` stream visualization during server analysis execution.
+  - Upgraded live backend status dot in `frontend/src/components/layout/Header.tsx` with calm 2-second opacity cadence (`motion-safe:animate-calm-pulse`) for live system state.
+- **Minimal Viewport Scroll Reveals:**
+  - Implemented lightweight, reusable `frontend/src/components/common/ScrollReveal.tsx` using `IntersectionObserver` (`opacity: 0 -> 1` and `translateY(12px) -> 0` over 400ms `ease-out`, `once: true`, with instant fallback for reduced motion or environments lacking `IntersectionObserver`).
+  - Integrated `ScrollReveal` across `frontend/src/pages/DashboardPage.tsx` and `frontend/src/pages/AboutPage.tsx`.
+- **Dedicated About & Clinical Architecture Page (`/about`):**
+  - Implemented `frontend/src/pages/AboutPage.tsx`:
+    1. **Clinical Purpose Header:** Direct, high-clarity explanation of the neuro-ophthalmic attention bottleneck in rural and community health centers, and why OcuTrack emphasizes intra-individual personal-baseline monitoring over noisy population distributions.
+    2. **Authentic Visual Context & User Roles:** Framed clinical photograph in a hairline-bordered aspect-ratio container with cool-slate caption bar and resilient SVG schematic fallback, accompanied by structured role profiles for Community Health Workers (primary screeners) and Supervising Clinicians (neurologists / physicians).
+    3. **Interactive 4-Stage Pipeline Architecture Walkthrough:** Interactive card selection with SVG optical aperture and telemetry waveform accents detailing `01. Standardized Capture`, `02. Computer Vision Extraction`, `03. Within-Session Temporal Analysis (TCN)`, and `04. Longitudinal Baseline Comparison`.
+    4. **Clinical Safety, Boundaries & Data Privacy:** Transparent two-column comparison specifying what OcuTrack supports (repeatable kinematics, automated usability gating, personal-baseline deltas) versus what it does NOT conclude (no disease diagnosis, no clinician replacement, raw video deleted by default, pseudonymous IDs only).
+  - Wired `/about` in `frontend/src/routes/index.tsx` (keeping `/limitations` linked for deep regulatory reference).
+  - Updated `frontend/src/components/layout/Header.tsx` and `frontend/src/components/layout/Footer.tsx` with prominent, direct links to `/about` and `/limitations`.
+- **Quality Verification & Testing:**
+  - Added `frontend/src/test/AboutPage.test.tsx` (testing clinical purpose header, authentic context, user roles, interactive pipeline tab navigation, and clinical boundaries).
+  - Added `frontend/src/test/HealthcareAnimations.test.tsx` (testing `OpticalPupilLoader`, `TelemetryWaveform`, and `ScrollReveal`).
+  - Re-verified automated anti-pattern audit: **0** em dashes (`—`), **0** emojis, **0** `rounded-full` buttons, **0** prohibited colors, **0** AI marketing buzzwords.
+  - Full test suite passing: `14 test files, 48 passed out of 48`.
+  - TypeScript check (`tsc -b`) and production build (`vite build`) passing cleanly.

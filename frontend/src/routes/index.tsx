@@ -8,6 +8,7 @@ import { PupilTestPage } from '../pages/PupilTestPage';
 import { PursuitTestPage } from '../pages/PursuitTestPage';
 import { ProcessingPage } from '../pages/ProcessingPage';
 import { AssessmentReportPage } from '../pages/AssessmentReportPage';
+import { AboutPage } from '../pages/AboutPage';
 import { AboutLimitationsPage } from '../pages/AboutLimitationsPage';
 import { PrivacyPolicyPage } from '../pages/PrivacyPolicyPage';
 import { TermsConditionsPage } from '../pages/TermsConditionsPage';
@@ -26,7 +27,7 @@ export const APP_ROUTES: AppRoute[] = [
   { path: '/assessments/:assessmentId/pursuit-test', element: <PursuitTestPage /> },
   { path: '/assessments/:assessmentId/processing', element: <ProcessingPage /> },
   { path: '/assessments/:assessmentId/report', element: <AssessmentReportPage /> },
-  { path: '/about', element: <AboutLimitationsPage /> },
+  { path: '/about', element: <AboutPage /> },
   { path: '/limitations', element: <AboutLimitationsPage /> },
   { path: '/privacy', element: <PrivacyPolicyPage /> },
   { path: '/terms', element: <TermsConditionsPage /> },
