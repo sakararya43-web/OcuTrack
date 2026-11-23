@@ -20,7 +20,7 @@ import { CreatePatientModal } from '../components/patients/CreatePatientModal';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { ScrollReveal } from '../components/common/ScrollReveal';
+import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/motion';
 import { ApiClientError } from '../services/apiClient';
 import { formatDate } from '../lib/formatters';
 
@@ -107,49 +107,55 @@ export const DashboardPage: React.FC = () => {
       </ScrollReveal>
 
       {/* Metrics Summary Strip */}
-      <ScrollReveal delayMs={100} className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <Card>
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Registered Records</span>
-              <Users className="w-5 h-5 text-slate-500" aria-hidden="true" />
-            </div>
-            <div className="text-2xl font-bold text-slate-900 font-mono">
-              {loading ? '-' : error ? '0' : patientCount}
-            </div>
-            <p className="text-xs text-slate-500 mt-1">Pseudonymous patient profiles</p>
-          </CardContent>
-        </Card>
+      <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <StaggerItem>
+          <Card>
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between text-slate-500 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Registered Records</span>
+                <Users className="w-5 h-5 text-slate-500" aria-hidden="true" />
+              </div>
+              <div className="text-2xl font-bold text-slate-900 font-mono">
+                {loading ? '-' : error ? '0' : patientCount}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Pseudonymous patient profiles</p>
+            </CardContent>
+          </Card>
+        </StaggerItem>
 
-        <Card>
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Recorded Assessments</span>
-              <FileCheck className="w-5 h-5 text-teal-700" aria-hidden="true" />
-            </div>
-            <div className="text-2xl font-bold text-slate-900 font-mono">
-              {loading ? '-' : error ? '0' : totalAssessmentsCount}
-            </div>
-            <p className="text-xs text-slate-500 mt-1">Completed ocular measurement sessions</p>
-          </CardContent>
-        </Card>
+        <StaggerItem>
+          <Card>
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between text-slate-500 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Recorded Assessments</span>
+                <FileCheck className="w-5 h-5 text-teal-700" aria-hidden="true" />
+              </div>
+              <div className="text-2xl font-bold text-slate-900 font-mono">
+                {loading ? '-' : error ? '0' : totalAssessmentsCount}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Completed ocular measurement sessions</p>
+            </CardContent>
+          </Card>
+        </StaggerItem>
 
-        <Card>
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Flagged for Review</span>
-              <AlertCircle className="w-5 h-5 text-sky-700" aria-hidden="true" />
-            </div>
-            <div className="text-2xl font-bold text-slate-900 font-mono">
-              {loading ? '-' : error ? '0' : pendingReviewCount}
-            </div>
-            <p className="text-xs text-slate-500 mt-1">Quality flags or longitudinal feature deltas</p>
-          </CardContent>
-        </Card>
-      </ScrollReveal>
+        <StaggerItem>
+          <Card>
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between text-slate-500 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Flagged for Review</span>
+                <AlertCircle className="w-5 h-5 text-sky-700" aria-hidden="true" />
+              </div>
+              <div className="text-2xl font-bold text-slate-900 font-mono">
+                {loading ? '-' : error ? '0' : pendingReviewCount}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Quality flags or longitudinal feature deltas</p>
+            </CardContent>
+          </Card>
+        </StaggerItem>
+      </StaggerContainer>
 
       {/* Patient Roster Table */}
-      <ScrollReveal delayMs={150} as="section" className="space-y-4">
+      <ScrollReveal delay={0.15} as="section" className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 id="recent-patients-heading" className="text-lg font-semibold text-slate-900">
             Recent Patients &amp; Assessments

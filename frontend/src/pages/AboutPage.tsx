@@ -17,8 +17,7 @@ import { PROTOCOL_VERSION, NON_DIAGNOSTIC_DISCLAIMER } from '../lib/constants';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { OpticalPupilLoader } from '../components/common/OpticalPupilLoader';
-import { TelemetryWaveform } from '../components/common/TelemetryWaveform';
-import { ScrollReveal } from '../components/common/ScrollReveal';
+import { ScrollReveal, StaggerContainer, StaggerItem, AnimatedPLRPath, PulseIndicator } from '../components/motion';
 
 interface PipelineStepDetail {
   number: string;
@@ -163,7 +162,7 @@ export const AboutPage: React.FC = () => {
       </ScrollReveal>
 
       {/* Mandatory Non-Diagnostic Disclaimer Box */}
-      <ScrollReveal delayMs={100}>
+      <ScrollReveal delay={0.1}>
         <div className="bg-slate-900 text-slate-100 rounded-md p-6 space-y-3 border border-slate-800">
           <div className="flex items-start gap-3">
             <ShieldAlert className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
@@ -183,7 +182,7 @@ export const AboutPage: React.FC = () => {
       </ScrollReveal>
 
       {/* 2. Authentic Visual Context & User Profile Breakdown */}
-      <ScrollReveal delayMs={150} className="space-y-6">
+      <ScrollReveal delay={0.15} className="space-y-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Clinical Deployment &amp; Frontline Roles
@@ -305,7 +304,7 @@ export const AboutPage: React.FC = () => {
       </ScrollReveal>
 
       {/* 3. Interactive Pipeline Architecture Walkthrough */}
-      <ScrollReveal delayMs={200} className="space-y-6">
+      <ScrollReveal delay={0.2} className="space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
@@ -322,44 +321,45 @@ export const AboutPage: React.FC = () => {
         </div>
 
         {/* 4 Pipeline Step Navigation Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {PIPELINE_STEPS.map((step, idx) => {
             const isSelected = selectedStage === idx;
             return (
-              <button
-                key={step.number}
-                type="button"
-                onClick={() => setSelectedStage(idx)}
-                className={`text-left p-4 rounded-md border transition-all duration-150 ease-out active:scale-[0.98] ${
-                  isSelected
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded ${
-                      isSelected
-                        ? 'bg-teal-500 text-slate-950'
-                        : 'bg-slate-100 text-slate-700 border border-slate-200'
-                    }`}
-                  >
-                    STAGE {step.number}
-                  </span>
-                  {isSelected && (
-                    <span className="w-2 h-2 rounded-sm bg-teal-400 motion-safe:animate-calm-pulse" aria-hidden="true" />
-                  )}
-                </div>
-                <h3 className={`text-sm font-bold tracking-tight ${isSelected ? 'text-white' : 'text-slate-900'}`}>
-                  {step.title}
-                </h3>
-                <p className={`text-xs mt-1 line-clamp-2 ${isSelected ? 'text-slate-300' : 'text-slate-600'}`}>
-                  {step.shortDesc}
-                </p>
-              </button>
+              <StaggerItem key={step.number}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedStage(idx)}
+                  className={`w-full text-left p-4 rounded-md border transition-all duration-150 ease-out active:scale-[0.98] ${
+                    isSelected
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span
+                      className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded ${
+                        isSelected
+                          ? 'bg-teal-500 text-slate-950'
+                          : 'bg-slate-100 text-slate-700 border border-slate-200'
+                      }`}
+                    >
+                      STAGE {step.number}
+                    </span>
+                    {isSelected && (
+                      <PulseIndicator status="active" />
+                    )}
+                  </div>
+                  <h3 className={`text-sm font-bold tracking-tight ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+                    {step.title}
+                  </h3>
+                  <p className={`text-xs mt-1 line-clamp-2 ${isSelected ? 'text-slate-300' : 'text-slate-600'}`}>
+                    {step.shortDesc}
+                  </p>
+                </button>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
 
         {/* Detailed Stage Interactive Breakdown Card */}
         <Card className="border-slate-300">
@@ -401,7 +401,7 @@ export const AboutPage: React.FC = () => {
                 )}
                 {selectedStage === 2 && (
                   <div className="w-48">
-                    <TelemetryWaveform height={48} showGrid={false} label="TCN Dynamics" />
+                    <AnimatedPLRPath variant="reflex" className="w-full" />
                   </div>
                 )}
                 {selectedStage === 3 && (
@@ -456,7 +456,7 @@ export const AboutPage: React.FC = () => {
       </ScrollReveal>
 
       {/* 4. Clinical Safety, Limitations & Privacy Grid */}
-      <ScrollReveal delayMs={250} className="space-y-6">
+      <ScrollReveal delay={0.25} className="space-y-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Clinical Safety, Boundaries &amp; Data Privacy

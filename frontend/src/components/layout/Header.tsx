@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Eye, Activity, Users, PlusCircle, Server, RefreshCw, Info, Menu, X } from 'lucide-react';
 import { checkBackendHealth } from '../../services/healthService';
 import { APP_NAME } from '../../lib/constants';
+import { PulseIndicator } from '../motion';
 
 export const Header: React.FC = () => {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
@@ -89,7 +90,7 @@ export const Header: React.FC = () => {
               )}
               {backendStatus === 'connected' && (
                 <span className="inline-flex items-center gap-1.5 text-teal-800 font-medium">
-                  <span className="w-2 h-2 rounded-sm bg-teal-600 motion-safe:animate-calm-pulse" aria-hidden="true"></span>
+                  <PulseIndicator status="active" />
                   Connected
                 </span>
               )}

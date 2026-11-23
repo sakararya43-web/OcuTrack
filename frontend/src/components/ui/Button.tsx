@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, MotionProps } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
 export type ButtonVariant =
@@ -12,7 +13,9 @@ export type ButtonVariant =
 
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof MotionProps>,
+    MotionProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
 }
@@ -36,11 +39,14 @@ const sizeClasses: Record<ButtonSize, string> = {
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', type = 'button', ...props }, ref) => {
     return (
-      <button
+      <motion.button
         ref={ref}
         type={type}
+        whileHover={{ y: -1 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         className={cn(
-          'group inline-flex items-center justify-center gap-2 rounded-md font-medium transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+          'group inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
           variantClasses[variant],
           sizeClasses[size],
           className

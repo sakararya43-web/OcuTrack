@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
 export interface OpticalPupilLoaderProps {
@@ -80,7 +81,11 @@ export const OpticalPupilLoader: React.FC<OpticalPupilLoaderProps> = ({
           />
 
           {/* Contracting and Expanding Pupil Core (Pupillary Light Reflex) */}
-          <g className="origin-center motion-safe:animate-pupil-constrict">
+          <motion.g
+            style={{ transformOrigin: '50px 50px' }}
+            animate={{ scale: [1, 0.55, 0.75, 1] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+          >
             <circle
               cx="50"
               cy="50"
@@ -96,7 +101,7 @@ export const OpticalPupilLoader: React.FC<OpticalPupilLoaderProps> = ({
               fill="#ffffff"
               opacity="0.85"
             />
-          </g>
+          </motion.g>
 
           {/* Micro Measurement Crosshairs */}
           <line x1="48" y1="50" x2="52" y2="50" stroke="#ffffff" strokeWidth="1" opacity="0.6" />
