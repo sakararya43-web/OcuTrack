@@ -143,3 +143,30 @@ This log tracks every phase of the OcuTrack frontend reconstruction against `PRD
   - Zero-scaffolding and anti-pattern audit verified: 0 em dashes, 0 emojis, 0 `rounded-full` buttons, 0 purple/orange/amber/magenta/beige colors, 0 `as any` casts, 0 TODOs.
   - Full test suite passed: 14 test files, 48 tests passing.
   - TypeScript build (`tsc -b`) and production bundle build (`vite build`) passed with 0 errors.
+
+
+---
+
+## Expansion Phase 1: Maximalist Design System Upgrade & Multilingual Engine (i18n) (Completed)
+- **Lightweight i18n Architecture (`frontend/src/i18n/`):**
+  - Implemented `LanguageProvider` and `useTranslation` React Context with type-safe dictionaries for 4 languages: English (`en`), Hindi (`hi`), Spanish (`es`), and French (`fr`).
+  - Added persistence in `localStorage` (`ocutrack_language`) with graceful fallback to English across all unit tests and isolated render contexts.
+  - Set dynamic `<html lang="...">` document attribute synchronization.
+- **Top-Bar Language Switcher (`frontend/src/components/layout/LanguageSwitcher.tsx`):**
+  - High-density rectangular control (`EN | HI | ES | FR`) integrated into the primary navigation bar.
+  - Smooth Framer Motion sliding indicator powered by `layoutId="activeLanguageHighlight"` and responsive spring physics (`stiffness: 500, damping: 35`).
+  - Strictly rectangular/sharp geometry (`rounded-md` container, `rounded-sm` buttons; zero `rounded-full` pill buttons).
+- **Clinical Precision Maximalism Visual Shell:**
+  - Added `.telemetry-grid` and `.hairline-border` utility classes in `frontend/src/index.css`.
+  - Applied subtle technical coordinate grid backdrops to the application layout and architectural card frames.
+  - Upgraded header with monospaced `v0.1-CLINICAL` protocol badge and crisp hairline border styling.
+  - Upgraded metric values to oversized monospaced numerals with `tabular-nums` alignment.
+- **System-Wide UI Translations:**
+  - Translated primary navigation links, API status badges, and action triggers.
+  - Translated workspace headlines, description copy, KPI cards, table headers, and actions on `DashboardPage.tsx`.
+  - Translated patient test instructions, 5-stage step guidance, illumination cautions, and safety notices on `PupilTestPage.tsx` and `PursuitTestPage.tsx`.
+  - Translated legal governance links and non-diagnostic clinical boundaries on `Footer.tsx` and `DisclaimerBanner.tsx`.
+- **Testing & Verification:**
+  - Added dedicated test suite `frontend/src/test/i18n.test.tsx` verifying default English rendering, language switching across all 4 locales, and `localStorage` persistence.
+  - Full test suite passing cleanly: **15 test files**, **53 passed out of 53**.
+  - TypeScript build (`tsc -b`) and production bundle build (`vite build`) passing with **0 errors**.

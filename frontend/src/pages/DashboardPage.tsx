@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { getPatients } from '../services/patientService';
 import { Patient } from '../types/api';
-import { APP_NAME, APP_TAGLINE, PROTOCOL_VERSION } from '../lib/constants';
+import { PROTOCOL_VERSION } from '../lib/constants';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { ErrorAlert } from '../components/common/ErrorAlert';
 import { EmptyState } from '../components/common/EmptyState';
@@ -23,8 +23,10 @@ import { Badge } from '../components/ui/Badge';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/motion';
 import { ApiClientError } from '../services/apiClient';
 import { formatDate } from '../lib/formatters';
+import { useTranslation } from '../i18n';
 
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
@@ -66,39 +68,50 @@ export const DashboardPage: React.FC = () => {
     <div className="space-y-8">
       {/* Clinical Workspace Overview */}
       <ScrollReveal>
-        <Card>
+        <Card className="relative overflow-hidden border-slate-300 shadow-xs">
+          {/* Subtle Technical Corner Accents */}
+          <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none opacity-20">
+            <svg viewBox="0 0 100 100" className="w-full h-full text-slate-400">
+              <path d="M 100 0 L 100 100 L 0 100" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
+            </svg>
+          </div>
+
           <CardContent className="p-6 sm:p-8">
             <div className="max-w-3xl space-y-3">
-              <Badge variant="medical">
-                <ShieldCheck className="w-3.5 h-3.5 text-sky-700" aria-hidden="true" />
-                Active Protocol: {PROTOCOL_VERSION}
-              </Badge>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                {APP_NAME}: {APP_TAGLINE}
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="medical">
+                  <ShieldCheck className="w-3.5 h-3.5 text-sky-700" aria-hidden="true" />
+                  <span>{PROTOCOL_VERSION}</span>
+                </Badge>
+                <span className="text-[11px] font-mono text-slate-500 uppercase tracking-wider px-2 py-0.5 rounded border border-slate-200 bg-slate-50">
+                  REF-LATENCY: 245ms | VELOCITY: 4.3mm/s
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight font-sans">
+                {t('dashboard.heroTitle')}
               </h1>
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Standardized browser capture for pupil light reflex and smooth-pursuit eye movement
-                measurements, quality verification, and personal-baseline comparison across visits.
+                {t('dashboard.heroDescription')}
               </p>
             </div>
 
             <div className="mt-6 pt-6 border-t border-slate-200 flex flex-wrap items-center gap-3">
               <Button variant="navy" onClick={() => setIsModalOpen(true)}>
                 <PlusCircle className="w-4 h-4" aria-hidden="true" />
-                New Pseudonymous Patient
+                <span>{t('dashboard.newPatient')}</span>
               </Button>
               <Link
                 to="/assessments/new"
-                className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-700 hover:bg-sky-800 active:scale-[0.98] border border-sky-700 rounded-md shadow-sm transition-all duration-150 ease-out"
+                className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-700 hover:bg-sky-800 active:scale-[0.98] border border-sky-700 rounded-md shadow-xs transition-all duration-150 ease-out"
               >
                 <ClipboardList className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true" />
-                Initiate Assessment
+                <span>{t('dashboard.initiateAssessment')}</span>
               </Link>
               <Link
                 to="/patients"
                 className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors duration-150 sm:ml-auto"
               >
-                All Patients
+                <span>{t('dashboard.allPatients')}</span>
                 <ArrowRight className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true" />
               </Link>
             </div>
@@ -109,46 +122,52 @@ export const DashboardPage: React.FC = () => {
       {/* Metrics Summary Strip */}
       <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <StaggerItem>
-          <Card>
+          <Card className="border-slate-300">
             <CardContent className="p-5">
               <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Registered Records</span>
+                <span className="text-xs font-semibold uppercase tracking-wider font-mono">
+                  {t('dashboard.registeredRecords')}
+                </span>
                 <Users className="w-5 h-5 text-slate-500" aria-hidden="true" />
               </div>
-              <div className="text-2xl font-bold text-slate-900 font-mono">
+              <div className="text-3xl font-bold text-slate-900 font-mono tabular-nums tracking-tight">
                 {loading ? '-' : error ? '0' : patientCount}
               </div>
-              <p className="text-xs text-slate-500 mt-1">Pseudonymous patient profiles</p>
+              <p className="text-xs text-slate-500 mt-1">{t('dashboard.pseudonymousProfiles')}</p>
             </CardContent>
           </Card>
         </StaggerItem>
 
         <StaggerItem>
-          <Card>
+          <Card className="border-slate-300">
             <CardContent className="p-5">
               <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Recorded Assessments</span>
+                <span className="text-xs font-semibold uppercase tracking-wider font-mono">
+                  {t('dashboard.recordedAssessments')}
+                </span>
                 <FileCheck className="w-5 h-5 text-teal-700" aria-hidden="true" />
               </div>
-              <div className="text-2xl font-bold text-slate-900 font-mono">
+              <div className="text-3xl font-bold text-slate-900 font-mono tabular-nums tracking-tight">
                 {loading ? '-' : error ? '0' : totalAssessmentsCount}
               </div>
-              <p className="text-xs text-slate-500 mt-1">Completed ocular measurement sessions</p>
+              <p className="text-xs text-slate-500 mt-1">{t('dashboard.completedSessions')}</p>
             </CardContent>
           </Card>
         </StaggerItem>
 
         <StaggerItem>
-          <Card>
+          <Card className="border-slate-300">
             <CardContent className="p-5">
               <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Flagged for Review</span>
+                <span className="text-xs font-semibold uppercase tracking-wider font-mono">
+                  {t('dashboard.flaggedForReview')}
+                </span>
                 <AlertCircle className="w-5 h-5 text-sky-700" aria-hidden="true" />
               </div>
-              <div className="text-2xl font-bold text-slate-900 font-mono">
+              <div className="text-3xl font-bold text-slate-900 font-mono tabular-nums tracking-tight">
                 {loading ? '-' : error ? '0' : pendingReviewCount}
               </div>
-              <p className="text-xs text-slate-500 mt-1">Quality flags or longitudinal feature deltas</p>
+              <p className="text-xs text-slate-500 mt-1">{t('dashboard.reviewFlagsDesc')}</p>
             </CardContent>
           </Card>
         </StaggerItem>
@@ -157,11 +176,16 @@ export const DashboardPage: React.FC = () => {
       {/* Patient Roster Table */}
       <ScrollReveal delay={0.15} as="section" className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 id="recent-patients-heading" className="text-lg font-semibold text-slate-900">
-            Recent Patients &amp; Assessments
-          </h2>
-          <Link to="/patients" className="text-xs font-medium text-sky-800 hover:text-sky-900 hover:underline">
-            View full registry &rarr;
+          <div className="flex items-center gap-2">
+            <h2 id="recent-patients-heading" className="text-lg font-bold text-slate-900 font-mono">
+              {t('dashboard.recentHeading')}
+            </h2>
+            <span className="text-xs font-mono text-slate-500 hidden sm:inline-block">
+              [MAX 8 RECORDS]
+            </span>
+          </div>
+          <Link to="/patients" className="text-xs font-semibold text-sky-800 hover:text-sky-900 hover:underline font-mono">
+            {t('dashboard.viewFullRegistry')} &rarr;
           </Link>
         </div>
 
@@ -179,32 +203,32 @@ export const DashboardPage: React.FC = () => {
           />
         ) : patients.length === 0 ? (
           <EmptyState
-            title="No patient records found"
-            description="Create a pseudonymous patient record to start recording ocular measurements."
+            title={t('dashboard.noRecordsFound')}
+            description={t('dashboard.noRecordsDesc')}
             action={
               <Button variant="navy" onClick={() => setIsModalOpen(true)}>
                 <PlusCircle className="w-4 h-4" aria-hidden="true" />
-                Add First Patient
+                <span>{t('dashboard.addFirstPatient')}</span>
               </Button>
             }
           />
         ) : (
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden border-slate-300">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    <th className="px-6 py-3.5">Pseudonymous ID</th>
-                    <th className="px-6 py-3.5">Age Band</th>
-                    <th className="px-6 py-3.5">Consent</th>
-                    <th className="px-6 py-3.5">Last Assessment</th>
-                    <th className="px-6 py-3.5">Quality</th>
-                    <th className="px-6 py-3.5 text-right">Actions</th>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider font-mono">
+                    <th className="px-6 py-3.5">{t('dashboard.thPseudonymousId')}</th>
+                    <th className="px-6 py-3.5">{t('dashboard.thAgeBand')}</th>
+                    <th className="px-6 py-3.5">{t('dashboard.thConsent')}</th>
+                    <th className="px-6 py-3.5">{t('dashboard.thLastAssessment')}</th>
+                    <th className="px-6 py-3.5">{t('dashboard.thQuality')}</th>
+                    <th className="px-6 py-3.5 text-right">{t('dashboard.thActions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {patients.slice(0, 8).map((patient) => (
-                    <tr key={patient.patient_id} className="hover:bg-slate-50 transition-colors duration-150">
+                    <tr key={patient.patient_id} className="hover:bg-slate-50/80 transition-colors duration-150">
                       <td className="px-6 py-4 font-mono font-semibold text-slate-900">
                         <Link
                           to={`/patients/${patient.patient_id}`}
@@ -213,11 +237,13 @@ export const DashboardPage: React.FC = () => {
                           {patient.pseudonymous_code}
                         </Link>
                       </td>
-                      <td className="px-6 py-4 text-slate-600">{patient.age_band || 'Unspecified'}</td>
+                      <td className="px-6 py-4 text-slate-600 font-mono text-xs">
+                        {patient.age_band || t('common.unspecified')}
+                      </td>
                       <td className="px-6 py-4">
                         <StatusBadge type="consent" status={patient.consent_status} />
                       </td>
-                      <td className="px-6 py-4 text-slate-600">
+                      <td className="px-6 py-4 text-slate-600 font-mono text-xs">
                         {formatDate(patient.last_assessment_date)}
                       </td>
                       <td className="px-6 py-4">
@@ -226,15 +252,15 @@ export const DashboardPage: React.FC = () => {
                       <td className="px-6 py-4 text-right space-x-3 whitespace-nowrap">
                         <Link
                           to={`/patients/${patient.patient_id}`}
-                          className="text-xs font-medium text-slate-700 hover:text-slate-900 hover:underline"
+                          className="text-xs font-semibold text-slate-700 hover:text-slate-900 hover:underline font-mono"
                         >
-                          Profile
+                          {t('dashboard.btnProfile')}
                         </Link>
                         <Link
                           to={`/assessments/new?patientId=${patient.patient_id}`}
-                          className="text-xs font-semibold text-sky-800 hover:text-sky-900 hover:underline"
+                          className="text-xs font-semibold text-sky-800 hover:text-sky-900 hover:underline font-mono"
                         >
-                          New Test &rarr;
+                          {t('dashboard.btnNewTest')} &rarr;
                         </Link>
                       </td>
                     </tr>

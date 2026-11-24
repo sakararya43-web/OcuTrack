@@ -8,7 +8,7 @@ import { PageTransition } from '../motion';
 
 export const AppLayout: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+    <div className="min-h-screen flex flex-col bg-slate-50/70 telemetry-grid text-slate-900">
       <ReadingProgressBar />
       <a
         href="#main-content"

@@ -31,8 +31,10 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Alert } from '../components/ui/Alert';
 import { ApiClientError } from '../services/apiClient';
+import { useTranslation } from '../i18n';
 
 export const PursuitTestPage: React.FC = () => {
+  const { t } = useTranslation();
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const navigate = useNavigate();
 
@@ -202,12 +204,20 @@ export const PursuitTestPage: React.FC = () => {
       {/* Protocol Instructions */}
       <Card>
         <CardContent className="p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-slate-900">Protocol Instructions</h2>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            When the test starts, a high-contrast target will sweep horizontally across the field
-            for 10 seconds. Follow the moving target smoothly with your eyes.{' '}
-            <strong>Keep your head still</strong> and minimize blinking during the sweep.
-          </p>
+          <h2 className="text-sm font-semibold text-slate-900 font-mono">{t('testPursuit.title')}</h2>
+          <ul className="text-xs text-slate-600 leading-relaxed space-y-1 list-disc list-inside">
+            <li>{t('testPursuit.step1')}</li>
+            <li>{t('testPursuit.step2')}</li>
+            <li>{t('testPursuit.step3')}</li>
+            <li>{t('testPursuit.step4')}</li>
+          </ul>
+
+          <Alert
+            variant="clinical"
+            icon={<ShieldAlert className="w-4 h-4 text-slate-700" aria-hidden="true" />}
+          >
+            <strong>Safety Notice:</strong> {t('testPursuit.warning')}
+          </Alert>
 
           <div className="bg-slate-50 border border-slate-200 rounded-md p-3 text-xs text-slate-700 font-mono">
             Target Trajectory ID: <strong className="text-slate-900">{PURSUIT_PATH_VERSION}</strong>{' '}

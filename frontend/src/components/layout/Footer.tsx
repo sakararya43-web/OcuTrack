@@ -2,8 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, FileText, Scale, Info } from 'lucide-react';
 import { APP_NAME, PROTOCOL_VERSION } from '../../lib/constants';
+import { useTranslation } from '../../i18n';
 
 export const Footer: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <footer
       aria-label="Site footer"
@@ -15,14 +18,13 @@ export const Footer: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-slate-900 font-semibold text-sm">
               <ShieldCheck className="w-4 h-4 text-sky-700" aria-hidden="true" />
-              <span>{APP_NAME} Clinical Screening-Support Prototype</span>
+              <span>{APP_NAME} {t('footer.prototypeTitle')}</span>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Browser-based quantitative ocular measurement and personal-baseline monitoring for
-              trained healthcare worker review.
+              {t('footer.prototypeDesc')}
             </p>
             <p className="text-xs text-slate-500">
-              Active Protocol:{' '}
+              {t('footer.activeProtocol')}{' '}
               <code className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded font-mono text-slate-800">
                 {PROTOCOL_VERSION}
               </code>
@@ -31,8 +33,8 @@ export const Footer: React.FC = () => {
 
           {/* Legal & Governance Links */}
           <div className="space-y-2">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-900">
-              Governance &amp; Legal
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-900 font-mono">
+              {t('footer.governanceLegal')}
             </h2>
             <ul className="space-y-1.5 text-xs">
               <li>
@@ -41,7 +43,7 @@ export const Footer: React.FC = () => {
                   className="inline-flex items-center gap-1.5 text-sky-800 hover:text-sky-900 hover:underline font-medium"
                 >
                   <FileText className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
-                  Privacy Policy
+                  {t('footer.privacyPolicy')}
                 </Link>
               </li>
               <li>
@@ -50,7 +52,7 @@ export const Footer: React.FC = () => {
                   className="inline-flex items-center gap-1.5 text-sky-800 hover:text-sky-900 hover:underline font-medium"
                 >
                   <Scale className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
-                  Terms and Conditions
+                  {t('footer.termsConditions')}
                 </Link>
               </li>
               <li>
@@ -59,7 +61,7 @@ export const Footer: React.FC = () => {
                   className="inline-flex items-center gap-1.5 text-sky-800 hover:text-sky-900 hover:underline font-medium"
                 >
                   <Info className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
-                  About OcuTrack
+                  {t('footer.aboutOcutrack')}
                 </Link>
               </li>
               <li>
@@ -68,7 +70,7 @@ export const Footer: React.FC = () => {
                   className="inline-flex items-center gap-1.5 text-sky-800 hover:text-sky-900 hover:underline font-medium"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
-                  System Boundaries &amp; Limitations
+                  {t('footer.systemBoundaries')}
                 </Link>
               </li>
             </ul>
@@ -76,31 +78,29 @@ export const Footer: React.FC = () => {
 
           {/* Clinical Boundary Notice */}
           <div className="space-y-2">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-900">
-              Clinical Scope Notice
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-900 font-mono">
+              {t('footer.clinicalScopeNotice')}
             </h2>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Not a certified medical device. Not intended for independent diagnosis, treatment
-              decisions, or emergency triage. Measurements support repeat testing and clinician
-              review only.
+              {t('footer.clinicalScopeDesc')}
             </p>
           </div>
         </div>
 
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-          <p>{APP_NAME} Prototype. Pseudonymous research records only.</p>
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 font-mono">
+          <p>{t('footer.allRightsReserved')}</p>
           <div className="flex items-center gap-4">
             <Link to="/about" className="hover:text-slate-900 hover:underline">
-              About
+              {t('nav.about')}
             </Link>
             <Link to="/limitations" className="hover:text-slate-900 hover:underline">
-              Limitations
+              {t('nav.limitations')}
             </Link>
             <Link to="/privacy" className="hover:text-slate-900 hover:underline">
-              Privacy Policy
+              {t('footer.privacyPolicy')}
             </Link>
             <Link to="/terms" className="hover:text-slate-900 hover:underline">
-              Terms and Conditions
+              {t('footer.termsConditions')}
             </Link>
           </div>
         </div>

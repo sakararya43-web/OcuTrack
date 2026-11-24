@@ -1,8 +1,10 @@
 import React from 'react';
 import { ShieldAlert } from 'lucide-react';
-import { NON_DIAGNOSTIC_DISCLAIMER } from '../../lib/constants';
+import { useTranslation } from '../../i18n';
 
 export const DisclaimerBanner: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div
       role="region"
@@ -11,7 +13,7 @@ export const DisclaimerBanner: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 font-medium text-center">
         <ShieldAlert className="w-4 h-4 text-sky-400 flex-shrink-0 print:text-slate-700" aria-hidden="true" />
-        <span>{NON_DIAGNOSTIC_DISCLAIMER}</span>
+        <span>{t('common.disclaimer')}</span>
       </div>
     </div>
   );

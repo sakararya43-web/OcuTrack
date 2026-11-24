@@ -25,8 +25,10 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Alert } from '../components/ui/Alert';
 import { ApiClientError } from '../services/apiClient';
+import { useTranslation } from '../i18n';
 
 export const PupilTestPage: React.FC = () => {
+  const { t } = useTranslation();
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -207,14 +209,16 @@ export const PupilTestPage: React.FC = () => {
           <div className="flex items-start gap-3">
             <SunMedium className="w-5 h-5 text-sky-700 flex-shrink-0 mt-0.5" aria-hidden="true" />
             <div className="space-y-1">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Standardized Controlled-Lighting Protocol
+              <h2 className="text-sm font-semibold text-slate-900 font-mono">
+                {t('testPupil.title')}
               </h2>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Position the participant approximately 50 cm from the webcam under uniform, diffuse
-                ambient lighting. At the 5-second mark of the 15-second recording, a white screen
-                stimulus will appear briefly for 1.5 seconds.
-              </p>
+              <ul className="text-xs text-slate-600 leading-relaxed space-y-1 list-disc list-inside">
+                <li>{t('testPupil.step1')}</li>
+                <li>{t('testPupil.step2')}</li>
+                <li>{t('testPupil.step3')}</li>
+                <li>{t('testPupil.step4')}</li>
+                <li>{t('testPupil.step5')}</li>
+              </ul>
             </div>
           </div>
 
@@ -222,8 +226,7 @@ export const PupilTestPage: React.FC = () => {
             variant="clinical"
             icon={<ShieldAlert className="w-4 h-4 text-slate-700" aria-hidden="true" />}
           >
-            <strong>Safety Notice:</strong> Never direct high-intensity flashlight, torch, or laser
-            beams directly into the eye. Rely on the controlled diffuse screen flash stimulus.
+            <strong>Safety Notice:</strong> {t('testPupil.warning')}
           </Alert>
         </CardContent>
       </Card>
