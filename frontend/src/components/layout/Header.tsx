@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Eye, Activity, Users, PlusCircle, Server, RefreshCw, Info, Menu, X, LogOut, Lock, UserCheck, HelpCircle } from 'lucide-react';
+import { Eye, Activity, Users, PlusCircle, Server, RefreshCw, Info, Menu, X, LogOut, Lock, UserCheck, HelpCircle, BarChart3 } from 'lucide-react';
 import { checkBackendHealth } from '../../services/healthService';
 import { APP_NAME } from '../../lib/constants';
 import { PulseIndicator } from '../motion';
@@ -67,6 +67,10 @@ export const Header: React.FC = () => {
               <NavLink to="/patients" className={navLinkClass}>
                 <Users className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{t('nav.patients')}</span>
+              </NavLink>
+              <NavLink to="/clinic-overview" className={navLinkClass}>
+                <BarChart3 className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>{t('nav.clinicOverview')}</span>
               </NavLink>
               <NavLink to="/assessments/new" className={navLinkClass}>
                 <PlusCircle className="w-3.5 h-3.5" aria-hidden="true" />
@@ -205,6 +209,10 @@ export const Header: React.FC = () => {
             <NavLink to="/patients" onClick={() => setMobileMenuOpen(false)} className={navLinkClass}>
               <Users className="w-4 h-4" aria-hidden="true" />
               <span>{t('nav.patients')}</span>
+            </NavLink>
+            <NavLink to="/clinic-overview" onClick={() => setMobileMenuOpen(false)} className={navLinkClass}>
+              <BarChart3 className="w-4 h-4" aria-hidden="true" />
+              <span>{t('nav.clinicOverview')}</span>
             </NavLink>
             <NavLink to="/assessments/new" onClick={() => setMobileMenuOpen(false)} className={navLinkClass}>
               <PlusCircle className="w-4 h-4" aria-hidden="true" />

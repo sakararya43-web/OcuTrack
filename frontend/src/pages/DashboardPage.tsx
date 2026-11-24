@@ -8,6 +8,7 @@ import {
   ArrowRight,
   ShieldCheck,
   FileCheck,
+  BarChart3,
 } from 'lucide-react';
 import { getPatients } from '../services/patientService';
 import { Patient } from '../types/api';
@@ -172,6 +173,37 @@ export const DashboardPage: React.FC = () => {
           </Card>
         </StaggerItem>
       </StaggerContainer>
+
+      {/* Clinic Overview Collective Analytics Preview Card */}
+      <ScrollReveal delay={0.1}>
+        <div className="p-4 sm:p-5 rounded-md border border-slate-300 bg-white shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-sky-400 flex-shrink-0 mt-0.5">
+              <BarChart3 className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold font-mono text-slate-900">
+                  {t('clinicOverview.previewCardTitle')}
+                </h3>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-teal-200 bg-teal-50 text-teal-800 font-bold">
+                  COLLECTIVE ANALYTICS
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                {t('clinicOverview.previewCardDesc')}
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/clinic-overview"
+            className="group inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-slate-800 hover:text-slate-950 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-md transition-all self-end md:self-center font-mono whitespace-nowrap active:scale-[0.98]"
+          >
+            <span>{t('clinicOverview.viewOverview')}</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true" />
+          </Link>
+        </div>
+      </ScrollReveal>
 
       {/* Patient Roster Table */}
       <ScrollReveal delay={0.15} as="section" className="space-y-4">

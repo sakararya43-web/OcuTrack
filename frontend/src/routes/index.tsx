@@ -13,6 +13,7 @@ import { AboutPage } from '../pages/AboutPage';
 import { AboutLimitationsPage } from '../pages/AboutLimitationsPage';
 import { PrivacyPolicyPage } from '../pages/PrivacyPolicyPage';
 import { TermsConditionsPage } from '../pages/TermsConditionsPage';
+import { ClinicOverviewPage } from '../pages/ClinicOverviewPage';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 
 export interface AppRoute {
@@ -27,6 +28,14 @@ export const APP_ROUTES: AppRoute[] = [
     element: (
       <ProtectedRoute>
         <DashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/clinic-overview',
+    element: (
+      <ProtectedRoute>
+        <ClinicOverviewPage />
       </ProtectedRoute>
     ),
   },

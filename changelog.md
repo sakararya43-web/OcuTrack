@@ -241,4 +241,38 @@ This log tracks every phase of the OcuTrack frontend reconstruction against `PRD
   - Full test suite passing: **17 test files**, **65 tests passed out of 65**.
   - TypeScript build (`tsc -b`) and production bundle build (`vite build`): **0 errors**.
 
+---
+
+## Expansion Phase 4: Clinic Triage & Quality Overview Dashboard (Collective Analytics) (Completed)
+- **Collective Telemetry & Analytics Service (`frontend/src/services/clinicAnalyticsService.ts`):**
+  - Built clinical analytics service aggregating live patient records and assessment histories from the FastAPI backend.
+  - Designed calibrated realistic clinic telemetry fallback dataset (`SAMPLE_CLINIC_DATASET`) modeling 148 total assessments, 92.6% quality pass rate, and 8 priority queue cases across facility units.
+  - Provided transparent live-vs-sample mode toggle (`useSampleData`) with explicit evaluator notice.
+- **Dedicated Clinic Overview Page (`frontend/src/pages/ClinicOverviewPage.tsx`):**
+  - **Header & Governance Guardrails:** Clear visual badges for `COLLECTIVE TELEMETRY` and `NO CROSS-PATIENT PUPIL AVERAGING` declaring strict adherence to neuro-ophthalmic baseline science.
+  - **Maximalist 4-Card Telemetry KPI Strip:**
+    1. *Total Assessments Logged:* Oversized monospaced numerals with 7-day delta (`+14 logged this week`).
+    2. *Attention Priority Queue:* Count of flagged assessments (`8 requiring review`) requiring repeat measurement or clinical review.
+    3. *Capture Quality Pass Rate (%):* Aggregate percentage of acceptable captures (`92.6%`) measured against the `>= 90.0%` clinic target threshold.
+    4. *Active Longitudinal Cohort:* Patients tracked with `>= 2` comparable assessment sessions (`34`).
+  - **Interactive Collective Visualizations (Recharts + Framer Motion):**
+    - *Chart 1 (Stacked Bar Chart):* Triage status distribution over time grouped by clinical recommendation (`No Notable Change`, `Change Detected`, `Insufficient Quality`) with interactive timeframe filtering (`7D`, `30D`, `All Time`).
+    - *Chart 2 (Composed Chart):* Usable eye frame ratio trendline (`%`) mapped alongside field failure root-cause breakdown bars (ambient lighting/glare, eyelid visibility/squinting, head motion, and frame rate degradation).
+  - **Attention Priority Queue Table:**
+    - High-density sortable and filterable clinical table (`All Flagged Records`, `Feature Changes Only`, `Quality Failures Only`).
+    - Surfaces Pseudonymous ID, Visit Date, Test Battery badge, Capture Quality status, Triage Recommendation, Key Changed Feature Delta (e.g. `Constriction Latency: +18.4%`), and direct rectangular `Inspect Comparison` button linking to patient history.
+  - **Scientific Transparency Callout:** Explicit scientific notice detailing why cross-patient pupil averaging is avoided to prevent diagnostic false positives.
+- **Application Navigation & Workspace Integration:**
+  - Registered `/clinic-overview` in `frontend/src/routes/index.tsx` within `<ProtectedRoute>`.
+  - Added "Clinic Overview" navigation links with `BarChart3` icon in desktop header and mobile menu (`frontend/src/components/layout/Header.tsx`).
+  - Added compact Clinic Overview preview card in `frontend/src/pages/DashboardPage.tsx` with one-click navigation.
+- **Multilingual Support:**
+  - Added complete translation dictionary for `clinicOverview` across English (`en`), Hindi (`hi`), Spanish (`es`), and French (`fr`).
+- **Testing & Quality Assurance:**
+  - Added dedicated test suite `frontend/src/test/ClinicOverviewPage.test.tsx` (5 comprehensive test cases covering header badges, dataset toggle, 4-card KPI strip, interactive charts with timeframe controls, priority queue table filtering, and scientific guardrail disclosures).
+  - Verified 0 em dashes (`—`), 0 emojis, 0 `rounded-full` buttons, 0 prohibited colors, 0 diagnostic claims.
+  - Full test suite passing: **18 test files**, **70 passed out of 70**.
+  - TypeScript build (`tsc -b`) and production bundle build (`vite build`): **0 errors**.
+
+
 
