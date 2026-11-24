@@ -185,33 +185,33 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-[#F8FAFC]/95 backdrop-blur-md text-[#0F172A] border-b border-[#E2E8F0] transition-colors">
-      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12">
-        <div className="flex items-center justify-between h-16">
+      <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-3">
 
           {/* Left: Understated OcuTrack Branding */}
-          <div className="flex items-center gap-10">
+          <div className="flex items-center gap-4 xl:gap-7 min-w-0">
             <Link
               to="/"
               onClick={() => soundFx.playClick()}
-              className="flex items-center gap-2.5 group"
+              className="flex items-center gap-2 group shrink-0"
             >
               {/* Minimal Geometric Reticle Icon */}
-              <div className="w-6 h-6 rounded-md bg-[#0F172A] text-[#F8FAFC] flex items-center justify-center font-mono text-xs font-semibold">
+              <div className="w-6 h-6 rounded-md bg-[#0F172A] text-[#F8FAFC] flex items-center justify-center font-mono text-xs font-semibold shrink-0">
                 <span className="text-[#0F766E]"></span>
               </div>
 
-              <div className="flex items-baseline gap-2">
-                <span className="font-sans text-base font-semibold tracking-tight text-[#0F172A]">
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-sans text-sm sm:text-base font-semibold tracking-tight text-[#0F172A]">
                   {APP_NAME}
                 </span>
-                <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
+                <span className="hidden sm:inline font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
                   {PROTOCOL_VERSION}
                 </span>
               </div>
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-6 text-[12px] uppercase tracking-[0.08em] font-medium text-[#475569]">
+            <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 text-[11px] xl:text-[12px] uppercase tracking-[0.05em] font-medium text-[#475569]">
               <div
                 className="relative py-5 cursor-pointer"
                 onMouseEnter={() => handleMouseEnter('protocols')}
@@ -288,7 +288,7 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Right: Search, Language, Guide, Auth, API Status & CTA */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 mr-1 sm:mr-3 lg:mr-4">
 
             {/* Language Switcher */}
             <LanguageSwitcher className="hidden lg:inline-flex" />
@@ -301,7 +301,7 @@ export const Header: React.FC = () => {
               }}
               title="Open Clinical Protocol Guide (Shift+?)"
               aria-label="Open Clinical Protocol Guide"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs font-mono"
+              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs font-mono"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#0F766E]" />
               <span className="hidden sm:inline text-xs font-medium">Guide</span>
@@ -313,7 +313,7 @@ export const Header: React.FC = () => {
               to="/login"
               onClick={() => soundFx.playClick()}
               title={isAuthenticated && user ? `Logged in as ${user.name}` : 'Staff Portal Login'}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs font-medium text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs"
+              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs font-medium text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs"
             >
               <User className="w-3.5 h-3.5 text-[#64748B]" />
               <span className="hidden sm:inline">{isAuthenticated && user ? user.name.split(' ')[0] : 'Staff'}</span>
@@ -326,10 +326,10 @@ export const Header: React.FC = () => {
                 setSearchOpen(true);
               }}
               aria-label="Search patient records"
-              className="hidden xl:flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs"
+              className="hidden xl:flex items-center gap-1.5 px-2 py-1.5 2xl:px-2.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs"
             >
               <Search className="w-3.5 h-3.5 text-[#64748B]" />
-              <span className="font-sans text-xs">Search</span>
+              <span className="font-sans text-xs hidden 2xl:inline">Search</span>
               <kbd className="hidden 2xl:inline-flex items-center gap-0.5 px-1 py-0.2 text-[10px] font-mono text-[#64748B] bg-[#F1F5F9] border border-[#E2E8F0] rounded">
                 <Command className="w-2.5 h-2.5" /> K
               </kbd>
@@ -338,7 +338,7 @@ export const Header: React.FC = () => {
             {/* API Health Beacon */}
             <div
               title="Backend Telemetry Health"
-              className="hidden md:flex items-center gap-1.5 font-mono text-[11px] px-2.5 py-1 rounded-md bg-white border border-[#E2E8F0]"
+              className="hidden md:flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] px-2 py-1 rounded-md bg-white border border-[#E2E8F0]"
             >
               <span className="text-[10px] uppercase text-[#64748B]">API</span>
               {backendStatus === 'connected' && (
@@ -365,7 +365,7 @@ export const Header: React.FC = () => {
             <Link
               to="/assessments/new"
               onClick={() => soundFx.playClick()}
-              className="btn-ramp-primary hidden sm:inline-flex text-xs py-2 px-3.5"
+              className="btn-ramp-primary hidden sm:inline-flex text-xs py-2 px-3.5 shrink-0"
             >
               <span>Initiate Trial</span>
               <ArrowRight className="w-3.5 h-3.5" />
