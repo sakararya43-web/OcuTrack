@@ -4,8 +4,11 @@ import { Header } from './Header';
 import { DisclaimerBanner } from './DisclaimerBanner';
 import { APP_NAME, PROTOCOL_VERSION } from '../../lib/constants';
 import { ArrowUpRight, Lock, ShieldCheck } from 'lucide-react';
+import { useTranslation } from '../../i18n';
 
 export const AppLayout: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-[#0F172A] selection:bg-[#0F172A] selection:text-white relative">
       <DisclaimerBanner />
@@ -30,62 +33,62 @@ export const AppLayout: React.FC = () => {
                 </span>
               </div>
               <p className="text-[#475569] leading-relaxed font-normal">
-                Hardware-agnostic optical pupillometry and smooth pursuit kinematics for investigational longitudinal tracking.
+                {t('appFooter.tagline')}
               </p>
               <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#0F766E] font-medium pt-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-                <span>Active Telemetry Engine</span>
+                <span>{t('appFooter.activeTelemetryEngine')}</span>
               </div>
             </div>
 
             {/* Column 2: Clinical Navigation */}
             <div className="space-y-3">
               <span className="font-mono uppercase tracking-[0.08em] font-semibold text-[11px] text-[#0F172A] block">
-                Clinical Navigation
+                {t('appFooter.clinicalNavigation')}
               </span>
               <ul className="space-y-2 text-[#475569]">
-                <li><Link to="/clinic-overview" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Clinic Overview <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
-                <li><Link to="/console" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Clinical Console <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
-                <li><Link to="/patients" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Cohort Registry <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
-                <li><Link to="/login" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Staff Portal <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
-                <li><Link to="/assessments/new" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Initiate Screening <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
-                <li><Link to="/about" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Protocol Methodology <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
+                <li><Link to="/clinic-overview" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">{t('appFooter.linkClinicOverview')} <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
+                <li><Link to="/console" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">{t('appFooter.linkClinicalConsole')} <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
+                <li><Link to="/patients" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">{t('appFooter.linkCohortRegistry')} <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
+                <li><Link to="/login" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">{t('appFooter.linkStaffPortal')} <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
+                <li><Link to="/assessments/new" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">{t('appFooter.linkInitiateScreening')} <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
+                <li><Link to="/about" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">{t('appFooter.linkProtocolMethodology')} <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
               </ul>
             </div>
 
             {/* Column 3: Quality & Calibration */}
             <div className="space-y-3">
               <span className="font-mono uppercase tracking-[0.08em] font-semibold text-[11px] text-[#0F172A] block">
-                Quality &amp; Standards
+                {t('appFooter.qualityStandards')}
               </span>
               <ul className="space-y-2 text-[#475569]">
-                <li><span className="text-[#0F172A] font-medium">Ephemeral Video:</span> Instant raw deletion</li>
-                <li><span className="text-[#0F172A] font-medium">Calibration:</span> 11.7 mm iris standard</li>
-                <li><span className="text-[#0F172A] font-medium">Frame Floor:</span> &ge; 25 FPS validation</li>
-                <li><Link to="/about#disclaimer" className="text-[#0F172A] hover:underline font-medium">Regulatory Scope Notice</Link></li>
+                <li><span className="text-[#0F172A] font-medium">{t('appFooter.ephemeralVideoLabel')}</span> {t('appFooter.ephemeralVideoVal')}</li>
+                <li><span className="text-[#0F172A] font-medium">{t('appFooter.calibrationLabel')}</span> {t('appFooter.calibrationVal')}</li>
+                <li><span className="text-[#0F172A] font-medium">{t('appFooter.frameFloorLabel')}</span> {t('appFooter.frameFloorVal')}</li>
+                <li><Link to="/about#disclaimer" className="text-[#0F172A] hover:underline font-medium">{t('appFooter.regulatoryScopeNotice')}</Link></li>
               </ul>
             </div>
 
             {/* Column 4: Regulatory & Legal Policies */}
             <div className="space-y-3">
               <span className="font-mono uppercase tracking-[0.08em] font-semibold text-[11px] text-[#0F172A] block">
-                Governance &amp; Legal
+                {t('appFooter.governanceLegal')}
               </span>
               <p className="text-[11px] text-[#475569] leading-relaxed">
-                Investigational software instrument. For clinical research and non-diagnostic observational monitoring only. Not an FDA cleared medical diagnostic device.
+                {t('appFooter.governanceDesc')}
               </p>
               <ul className="space-y-2 text-[#475569] pt-1">
                 <li>
                   <Link to="/privacy" className="hover:text-[#0F172A] transition-colors flex items-center gap-1 font-medium text-[#0F172A]">
                     <Lock className="w-3 h-3 text-[#0F766E]" />
-                    <span>Privacy Policy</span>
+                    <span>{t('appFooter.privacyPolicy')}</span>
                     <ArrowUpRight className="w-3 h-3 opacity-50" />
                   </Link>
                 </li>
                 <li>
                   <Link to="/terms" className="hover:text-[#0F172A] transition-colors flex items-center gap-1 font-medium text-[#0F172A]">
                     <ShieldCheck className="w-3 h-3 text-[#0F766E]" />
-                    <span>Terms and Conditions</span>
+                    <span>{t('appFooter.termsConditions')}</span>
                     <ArrowUpRight className="w-3 h-3 opacity-50" />
                   </Link>
                 </li>
@@ -96,21 +99,21 @@ export const AppLayout: React.FC = () => {
 
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-[#64748B] gap-4">
             <div className="flex flex-wrap items-center gap-4">
-              <span>&copy; {new Date().getFullYear()} OcuTrack Clinical Biometrics. All rights reserved.</span>
+              <span>{t('appFooter.copyright', { year: new Date().getFullYear() })}</span>
               <div className="flex items-center gap-3">
                 <Link to="/privacy" className="hover:text-[#0F172A] transition-colors underline underline-offset-2">
-                  Privacy Policy
+                  {t('appFooter.privacyPolicy')}
                 </Link>
                 <span>&bull;</span>
                 <Link to="/terms" className="hover:text-[#0F172A] transition-colors underline underline-offset-2">
-                  Terms &amp; Conditions
+                  {t('appFooter.termsShort')}
                 </Link>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[#0F172A] font-medium">Protocol {PROTOCOL_VERSION}</span>
+              <span className="text-[#0F172A] font-medium">{t('appFooter.protocolLabel', { version: PROTOCOL_VERSION })}</span>
               <span>&bull;</span>
-              <span>Webcam Reflex Diagnostics</span>
+              <span>{t('appFooter.webcamReflexDiagnostics')}</span>
             </div>
           </div>
         </div>

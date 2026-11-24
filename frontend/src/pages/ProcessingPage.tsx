@@ -7,43 +7,12 @@ import { StatusBadge } from '../components/common/StatusBadge';
 import { ErrorAlert } from '../components/common/ErrorAlert';
 import { ApiClientError } from '../services/apiClient';
 import { soundFx } from '../lib/soundFx';
-
-interface PipelineStage {
-  id: string;
-  name: string;
-  description: string;
-}
-
-const PIPELINE_STAGES: PipelineStage[] = [
-  {
-    id: 'decode',
-    name: 'Video Validation & Codec Decoding',
-    description: 'Validating WebM/MP4 container decodability and duration integrity.',
-  },
-  {
-    id: 'quality',
-    name: 'Frame Usability & Quality Check',
-    description: 'Estimating illumination uniformity, camera stability, and blink ratio.',
-  },
-  {
-    id: 'landmarks',
-    name: 'Facial Landmark & Iris Segmentation',
-    description: 'Mapping 478 sub-pixel MediaPipe face points to extract iris boundaries.',
-  },
-  {
-    id: 'features',
-    name: 'Biometric Feature Series Calculation',
-    description: 'Computing pupil constriction curve, latency in ms, and tracking gain.',
-  },
-  {
-    id: 'tcn',
-    name: 'Experimental Temporal Convolutional Network (TCN)',
-    description: 'Causal dilated convolutions across 300-frame normalized coordinate series.',
-  },
-];
+import { useTranslation } from '../i18n';
 
 export const ProcessingPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
+  const { t, dict } = useTranslation();
+  const pipelineStages = dict.processingPage.stages;
 
   const [assessment, setAssessment] = useState<AssessmentDetail | null>(null);
   const [error, setError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
@@ -73,7 +42,7 @@ export const ProcessingPage: React.FC = () => {
       } else if (err instanceof Error) {
         setError({ message: err.message, isUnavailable: false });
       } else {
-        setError({ message: 'Error checking analysis status', isUnavailable: true });
+        setError({ message: t('processingPage.statusCheckError'), isUnavailable: true });
       }
     }
   };
@@ -116,7 +85,7 @@ export const ProcessingPage: React.FC = () => {
       if (err instanceof ApiClientError) {
         setError({ message: err.message, isUnavailable: err.isUnavailable });
       } else {
-        setError({ message: 'Retry request could not be executed', isUnavailable: false });
+        setError({ message: t('processingPage.retryError'), isUnavailable: false });
       }
     } finally {
       setIsRetrying(false);
@@ -140,10 +109,10 @@ export const ProcessingPage: React.FC = () => {
             </div>
             <div>
               <h1 className="font-serif text-xl sm:text-2xl font-normal text-[#0F172A] tracking-tight">
-                {isComplete ? 'Analysis Completed Successfully' : 'Analysis Pipeline Execution'}
+                {isComplete ? t('processingPage.titleComplete') : t('processingPage.titleExecuting')}
               </h1>
               <p className="text-xs font-mono text-[#475569] mt-0.5">
-                Session ID: <span className="text-[#0F172A] font-semibold">{assessmentId}</span> &bull; Elapsed:{' '}
+                {t('processingPage.sessionId')} <span className="text-[#0F172A] font-semibold">{assessmentId}</span> &bull; {t('processingPage.elapsed')}{' '}
                 <span className="text-[#0F172A] font-semibold">{elapsedSeconds}s</span>
               </p>
             </div>
@@ -165,11 +134,11 @@ export const ProcessingPage: React.FC = () => {
         {/* Pipeline Stages */}
         <div className="space-y-3">
           <h3 className="text-xs font-mono uppercase tracking-wider text-[#64748B] font-semibold">
-            Pipeline Stages (Real-Time Extraction)
+            {t('processingPage.pipelineStagesHeader')}
           </h3>
 
           <div className="space-y-2.5 font-mono">
-            {PIPELINE_STAGES.map((stage, idx) => {
+            {pipelineStages.map((stage, idx) => {
               let stageState: 'complete' | 'active' | 'pending' = 'pending';
               if (isComplete) {
                 stageState = 'complete';
@@ -218,17 +187,17 @@ export const ProcessingPage: React.FC = () => {
         {isComplete && (
           <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-6 space-y-4 font-mono">
             <h3 className="text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-              Extraction &amp; Quality Results
+              {t('processingPage.resultsHeader')}
             </h3>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
               <div className="bg-white p-3.5 rounded-lg border border-[#E2E8F0] space-y-1">
-                <span className="text-[#64748B] block mb-1 text-[10px] uppercase font-semibold">Quality Assessment</span>
+                <span className="text-[#64748B] block mb-1 text-[10px] uppercase font-semibold">{t('processingPage.qualityAssessment')}</span>
                 <StatusBadge type="quality" status={assessment?.quality?.status || assessment?.quality_status} />
               </div>
 
               <div className="bg-white p-3.5 rounded-lg border border-[#E2E8F0] space-y-1">
-                <span className="text-[#64748B] block mb-1 text-[10px] uppercase font-semibold">Usable Frame Ratio</span>
+                <span className="text-[#64748B] block mb-1 text-[10px] uppercase font-semibold">{t('processingPage.usableFrameRatio')}</span>
                 <span className="font-semibold text-[#0F172A] font-mono text-base block">
                   {assessment?.quality?.usable_frame_ratio !== undefined && assessment?.quality?.usable_frame_ratio !== null
                     ? `${(assessment.quality.usable_frame_ratio * 100).toFixed(1)}%`
@@ -237,16 +206,16 @@ export const ProcessingPage: React.FC = () => {
               </div>
 
               <div className="bg-white p-3.5 rounded-lg border border-[#E2E8F0] space-y-1">
-                <span className="text-[#64748B] block mb-1 text-[10px] uppercase font-semibold">Model Status</span>
+                <span className="text-[#64748B] block mb-1 text-[10px] uppercase font-semibold">{t('processingPage.modelStatus')}</span>
                 <span className="text-[#0F172A] font-semibold text-base block">
-                  {assessment?.temporal_model?.status || 'Experimental'}
+                  {assessment?.temporal_model?.status || t('processingPage.experimental')}
                 </span>
               </div>
             </div>
 
             {assessment?.review_message && (
               <div className="p-3.5 bg-white border border-[#E2E8F0] rounded-lg text-xs space-y-1">
-                <span className="font-semibold text-[#0F172A] block font-sans">Review Guidance:</span>
+                <span className="font-semibold text-[#0F172A] block font-sans">{t('processingPage.reviewGuidance')}</span>
                 <p className="text-[#475569] font-sans font-normal">{assessment.review_message}</p>
               </div>
             )}
@@ -255,7 +224,7 @@ export const ProcessingPage: React.FC = () => {
               <div className="p-3.5 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-xs text-[#B45309] space-y-1">
                 <div className="flex items-center gap-1.5 font-semibold">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
-                  <span>Quality Observation Warnings:</span>
+                  <span>{t('processingPage.qualityWarnings')}</span>
                 </div>
                 <ul className="list-disc list-inside space-y-0.5 text-[#475569] font-sans">
                   {assessment.warnings.map((w, idx) => (
@@ -267,14 +236,14 @@ export const ProcessingPage: React.FC = () => {
 
             <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#E2E8F0]">
               <span className="text-[11px] text-[#64748B] font-sans">
-                All raw video files destroyed in compliance with Ephemeral Video Standard.
+                {t('processingPage.ephemeralNote')}
               </span>
               <Link
                 to={`/assessments/${assessmentId}/report`}
                 onClick={() => soundFx.playClick()}
                 className="btn-ramp-primary py-2.5 px-4 text-xs w-full sm:w-auto shadow-sm"
               >
-                <span>View Full Biomarker Report</span>
+                <span>{t('processingPage.viewReport')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -286,10 +255,10 @@ export const ProcessingPage: React.FC = () => {
           <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-xl p-6 space-y-3 font-mono">
             <div className="flex items-center gap-2 text-[#B91C1C] font-semibold text-xs">
               <XCircle className="w-4 h-4" />
-              <span>Analysis Execution Failed</span>
+              <span>{t('processingPage.failedTitle')}</span>
             </div>
             <p className="text-xs text-[#475569] font-sans leading-relaxed">
-              The processing pipeline encountered an error decoding raw video streams or extracting landmarks.
+              {t('processingPage.failedDesc')}
             </p>
             <div className="pt-2 flex items-center gap-3">
               <button
@@ -299,14 +268,14 @@ export const ProcessingPage: React.FC = () => {
                 className="btn-ramp-primary py-2 px-4 text-xs shadow-sm"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>{isRetrying ? 'Retrying Pipeline...' : 'Retry Analysis Pipeline'}</span>
+                <span>{isRetrying ? t('processingPage.retrying') : t('processingPage.retryPipeline')}</span>
               </button>
               <Link
                 to={`/assessments/new`}
                 onClick={() => soundFx.playClick()}
                 className="btn-ramp-secondary py-2 px-4 text-xs"
               >
-                Start New Test
+                {t('processingPage.startNewTest')}
               </Link>
             </div>
           </div>

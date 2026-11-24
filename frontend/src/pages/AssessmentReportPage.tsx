@@ -26,9 +26,11 @@ import { formatDate } from '../lib/formatters';
 import { NON_DIAGNOSTIC_DISCLAIMER } from '../lib/constants';
 import { ApiClientError } from '../services/apiClient';
 import { soundFx } from '../lib/soundFx';
+import { useTranslation } from '../i18n';
 
 export const AssessmentReportPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
+  const { t } = useTranslation();
 
   const [assessment, setAssessment] = useState<AssessmentDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,7 +49,7 @@ export const AssessmentReportPage: React.FC = () => {
       } else if (err instanceof Error) {
         setError({ message: err.message, isUnavailable: false });
       } else {
-        setError({ message: 'Failed to retrieve assessment report from backend.', isUnavailable: true });
+        setError({ message: t('reportPage.fetchError'), isUnavailable: true });
       }
     } finally {
       setLoading(false);
@@ -61,7 +63,7 @@ export const AssessmentReportPage: React.FC = () => {
   if (loading) {
     return (
       <div className="panel-ramp p-16 text-center">
-        <LoadingSpinner label="Compiling quantitative assessment report..." />
+        <LoadingSpinner label={t('reportPage.loadingLabel')} />
       </div>
     );
   }
@@ -75,10 +77,10 @@ export const AssessmentReportPage: React.FC = () => {
           className="link-editorial text-xs font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Patient Registry</span>
+          <span>{t('reportPage.backToRegistry')}</span>
         </Link>
         <ErrorAlert
-          message={error?.message || 'Report could not be retrieved.'}
+          message={error?.message || t('reportPage.notRetrieved')}
           isUnavailable={error?.isUnavailable}
           onRetry={fetchReport}
         />
@@ -105,7 +107,7 @@ export const AssessmentReportPage: React.FC = () => {
           className="link-editorial text-xs font-semibold"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Participant Record</span>
+          <span>{t('reportPage.backToRecord')}</span>
         </Link>
         <div className="flex items-center gap-2">
           <button
@@ -117,7 +119,7 @@ export const AssessmentReportPage: React.FC = () => {
             className="btn-ramp-secondary py-1.5 px-3 text-xs font-mono"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>Print Report</span>
+            <span>{t('reportPage.printReport')}</span>
           </button>
         </div>
       </div>
@@ -133,11 +135,11 @@ export const AssessmentReportPage: React.FC = () => {
                   <FileText className="w-5 h-5 text-[#475569]" />
                 </div>
                 <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#0F172A] tracking-tight">
-                  Ocular Measurement &amp; Biomarker Report
+                  {t('reportPage.reportTitle')}
                 </h1>
               </div>
               <p className="text-xs text-[#475569] font-mono">
-                Session ID: <span className="text-[#0F172A] font-semibold">{assessment.assessment_id}</span> &bull; Protocol:{' '}
+                {t('reportPage.sessionId')} <span className="text-[#0F172A] font-semibold">{assessment.assessment_id}</span> &bull; {t('reportPage.protocolLabel')}{' '}
                 <span className="text-[#0F172A] font-semibold">{assessment.protocol_version || 'ocutrack-protocol-0.1'}</span>
               </p>
             </div>
@@ -151,31 +153,31 @@ export const AssessmentReportPage: React.FC = () => {
           {/* Metadata Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 mt-6 border-t border-[#E2E8F0] text-xs font-mono">
             <div className="bg-white border border-[#E2E8F0] rounded-lg p-3.5 space-y-1">
-              <span className="text-[#64748B] block text-[10px] uppercase tracking-wider font-semibold">Pseudonymous ID</span>
+              <span className="text-[#64748B] block text-[10px] uppercase tracking-wider font-semibold">{t('reportPage.pseudonymousId')}</span>
               <span className="font-semibold text-[#0F172A] flex items-center gap-1.5 text-sm">
                 <User className="w-3.5 h-3.5 text-[#475569]" />
                 {assessment.patient_id}
               </span>
             </div>
             <div className="bg-white border border-[#E2E8F0] rounded-lg p-3.5 space-y-1">
-              <span className="text-[#64748B] block text-[10px] uppercase tracking-wider font-semibold">Captured Timestamp</span>
+              <span className="text-[#64748B] block text-[10px] uppercase tracking-wider font-semibold">{t('reportPage.capturedTimestamp')}</span>
               <span className="font-medium text-[#0F172A] flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-[#475569]" />
                 {formatDate(assessment.assessment_at)}
               </span>
             </div>
             <div className="bg-white border border-[#E2E8F0] rounded-lg p-3.5 space-y-1">
-              <span className="text-[#64748B] block text-[10px] uppercase tracking-wider font-semibold">Quality Usability</span>
+              <span className="text-[#64748B] block text-[10px] uppercase tracking-wider font-semibold">{t('reportPage.qualityUsability')}</span>
               <span className="font-semibold text-[#0F766E]">
                 {assessment.quality?.usable_frame_ratio !== undefined && assessment.quality?.usable_frame_ratio !== null
-                  ? `${(assessment.quality.usable_frame_ratio * 100).toFixed(1)}% Usable`
-                  : 'Acceptable'}
+                  ? t('reportPage.usableSuffix', { pct: (assessment.quality.usable_frame_ratio * 100).toFixed(1) })
+                  : t('reportPage.acceptableFallback')}
               </span>
             </div>
             <div className="bg-white border border-[#E2E8F0] rounded-lg p-3.5 space-y-1">
-              <span className="text-[#64748B] block text-[10px] uppercase tracking-wider font-semibold">Review Status</span>
+              <span className="text-[#64748B] block text-[10px] uppercase tracking-wider font-semibold">{t('reportPage.reviewStatus')}</span>
               <span className="font-medium text-[#0F172A]">
-                {assessment.review_message ? 'Reviewed' : 'Awaiting Review'}
+                {assessment.review_message ? t('reportPage.reviewed') : t('reportPage.awaitingReview')}
               </span>
             </div>
           </div>
@@ -190,10 +192,10 @@ export const AssessmentReportPage: React.FC = () => {
                 <ShieldAlert className="w-5 h-5 text-[#B91C1C] flex-shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h4 className="font-semibold text-sm uppercase tracking-wider text-[#B91C1C]">
-                    Insufficient recording quality: repeat test
+                    {t('reportPage.insufficientTitle')}
                   </h4>
                   <p className="leading-relaxed text-[#475569] font-sans font-normal">
-                    This recording did not meet clinical usability thresholds (e.g. low usable frame ratio, motion artifact, or erratic illumination). In accordance with non-diagnostic protocol guidelines, extracted values are unvalidated and must not be presented as reliable physiological evidence.
+                    {t('reportPage.insufficientDesc')}
                   </p>
                 </div>
               </div>
@@ -204,7 +206,7 @@ export const AssessmentReportPage: React.FC = () => {
                   className="btn-ramp-primary py-2 px-3.5 text-xs shadow-sm"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  <span>Repeat Assessment Now</span>
+                  <span>{t('reportPage.repeatAssessment')}</span>
                 </Link>
               </div>
             </div>
@@ -213,7 +215,7 @@ export const AssessmentReportPage: React.FC = () => {
           {assessment.review_message && (
             <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-xs space-y-1 font-mono">
               <span className="font-semibold block uppercase tracking-wider text-[#0F172A]">
-                Automated Review Finding:
+                {t('reportPage.automatedFinding')}
               </span>
               <p className="leading-relaxed text-[#475569] font-sans font-normal">{assessment.review_message}</p>
             </div>
@@ -223,7 +225,7 @@ export const AssessmentReportPage: React.FC = () => {
             <div className="p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl text-xs text-[#B45309] space-y-1 font-mono">
               <div className="flex items-center gap-1.5 font-semibold">
                 <AlertTriangle className="w-4 h-4 text-[#B45309]" />
-                <span>Recording Quality Flags</span>
+                <span>{t('reportPage.qualityFlags')}</span>
               </div>
               <ul className="list-disc list-inside space-y-0.5 text-[#475569] font-sans">
                 {assessment.warnings.map((w, i) => (
@@ -238,7 +240,7 @@ export const AssessmentReportPage: React.FC = () => {
             <div className="flex items-center gap-2 pb-3 border-b border-[#E2E8F0]">
               <Eye className="w-4 h-4 text-[#0F172A]" />
               <h3 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] font-semibold">
-                1. Pupil Light Reflex Biometrics
+                {t('reportPage.section1Title')}
               </h3>
             </div>
 
@@ -250,19 +252,19 @@ export const AssessmentReportPage: React.FC = () => {
                     <span className="text-[#64748B] block truncate text-[10px] uppercase tracking-wider font-semibold">{item.label || key}</span>
                     <span className="text-xl font-semibold text-[#0F172A] font-mono block">
                       {isInsufficientQuality
-                        ? 'Unvalidated'
+                        ? t('reportPage.unvalidated')
                         : item.value !== null
                         ? item.value
-                        : 'Not available'}
+                        : t('reportPage.notAvailable')}
                     </span>
                     <span className="text-[10px] text-[#475569] block font-mono">
-                      {isInsufficientQuality ? 'Repeat test' : item.unit}
+                      {isInsufficientQuality ? t('reportPage.repeatTest') : item.unit}
                     </span>
                   </div>
                 ))
               ) : (
                 <div className="col-span-full p-4 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] text-[#475569] text-xs font-mono">
-                  Pupil biometric features pending or not provided.
+                  {t('reportPage.pupilPending')}
                 </div>
               )}
             </div>
@@ -278,7 +280,7 @@ export const AssessmentReportPage: React.FC = () => {
             <div className="flex items-center gap-2 pb-3 border-b border-[#E2E8F0]">
               <Crosshair className="w-4 h-4 text-[#0F172A]" />
               <h3 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] font-semibold">
-                2. Smooth-Pursuit Eye Movement Kinematics
+                {t('reportPage.section2Title')}
               </h3>
             </div>
 
@@ -290,19 +292,19 @@ export const AssessmentReportPage: React.FC = () => {
                     <span className="text-[#64748B] block truncate text-[10px] uppercase tracking-wider font-semibold">{item.label || key}</span>
                     <span className="text-xl font-semibold text-[#0F172A] font-mono block">
                       {isInsufficientQuality
-                        ? 'Unvalidated'
+                        ? t('reportPage.unvalidated')
                         : item.value !== null
                         ? item.value
-                        : 'Not available'}
+                        : t('reportPage.notAvailable')}
                     </span>
                     <span className="text-[10px] text-[#475569] block font-mono">
-                      {isInsufficientQuality ? 'Repeat test' : item.unit || 'ratio'}
+                      {isInsufficientQuality ? t('reportPage.repeatTest') : item.unit || t('reportPage.ratioUnit')}
                     </span>
                   </div>
                 ))
               ) : (
                 <div className="col-span-full p-4 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] text-[#475569] text-xs font-mono">
-                  Pursuit tracking metrics pending or not provided.
+                  {t('reportPage.pursuitPending')}
                 </div>
               )}
             </div>
@@ -318,7 +320,7 @@ export const AssessmentReportPage: React.FC = () => {
             <div className="flex items-center gap-2 pb-3 border-b border-[#E2E8F0]">
               <Activity className="w-4 h-4 text-[#0F172A]" />
               <h3 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] font-semibold">
-                3. Across-Visit Longitudinal Comparison
+                {t('reportPage.section3Title')}
               </h3>
             </div>
 
@@ -332,22 +334,21 @@ export const AssessmentReportPage: React.FC = () => {
             <div className="flex items-center gap-2 pb-3 border-b border-[#E2E8F0]">
               <Cpu className="w-4 h-4 text-[#0F172A]" />
               <h3 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] font-semibold">
-                4. Experimental Sequence Dynamics (TCN)
+                {t('reportPage.section4Title')}
               </h3>
             </div>
 
             <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-5 text-xs space-y-2 font-mono">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[#0F172A] font-semibold text-xs">
-                  Model: {assessment.temporal_model?.model_name || 'TCN-Temporal-Evaluator-v0.1'}
+                  {t('reportPage.modelPrefix')} {assessment.temporal_model?.model_name || 'TCN-Temporal-Evaluator-v0.1'}
                 </span>
                 <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-white text-[#475569] border border-[#E2E8F0]">
-                  Experimental Model Output
+                  {t('reportPage.experimentalOutput')}
                 </span>
               </div>
               <p className="text-[#475569] leading-relaxed font-sans font-normal">
-                {assessment.temporal_model?.notes ||
-                  'Temporal sequence features analyzed for experimental trajectory consistency. This model is under research validation and must not be used as clinical diagnostic evidence.'}
+                {assessment.temporal_model?.notes || t('reportPage.tcnDefaultNotes')}
               </p>
             </div>
           </div>
@@ -358,8 +359,8 @@ export const AssessmentReportPage: React.FC = () => {
               <ShieldAlert className="w-4 h-4" />
             </div>
             <div className="space-y-0.5">
-              <p className="font-semibold uppercase tracking-wider font-mono text-[#0F172A] text-[11px]">Notice of Regulatory &amp; Clinical Status</p>
-              <p className="text-[#475569] font-normal">{NON_DIAGNOSTIC_DISCLAIMER}</p>
+              <p className="font-semibold uppercase tracking-wider font-mono text-[#0F172A] text-[11px]">{t('reportPage.regulatoryNoticeTitle')}</p>
+              <p className="text-[#475569] font-normal">{t('common.disclaimer', NON_DIAGNOSTIC_DISCLAIMER)}</p>
             </div>
           </div>
         </div>

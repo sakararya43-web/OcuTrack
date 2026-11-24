@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 export const HelloMondayPupilScrubber: React.FC = () => {
+  const { t } = useTranslation();
   const [time, setTime] = useState<number>(0.92);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -32,16 +34,16 @@ export const HelloMondayPupilScrubber: React.FC = () => {
   const currentDiameter = calculatePupilDiameter(time);
   const currentVelocity = calculateVelocity(time);
 
-  let phaseLabel = '01 · SCOTOPIC BASELINE';
+  let phaseLabel = t('pupilScrubber.phaseBaseline');
   let phaseStatus = 'baseline';
   if (time >= 0.4 && time < 0.62) {
-    phaseLabel = '02 · STIMULUS LATENCY WINDOW (220ms)';
+    phaseLabel = t('pupilScrubber.phaseLatency');
     phaseStatus = 'latency';
   } else if (time >= 0.62 && time < 1.15) {
-    phaseLabel = '03 · PEAK CONSTRICTION VELOCITY';
+    phaseLabel = t('pupilScrubber.phaseConstriction');
     phaseStatus = 'constriction';
   } else if (time >= 1.15) {
-    phaseLabel = '04 · PARASYMPATHETIC REDILATION';
+    phaseLabel = t('pupilScrubber.phaseRecovery');
     phaseStatus = 'recovery';
   }
 
@@ -127,20 +129,20 @@ export const HelloMondayPupilScrubber: React.FC = () => {
         >
           <div className="space-y-2 max-w-2xl">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#64748B] font-semibold">
-              Chapter 01 · AUTONOMIC PUPILLARY LIGHT REFLEX
+              {t('pupilScrubber.eyebrow')}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-[#0F172A]">
-              Pupillometric <span className="italic text-[#475569]">Chrono-Analysis.</span>
+              {t('pupilScrubber.headingMain')} <span className="italic text-[#475569]">{t('pupilScrubber.headingItalic')}</span>
             </h2>
             <p className="font-sans text-sm text-[#475569] leading-relaxed">
-              Scrub through the 3,000 ms photostimulation curve to evaluate autonomic parasympathetic transmission latency and constriction velocity dynamics.
+              {t('pupilScrubber.subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-white text-[#0F172A] border border-[#E2E8F0]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-              Temporal Resolution: 1.0 ms
+              {t('pupilScrubber.resolutionBadge')}
             </span>
           </div>
         </motion.div>
@@ -180,7 +182,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
                   className="btn-ramp-primary text-xs py-1.5 px-3 flex items-center gap-1.5"
                 >
                   {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                  <span>{isPlaying ? 'Pause' : 'Play Sweep'}</span>
+                  <span>{isPlaying ? t('pupilScrubber.pause') : t('pupilScrubber.playSweep')}</span>
                 </motion.button>
                 <button
                   type="button"
@@ -190,7 +192,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
                     setIsPlaying(false);
                   }}
                   className="p-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-[#475569] hover:text-[#0F172A] transition-colors"
-                  title="Reset to 0s"
+                  title={t('pupilScrubber.resetTitle')}
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                 </button>
@@ -222,7 +224,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
                   fontFamily="JetBrains Mono"
                   fontWeight="600"
                 >
-                  FLASH ONSET (400ms)
+                  {t('pupilScrubber.flashOnsetLabel')}
                 </text>
 
                 {/* Primary Constriction Curve Line */}
@@ -250,7 +252,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
             {/* Slider Control & Epoch Presets */}
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-[#475569]">Scrub Elapsed Time:</span>
+                <span className="text-[#475569]">{t('pupilScrubber.scrubTime')}</span>
                 <span className="text-[#0F172A] font-semibold text-sm">{time.toFixed(2)}s ({Math.round(time * 1000)} ms)</span>
               </div>
 
@@ -265,7 +267,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
                   }}
                   className={`px-2 py-0.5 rounded text-[10px] ${time < 0.35 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'}`}
                 >
-                  Baseline (200ms)
+                  {t('pupilScrubber.presetBaseline')}
                 </button>
                 <button
                   type="button"
@@ -276,7 +278,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
                   }}
                   className={`px-2 py-0.5 rounded text-[10px] ${time >= 0.4 && time < 0.62 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'}`}
                 >
-                  Latency Gate (500ms)
+                  {t('pupilScrubber.presetLatency')}
                 </button>
                 <button
                   type="button"
@@ -287,7 +289,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
                   }}
                   className={`px-2 py-0.5 rounded text-[10px] ${time >= 0.7 && time < 1.15 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'}`}
                 >
-                  Max Velocity (850ms)
+                  {t('pupilScrubber.presetVelocity')}
                 </button>
                 <button
                   type="button"
@@ -298,7 +300,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
                   }}
                   className={`px-2 py-0.5 rounded text-[10px] ${time >= 1.4 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'}`}
                 >
-                  Redilation (1800ms)
+                  {t('pupilScrubber.presetRedilation')}
                 </button>
               </div>
 
@@ -322,7 +324,7 @@ export const HelloMondayPupilScrubber: React.FC = () => {
           <div className="lg:col-span-4 panel-ramp p-6 sm:p-8 space-y-6 bg-white shadow-ramp-card">
 
             <h3 className="font-mono text-xs uppercase tracking-wider text-[#64748B] font-semibold pb-3 border-b border-[#E2E8F0]">
-              Instantaneous Telemetry
+              {t('pupilScrubber.telemetryHeader')}
             </h3>
 
             {/* Pupil Visual Crosshair Viewfinder */}
@@ -348,32 +350,32 @@ export const HelloMondayPupilScrubber: React.FC = () => {
               </div>
 
               <div className="absolute top-2 right-2 text-[9px] font-mono text-[#0F766E] bg-black/60 px-1.5 py-0.5 rounded">
-                CALIBRATED 11.7mm
+                {t('pupilScrubber.calibratedBadge')}
               </div>
             </div>
 
             {/* Quantitative Numbers */}
             <div className="space-y-3 font-mono text-xs">
               <div className="flex items-center justify-between p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
-                <span className="text-[#475569]">Diameter:</span>
+                <span className="text-[#475569]">{t('pupilScrubber.diameter')}</span>
                 <span className="text-base font-semibold text-[#0F172A]">{currentDiameter.toFixed(2)} mm</span>
               </div>
 
               <div className="flex items-center justify-between p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
-                <span className="text-[#475569]">Velocity:</span>
+                <span className="text-[#475569]">{t('pupilScrubber.velocity')}</span>
                 <span className={`text-base font-semibold ${currentVelocity < -0.5 ? 'text-[#B91C1C]' : 'text-[#0F172A]'}`}>
                   {currentVelocity.toFixed(2)} mm/s
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
-                <span className="text-[#475569]">Latency Window:</span>
+                <span className="text-[#475569]">{t('pupilScrubber.latencyWindow')}</span>
                 <span className="text-base font-semibold text-[#0F766E]">220 ms</span>
               </div>
             </div>
 
             <p className="text-xs text-[#475569] leading-relaxed font-normal">
-              Sphincter pupillae constriction latency below 220 ms or prolonged beyond 280 ms indicates potential parasympathetic transmission variance requiring clinician review.
+              {t('pupilScrubber.clinicalNote')}
             </p>
 
           </div>

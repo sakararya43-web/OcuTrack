@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, Minus, AlertCircle, Award } from 'lucide-react';
 import { LongitudinalComparisonResult } from '../../types/api';
+import { useTranslation } from '../../i18n';
 
 interface BaselineComparisonViewProps {
   comparison?: LongitudinalComparisonResult | null;
@@ -11,13 +12,14 @@ export const BaselineComparisonView: React.FC<BaselineComparisonViewProps> = ({
   comparison,
   className = '',
 }) => {
+  const { t } = useTranslation();
+
   if (!comparison || comparison.status === 'not_available') {
     return (
       <div className={`p-8 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-2 font-mono ${className}`}>
-        <h4 className="text-xs uppercase tracking-wider text-[#0F172A] font-semibold">Longitudinal Baseline Comparison</h4>
+        <h4 className="text-xs uppercase tracking-wider text-[#0F172A] font-semibold">{t('charts.baseline.title')}</h4>
         <p className="text-xs text-[#475569] max-w-md mx-auto font-sans font-normal">
-          {comparison?.comparability_reason ||
-            'No historical baseline is available for comparison. This assessment can serve as the patient’s initial baseline for future visits.'}
+          {comparison?.comparability_reason || t('charts.baseline.noBaselineDesc')}
         </p>
       </div>
     );
@@ -28,11 +30,10 @@ export const BaselineComparisonView: React.FC<BaselineComparisonViewProps> = ({
       <div className={`p-5 bg-[#FEF2F2] border border-[#FECACA] rounded-xl space-y-2 text-xs text-[#0F172A] font-mono ${className}`}>
         <div className="flex items-center gap-2 font-semibold text-[#B91C1C]">
           <AlertCircle className="w-4 h-4 text-[#B91C1C]" />
-          <span>Assessments Not Directly Comparable</span>
+          <span>{t('charts.baseline.notComparableTitle')}</span>
         </div>
         <p className="leading-relaxed font-sans font-normal text-[#475569]">
-          {comparison.comparability_reason ||
-            'Differences in test protocol version, camera resolution, or ambient lighting preclude direct numerical comparison between visits.'}
+          {comparison.comparability_reason || t('charts.baseline.notComparableDesc')}
         </p>
       </div>
     );
@@ -49,32 +50,32 @@ export const BaselineComparisonView: React.FC<BaselineComparisonViewProps> = ({
             <Award className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="font-sans text-sm font-semibold text-[#0F172A]">Baseline Feature Delta Comparison</h4>
+            <h4 className="font-sans text-sm font-semibold text-[#0F172A]">{t('charts.baseline.comparisonTitle')}</h4>
             <p className="text-xs font-mono text-[#475569]">
-              Compared with baseline session:{' '}
-              <span className="font-semibold text-[#0F172A]">{comparison.baseline_id || 'Prior Accepted'}</span>
+              {t('charts.baseline.comparedWith')}{' '}
+              <span className="font-semibold text-[#0F172A]">{comparison.baseline_id || t('charts.baseline.priorAccepted')}</span>
             </p>
           </div>
         </div>
 
         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-          Comparable Test Protocols
+          {t('charts.baseline.comparableBadge')}
         </span>
       </div>
 
       {deltaEntries.length === 0 ? (
         <p className="text-xs text-[#475569] font-mono py-2">
-          No individual feature delta values computed for this session comparison.
+          {t('charts.baseline.noDeltas')}
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left font-mono text-xs border-collapse">
             <thead>
               <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[10px] text-[#64748B] uppercase tracking-wider">
-                <th className="py-2.5 px-4 font-semibold">Biomarker Feature</th>
-                <th className="py-2.5 px-4 font-semibold text-right">Absolute Delta (Δ)</th>
-                <th className="py-2.5 px-4 font-semibold text-right">Trajectory Direction</th>
+                <th className="py-2.5 px-4 font-semibold">{t('charts.baseline.thFeature')}</th>
+                <th className="py-2.5 px-4 font-semibold text-right">{t('charts.baseline.thDelta')}</th>
+                <th className="py-2.5 px-4 font-semibold text-right">{t('charts.baseline.thDirection')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E8F0]">
@@ -92,7 +93,7 @@ export const BaselineComparisonView: React.FC<BaselineComparisonViewProps> = ({
                     </td>
                     <td className="py-3 px-4 text-right font-semibold">
                       {isNull ? (
-                        <span className="text-[#64748B]">Not available</span>
+                        <span className="text-[#64748B]">{t('charts.baseline.notAvailable')}</span>
                       ) : (
                         <span
                           className={
@@ -110,21 +111,21 @@ export const BaselineComparisonView: React.FC<BaselineComparisonViewProps> = ({
                     </td>
                     <td className="py-3 px-4 text-right">
                       {isNull ? (
-                        <span className="text-[#64748B]">Unavailable</span>
+                        <span className="text-[#64748B]">{t('charts.baseline.unavailable')}</span>
                       ) : isIncreased ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#B45309]">
                           <ArrowUpRight className="w-3.5 h-3.5" />
-                          <span>Increased</span>
+                          <span>{t('charts.baseline.increased')}</span>
                         </span>
                       ) : isDecreased ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0F172A]">
                           <ArrowDownRight className="w-3.5 h-3.5 text-[#475569]" />
-                          <span>Decreased</span>
+                          <span>{t('charts.baseline.decreased')}</span>
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0F766E]">
                           <Minus className="w-3.5 h-3.5 text-[#0F766E]" />
-                          <span>Stable</span>
+                          <span>{t('charts.baseline.stable')}</span>
                         </span>
                       )}
                     </td>

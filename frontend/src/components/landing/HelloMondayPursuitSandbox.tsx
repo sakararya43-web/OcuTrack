@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Crosshair, MousePointer } from 'lucide-react';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 type TrajectoryType = 'sinusoid' | 'lissajous' | 'stepramp' | 'manual';
 
 export const HelloMondayPursuitSandbox: React.FC = () => {
+  const { t, dict } = useTranslation();
   const [trajectory, setTrajectory] = useState<TrajectoryType>('sinusoid');
   const [speed, setSpeed] = useState<number>(1.0);
   const [hasOcclusion, setHasOcclusion] = useState<boolean>(false);
@@ -241,20 +243,20 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
         >
           <div className="space-y-2 max-w-2xl">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#64748B] font-semibold">
-              Chapter 02 · SMOOTH PURSUIT OCULAR MOTOR CONTROL
+              {t('pursuitSandbox.eyebrow')}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-[#0F172A]">
-              Smooth Pursuit <span className="italic text-[#475569]">Kinematic Sandbox.</span>
+              {t('pursuitSandbox.headingMain')} <span className="italic text-[#475569]">{t('pursuitSandbox.headingItalic')}</span>
             </h2>
             <p className="font-sans text-sm text-[#475569] leading-relaxed">
-              Examine the cerebellar tracking engine across harmonic target sweeps. Benchmark ocular gaze velocity gain ratio and ballistic catch-up saccade occurrences in real time.
+              {t('pursuitSandbox.subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-white text-[#0F172A] border border-[#E2E8F0]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-              Continuous 60 FPS Sweep
+              {t('pursuitSandbox.continuousBadge')}
             </span>
           </div>
         </motion.div>
@@ -268,24 +270,18 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
             {/* Trajectory Selectors & Canvas Header */}
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E2E8F0] pb-4">
               <div className="flex items-center gap-1.5 p-1 bg-[#F1F5F9] rounded-lg border border-[#E2E8F0] text-xs font-mono">
-                {(['sinusoid', 'lissajous', 'stepramp', 'manual'] as const).map((t) => (
+                {(['sinusoid', 'lissajous', 'stepramp', 'manual'] as const).map((traj) => (
                   <button
-                    key={t}
+                    key={traj}
                     type="button"
-                    onClick={() => handleTrajectoryChange(t)}
+                    onClick={() => handleTrajectoryChange(traj)}
                     className={`px-3 py-1 rounded font-medium capitalize transition-colors ${
-                      trajectory === t
+                      trajectory === traj
                         ? 'bg-white text-[#0F172A] shadow-sm font-semibold'
                         : 'text-[#475569] hover:text-[#0F172A]'
                     }`}
                   >
-                    {t === 'sinusoid'
-                      ? 'Harmonic (0.4 Hz)'
-                      : t === 'lissajous'
-                      ? 'Lissajous 2D'
-                      : t === 'stepramp'
-                      ? 'Step-Ramp'
-                      : 'Interactive Mouse'}
+                    {dict.pursuitSandbox.trajectories[traj]}
                   </button>
                 ))}
               </div>
@@ -293,11 +289,11 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
               <div className="flex items-center gap-3 text-xs font-mono">
                 <span className="flex items-center gap-1.5 text-[#0F172A] font-semibold">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#0F766E] border border-[#0F172A]" />
-                  Stimulus
+                  {t('pursuitSandbox.stimulus')}
                 </span>
                 <span className="flex items-center gap-1.5 text-[#475569]">
                   <span className="w-2.5 h-2.5 rounded-full bg-white border border-[#0F172A]" />
-                  Tracked Gaze
+                  {t('pursuitSandbox.trackedGaze')}
                 </span>
               </div>
             </div>
@@ -313,7 +309,7 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
               {trajectory === 'manual' && (
                 <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded text-[11px] font-mono text-[#0F766E] border border-white/10 flex items-center gap-1.5">
                   <MousePointer className="w-3 h-3" />
-                  <span>Move cursor in arena to steer target</span>
+                  <span>{t('pursuitSandbox.manualHint')}</span>
                 </div>
               )}
             </div>
@@ -322,7 +318,7 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4 pt-2 font-mono text-xs">
               {/* Velocity Sweep Rate Slider */}
               <div className="flex items-center gap-3">
-                <span className="text-[#475569]">Sweep Frequency:</span>
+                <span className="text-[#475569]">{t('pursuitSandbox.sweepFreq')}</span>
                 <input
                   type="range"
                   min="0.5"
@@ -344,7 +340,7 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
                     onChange={(e) => setHasOcclusion(e.target.checked)}
                     className="accent-[#0F172A] rounded cursor-pointer"
                   />
-                  <span>Test Occlusion Gap</span>
+                  <span>{t('pursuitSandbox.testOcclusion')}</span>
                 </label>
 
                 {/* Induce Saccade Button */}
@@ -356,7 +352,7 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
                   className="btn-ramp-secondary text-xs py-1 px-3 flex items-center gap-1"
                 >
                   <Crosshair className="w-3 h-3 text-[#B91C1C]" />
-                  <span>Induce Saccade</span>
+                  <span>{t('pursuitSandbox.induceSaccade')}</span>
                 </motion.button>
               </div>
             </div>
@@ -367,34 +363,34 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
           <div className="lg:col-span-4 panel-ramp p-6 sm:p-8 space-y-6 bg-white shadow-ramp-card">
 
             <h3 className="font-mono text-xs uppercase tracking-wider text-[#64748B] font-semibold pb-3 border-b border-[#E2E8F0]">
-              Kinematic Telemetry
+              {t('pursuitSandbox.telemetryHeader')}
             </h3>
 
             {/* Quantitative Numbers */}
             <div className="space-y-3 font-mono text-xs">
               <div className="flex items-center justify-between p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
-                <span className="text-[#475569]">Velocity Gain:</span>
+                <span className="text-[#475569]">{t('pursuitSandbox.velocityGain')}</span>
                 <span className="text-base font-semibold text-[#0F766E]">{trackingStats.gainRatio.toFixed(2)}</span>
               </div>
 
               <div className="flex items-center justify-between p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
-                <span className="text-[#475569]">RMSE Error:</span>
+                <span className="text-[#475569]">{t('pursuitSandbox.rmseError')}</span>
                 <span className="text-base font-semibold text-[#0F172A]">{trackingStats.rmseNorm.toFixed(3)}</span>
               </div>
 
               <div className="flex items-center justify-between p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
-                <span className="text-[#475569]">Catch-Up Saccades:</span>
-                <span className="text-base font-semibold text-[#B45309]">{trackingStats.saccades} jumps</span>
+                <span className="text-[#475569]">{t('pursuitSandbox.catchUpSaccades')}</span>
+                <span className="text-base font-semibold text-[#B45309]">{t('pursuitSandbox.jumpsSuffix', { count: trackingStats.saccades })}</span>
               </div>
 
               <div className="flex items-center justify-between p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
-                <span className="text-[#475569]">Sampling Floor:</span>
+                <span className="text-[#475569]">{t('pursuitSandbox.samplingFloor')}</span>
                 <span className="text-base font-semibold text-[#0F172A]">{trackingStats.fps} FPS</span>
               </div>
             </div>
 
             <p className="text-xs text-[#475569] leading-relaxed font-normal">
-              A pursuit gain ratio below 0.85 accompanied by elevated catch-up saccade counts suggests potential disruption within the cerebellar or vestibulocerebellar motor control pathway.
+              {t('pursuitSandbox.clinicalNote')}
             </p>
 
           </div>

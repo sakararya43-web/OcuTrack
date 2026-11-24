@@ -9,8 +9,10 @@ import { PatientCard } from '../components/patients/PatientCard';
 import { CreatePatientModal } from '../components/patients/CreatePatientModal';
 import { ApiClientError } from '../services/apiClient';
 import { soundFx } from '../lib/soundFx';
+import { useTranslation } from '../i18n';
 
 export const PatientsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
@@ -30,7 +32,7 @@ export const PatientsPage: React.FC = () => {
       } else if (err instanceof Error) {
         setError({ message: err.message, isUnavailable: false });
       } else {
-        setError({ message: 'Failed to load patient records', isUnavailable: true });
+        setError({ message: t('patientsPage.loadError'), isUnavailable: true });
       }
     } finally {
       setLoading(false);
@@ -63,14 +65,14 @@ export const PatientsPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-              Participant Cohort Registry
+              {t('patientsPage.badge')}
             </span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#0F172A] tracking-tight">
-            Cohort Data <span className="italic text-[#475569]">Repository</span>
+            {t('patientsPage.headingMain')} <span className="italic text-[#475569]">{t('patientsPage.headingItalic')}</span>
           </h1>
           <p className="text-sm text-[#475569] font-normal font-sans max-w-xl">
-            De-identified participant cohorts and longitudinal biometric observation timelines.
+            {t('patientsPage.subtitle')}
           </p>
         </div>
         <button
@@ -82,7 +84,7 @@ export const PatientsPage: React.FC = () => {
           className="btn-ramp-primary self-start sm:self-auto text-xs py-2.5 px-4 shadow-sm"
         >
           <PlusCircle className="w-3.5 h-3.5" />
-          <span>Register Participant</span>
+          <span>{t('patientsPage.registerParticipant')}</span>
         </button>
       </div>
 
@@ -95,7 +97,7 @@ export const PatientsPage: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Filter by code (e.g. OT-1001)..."
+            placeholder={t('patientsPage.searchPlaceholder')}
             className="w-full pl-10 pr-4 py-2 text-xs font-mono bg-white border border-[#E2E8F0] rounded-lg text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:border-[#0F172A] transition-colors"
           />
         </div>
@@ -115,7 +117,7 @@ export const PatientsPage: React.FC = () => {
                 : 'text-[#475569] hover:text-[#0F172A]'
                 }`}
             >
-              {band === 'all' ? 'All Cohorts' : band}
+              {band === 'all' ? t('patientsPage.allCohorts') : band}
             </button>
           ))}
         </div>
@@ -124,7 +126,7 @@ export const PatientsPage: React.FC = () => {
       {/* States */}
       {loading ? (
         <div className="panel-ramp p-16">
-          <LoadingSpinner label="Querying participant directory..." />
+          <LoadingSpinner label={t('patientsPage.loadingLabel')} />
         </div>
       ) : error ? (
         <ErrorAlert
@@ -134,11 +136,11 @@ export const PatientsPage: React.FC = () => {
         />
       ) : filteredPatients.length === 0 ? (
         <EmptyState
-          title={searchQuery ? 'No matching participants found' : 'No participants registered'}
+          title={searchQuery ? t('patientsPage.noMatchTitle') : t('patientsPage.noRecordsTitle')}
           description={
             searchQuery
-              ? `No registered participants match "${searchQuery}". Clear your search query or add a new record.`
-              : 'Add your first pseudonymous participant to begin capturing ocular biomarker datasets.'
+              ? t('patientsPage.noMatchDesc', { query: searchQuery })
+              : t('patientsPage.noRecordsDesc')
           }
           action={
             <button
@@ -150,7 +152,7 @@ export const PatientsPage: React.FC = () => {
               className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              <span>Register First Participant</span>
+              <span>{t('patientsPage.registerFirst')}</span>
             </button>
           }
         />

@@ -14,27 +14,66 @@ const dictionaries: Record<SupportedLanguage, TranslationDictionary> = {
   fr,
 };
 
+export type TranslationParams = Record<string, string | number>;
+export type TranslateFn = (
+  path: string,
+  fallbackOrParams?: string | TranslationParams,
+  params?: TranslationParams
+) => string;
+
 export interface LanguageContextValue {
   language: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
-  t: (path: string, fallback?: string) => string;
+  t: TranslateFn;
+  dict: TranslationDictionary;
   supportedLanguages: LanguageOption[];
 }
+
+function getNestedString(obj: unknown, path: string): string | undefined {
+  const parts = path.split('.');
+  let curr: unknown = obj;
+  for (const part of parts) {
+    if (curr === null || curr === undefined || typeof curr !== 'object') {
+      return undefined;
+    }
+    curr = (curr as Record<string, unknown>)[part];
+  }
+  return typeof curr === 'string' ? curr : undefined;
+}
+
+function interpolate(template: string, params?: TranslationParams): string {
+  if (!params) return template;
+  return template.replace(/\{(\w+)\}/g, (match, key) =>
+    params[key] !== undefined ? String(params[key]) : match
+  );
+}
+
+export function createTranslator(currentDict: TranslationDictionary): TranslateFn {
+  return (path, fallbackOrParams, paramsArg) => {
+    const fallback = typeof fallbackOrParams === 'string' ? fallbackOrParams : undefined;
+    const params = typeof fallbackOrParams === 'object' ? fallbackOrParams : paramsArg;
+
+    const localized = getNestedString(currentDict, path);
+    if (localized !== undefined) {
+      return interpolate(localized, params);
+    }
+
+    const english = getNestedString(en, path);
+    if (english !== undefined) {
+      return interpolate(english, params);
+    }
+
+    return fallback !== undefined ? interpolate(fallback, params) : path;
+  };
+}
+
+export const defaultTranslator = createTranslator(en);
 
 const defaultContextValue: LanguageContextValue = {
   language: 'en',
   setLanguage: () => {},
-  t: (path: string, fallback?: string): string => {
-    const parts = path.split('.');
-    if (parts.length === 2) {
-      const [section, key] = parts;
-      const dictSection = (en as unknown as Record<string, Record<string, string>>)[section];
-      if (dictSection && dictSection[key] !== undefined) {
-        return dictSection[key];
-      }
-    }
-    return fallback !== undefined ? fallback : path;
-  },
+  t: defaultTranslator,
+  dict: en,
   supportedLanguages: SUPPORTED_LANGUAGES,
 };
 
@@ -67,7 +106,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   useEffect(() => {
-    // Set document lang attribute
     if (typeof document !== 'undefined') {
       document.documentElement.lang = language;
     }
@@ -75,33 +113,17 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const currentDict = dictionaries[language] || en;
 
-  const t = useMemo(() => {
-    return (path: string, fallback?: string): string => {
-      const parts = path.split('.');
-      if (parts.length === 2) {
-        const [section, key] = parts;
-        const dictSection = (currentDict as unknown as Record<string, Record<string, string>>)[section];
-        if (dictSection && dictSection[key] !== undefined) {
-          return dictSection[key];
-        }
-        // Fallback to English
-        const enSection = (en as unknown as Record<string, Record<string, string>>)[section];
-        if (enSection && enSection[key] !== undefined) {
-          return enSection[key];
-        }
-      }
-      return fallback !== undefined ? fallback : path;
-    };
-  }, [currentDict]);
+  const t = useMemo(() => createTranslator(currentDict), [currentDict]);
 
   const value = useMemo(
     () => ({
       language,
       setLanguage,
       t,
+      dict: currentDict,
       supportedLanguages: SUPPORTED_LANGUAGES,
     }),
-    [language, t]
+    [language, t, currentDict]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

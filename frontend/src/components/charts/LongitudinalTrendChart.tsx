@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { formatShortDate } from '../../lib/formatters';
+import { useTranslation } from '../../i18n';
 
 export interface LongitudinalDataPoint {
   assessmentDate: string;
@@ -29,12 +30,14 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
   metric = 'latency',
   className = '',
 }) => {
+  const { t } = useTranslation();
+
   if (!data || data.length < 2) {
     return (
       <div className={`p-8 bg-white rounded-xl border border-[#E2E8F0] text-center text-xs text-[#475569] ${className}`}>
-        <p className="font-semibold text-[#0F172A] font-mono text-sm">Longitudinal History Building</p>
+        <p className="font-semibold text-[#0F172A] font-mono text-sm">{t('charts.longitudinal.buildingTitle')}</p>
         <p className="mt-1 font-sans font-normal max-w-sm mx-auto">
-          At least two accepted assessments are required to plot longitudinal change across visits.
+          {t('charts.longitudinal.buildingDesc')}
         </p>
       </div>
     );
@@ -43,24 +46,24 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
   const metricConfigs = {
     latency: {
       key: 'latencyMs',
-      title: 'Pupil Constriction Latency Trend',
+      title: t('charts.longitudinal.metrics.latency.title'),
       unit: 'ms',
       color: '#0F172A',
-      description: 'Time from light stimulus onset to start of pupil constriction',
+      description: t('charts.longitudinal.metrics.latency.desc'),
     },
     velocity: {
       key: 'velocityMmS',
-      title: 'Maximum Constriction Velocity Trend',
+      title: t('charts.longitudinal.metrics.velocity.title'),
       unit: 'mm/s',
       color: '#0F172A',
-      description: 'Peak constriction rate during reflexive response',
+      description: t('charts.longitudinal.metrics.velocity.desc'),
     },
     gain: {
       key: 'trackingGain',
-      title: 'Smooth Pursuit Tracking Gain Trend',
+      title: t('charts.longitudinal.metrics.gain.title'),
       unit: 'ratio',
       color: '#0F172A',
-      description: 'Ratio of tracked ocular velocity to visual target velocity',
+      description: t('charts.longitudinal.metrics.gain.desc'),
     },
   };
 
@@ -82,7 +85,7 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
         <div className="flex items-center gap-3 text-xs font-mono">
           <span className="flex items-center gap-1.5 text-[#0F172A] font-medium text-[11px]">
             <span className="w-2.5 h-2.5 rounded-full bg-[#0F172A] inline-block" />
-            Measured Value ({currentConfig.unit})
+            {t('charts.longitudinal.measuredValue', { unit: currentConfig.unit })}
           </span>
         </div>
       </div>
@@ -112,12 +115,12 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
                   const pt = payload[0].payload;
                   return (
                     <div className="bg-white border border-[#E2E8F0] text-[#0F172A] p-2.5 rounded-lg text-xs shadow-ramp-card space-y-1 font-mono">
-                      <p className="text-[#475569]">Date: {pt.dateStr}</p>
+                      <p className="text-[#475569]">{t('charts.longitudinal.dateLabel')} {pt.dateStr}</p>
                       <p className="font-semibold text-[#0F172A]">
-                        {currentConfig.title}: {pt.val !== null ? `${pt.val} ${currentConfig.unit}` : 'Not available'}
+                        {currentConfig.title}: {pt.val !== null ? `${pt.val} ${currentConfig.unit}` : t('charts.longitudinal.notAvailable')}
                       </p>
                       {pt.isBaseline && (
-                        <p className="text-[10px] text-[#0F766E] font-semibold">Accepted Baseline Session</p>
+                        <p className="text-[10px] text-[#0F766E] font-semibold">{t('charts.longitudinal.acceptedBaseline')}</p>
                       )}
                     </div>
                   );

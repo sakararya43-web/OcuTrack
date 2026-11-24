@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 interface PatientProfile {
   id: string;
@@ -19,6 +20,7 @@ interface PatientProfile {
 }
 
 export const JudgeBenchmarkSimulator: React.FC = () => {
+  const { t, dict } = useTranslation();
   const [selectedId, setSelectedId] = useState<string>('healthy');
   const [activeTab, setActiveTab] = useState<'pupil' | 'pursuit'>('pupil');
   const [hoverCoord, setHoverCoord] = useState<{ x: number; y: number; t: number; val: string } | null>(null);
@@ -26,42 +28,33 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
   const profiles: Record<string, PatientProfile> = {
     healthy: {
       id: 'healthy',
-      name: 'Patient OT-DEMO-001',
-      condition: 'Healthy Adult Control',
+      ...dict.simulator.profiles.healthy,
       severity: 'normal',
       latencyMs: 236,
       velocityMms: 4.9,
       gainRatio: 0.96,
       saccadeCount: 0,
       tcnResearchIndex: 0.95,
-      clinicalInterpretation: 'Optic nerve transmission and parasympathetic constriction reflex within normal physiological reference limits (220–260 ms). Smooth pursuit shows near-unity velocity gain without corrective saccades.',
-      recommendation: 'Annual longitudinal screening recommended to maintain validated intra-patient baseline.',
     },
     concussion: {
       id: 'concussion',
-      name: 'Patient OT-DEMO-042',
-      condition: 'Post-Concussive Autonomic Delay',
+      ...dict.simulator.profiles.concussion,
       severity: 'moderate',
       latencyMs: 282,
       velocityMms: 3.4,
       gainRatio: 0.81,
       saccadeCount: 4,
       tcnResearchIndex: 0.68,
-      clinicalInterpretation: 'Prolonged pupillary constriction latency (+46 ms shift from historical baseline) and reduced constriction velocity. Suggests autonomic brainstem reflex slowing following mechanical impact.',
-      recommendation: 'Repeat measurement in 72 hours. Escalate for sports neurology or concussion protocol clearance.',
     },
     cerebellar: {
       id: 'cerebellar',
-      name: 'Patient OT-DEMO-109',
-      condition: 'Cerebellar Motor Loop Slippage',
+      ...dict.simulator.profiles.cerebellar,
       severity: 'abnormal',
       latencyMs: 242,
       velocityMms: 4.6,
       gainRatio: 0.67,
       saccadeCount: 9,
       tcnResearchIndex: 0.52,
-      clinicalInterpretation: 'Pupillary light reflex is preserved (242 ms), but horizontal smooth pursuit velocity gain is significantly compromised (0.67 vs 0.90+ normal) with 9 corrective catch-up saccades. Suggests selective cerebellar vestibulocerebellar disruption.',
-      recommendation: 'Oculomotor dissociation detected. Recommend clinical neurological examination and neuroimaging evaluation.',
     },
   };
 
@@ -75,16 +68,16 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
     const minD = profile.severity === 'abnormal' ? 3.6 : profile.severity === 'moderate' ? 3.2 : 2.5;
 
     for (let i = 0; i <= 60; i++) {
-      const t = (i / 60) * 2.5; // 0 to 2.5s
+      const tSec = (i / 60) * 2.5; // 0 to 2.5s
       let d = baselineD;
-      if (t > latencySec && t <= latencySec + 0.8) {
-        const p = (t - latencySec) / 0.8;
+      if (tSec > latencySec && tSec <= latencySec + 0.8) {
+        const p = (tSec - latencySec) / 0.8;
         d = baselineD - (baselineD - minD) * Math.sin((p * Math.PI) / 2);
-      } else if (t > latencySec + 0.8) {
-        const p = (t - (latencySec + 0.8)) / 1.0;
+      } else if (tSec > latencySec + 0.8) {
+        const p = (tSec - (latencySec + 0.8)) / 1.0;
         d = minD + (baselineD - minD) * 0.4 * (1 - Math.exp(-p * 2));
       }
-      const x = 30 + (t / 2.5) * 540;
+      const x = 30 + (tSec / 2.5) * 540;
       const y = 160 - ((d - 2.0) / 3.6) * 120;
       points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
     }
@@ -96,8 +89,8 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
     const targetPoints: string[] = [];
     const eyePoints: string[] = [];
     for (let i = 0; i <= 80; i++) {
-      const t = (i / 80) * 3.0; // 0 to 3s
-      const targetPos = Math.sin(t * 2.2);
+      const tSec = (i / 80) * 3.0; // 0 to 3s
+      const targetPos = Math.sin(tSec * 2.2);
       let eyePos = targetPos * profile.gainRatio;
 
       // Add saccades if abnormal/moderate
@@ -105,7 +98,7 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
         eyePos += (targetPos - eyePos) * 0.8; // catch up jump
       }
 
-      const x = 30 + (t / 3.0) * 540;
+      const x = 30 + (tSec / 3.0) * 540;
       const ty = 100 - targetPos * 60;
       const ey = 100 - eyePos * 60;
 
@@ -121,20 +114,20 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
     const rect = e.currentTarget.getBoundingClientRect();
     const relX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
     const pct = relX / rect.width;
-    const t = pct * (activeTab === 'pupil' ? 2.5 : 3.0);
+    const tSec = pct * (activeTab === 'pupil' ? 2.5 : 3.0);
     const svgX = 30 + pct * 540;
 
     let val = '';
     if (activeTab === 'pupil') {
       const latencySec = current.latencyMs / 1000;
-      const d = t < latencySec ? 5.2 : Math.max(2.5, 5.2 - (t - latencySec) * 3.2);
+      const d = tSec < latencySec ? 5.2 : Math.max(2.5, 5.2 - (tSec - latencySec) * 3.2);
       val = `${d.toFixed(2)} mm`;
     } else {
       const err = ((1 - current.gainRatio) * 100).toFixed(1);
-      val = `Gain: ${current.gainRatio} (${err}% slip)`;
+      val = `${t('simulator.labelPursuitGain')}: ${current.gainRatio} (${err}%)`;
     }
 
-    setHoverCoord({ x: svgX, y: 100, t, val });
+    setHoverCoord({ x: svgX, y: 100, t: tSec, val });
   };
 
   return (
@@ -151,20 +144,20 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
         >
           <div className="space-y-3 max-w-2xl">
             <span className="font-mono text-[11px] uppercase tracking-wider text-[#64748B] font-semibold">
-              Interactive Featuring Element · BENCHMARK MATRIX
+              {t('simulator.eyebrow')}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-[#0F172A]">
-              Clinical Profile <span className="italic text-[#475569]">Diagnostic Simulator.</span>
+              {t('simulator.headingMain')} <span className="italic text-[#475569]">{t('simulator.headingItalic')}</span>
             </h2>
             <p className="font-sans text-sm text-[#475569] leading-relaxed">
-              Test OcuTrack&apos;s real-time kinematic biomarkers across three distinct clinical cohorts. See how the platform differentiates healthy autonomic response from post-concussive delay and cerebellar motor slippage.
+              {t('simulator.subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0]">
               <Sparkles className="w-3.5 h-3.5" />
-              1-Click Live Simulation
+              {t('simulator.badgeLive')}
             </span>
           </div>
         </motion.div>
@@ -199,7 +192,7 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                         : 'bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA]'
                     }`}
                   >
-                    {p.severity}
+                    {dict.simulator.severityLabels[p.severity]}
                   </span>
                 </div>
 
@@ -209,11 +202,11 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-2 pt-2 font-mono text-[11px] text-[#475569]">
                   <div>
-                    <span className="text-[#64748B] block text-[9px] uppercase">Latency</span>
+                    <span className="text-[#64748B] block text-[9px] uppercase">{t('simulator.labelLatency')}</span>
                     <span className="font-bold text-[#0F172A]">{p.latencyMs} ms</span>
                   </div>
                   <div>
-                    <span className="text-[#64748B] block text-[9px] uppercase">Pursuit Gain</span>
+                    <span className="text-[#64748B] block text-[9px] uppercase">{t('simulator.labelPursuitGain')}</span>
                     <span className="font-bold text-[#0F172A]">{p.gainRatio.toFixed(2)}</span>
                   </div>
                 </div>
@@ -245,11 +238,11 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                   }`}
                 />
                 <h3 className="font-serif text-xl sm:text-2xl text-[#0F172A] font-normal">
-                  {current.condition} Telemetry
+                  {current.condition} {t('simulator.telemetrySuffix')}
                 </h3>
               </div>
               <span className="font-mono text-xs text-[#64748B]">
-                Synthetic Benchmark Stream · Real-Time Kinematics
+                {t('simulator.syntheticStream')}
               </span>
             </div>
 
@@ -266,7 +259,7 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                     : 'text-[#475569] hover:text-[#0F172A]'
                 }`}
               >
-                01 Pupillary Reflex Curve
+                {t('simulator.tabPupil')}
               </button>
               <button
                 onClick={() => {
@@ -279,7 +272,7 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                     : 'text-[#475569] hover:text-[#0F172A]'
                 }`}
               >
-                02 Smooth Pursuit Dual Trace
+                {t('simulator.tabPursuit')}
               </button>
             </div>
           </div>
@@ -289,8 +282,8 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
             {/* Top Metric Bar inside Display */}
             <div className="flex justify-between items-center text-xs font-mono text-[#64748B] pb-2 border-b border-white/10">
               <div className="flex items-center gap-4">
-                <span>PATIENT: <strong className="text-white">{current.name}</strong></span>
-                <span>SAMPLING: <strong className="text-[#38BDF8]">30 FPS Validated</strong></span>
+                <span>{t('simulator.labelPatient')} <strong className="text-white">{current.name}</strong></span>
+                <span>{t('simulator.labelSampling')} <strong className="text-[#38BDF8]">{t('simulator.samplingVal')}</strong></span>
               </div>
               <div className="flex items-center gap-3">
                 {hoverCoord && (
@@ -299,7 +292,9 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                   </span>
                 )}
                 <span className="text-[#0F766E] font-bold">
-                  {activeTab === 'pupil' ? `LATENCY: ${current.latencyMs} MS` : `GAIN RATIO: ${current.gainRatio.toFixed(2)}`}
+                  {activeTab === 'pupil'
+                    ? t('simulator.labelLatencyUpper', { ms: current.latencyMs })
+                    : t('simulator.labelGainRatio', { gain: current.gainRatio.toFixed(2) })}
                 </span>
               </div>
             </div>
@@ -321,7 +316,7 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                 {/* Stimulus Flash Onset Line */}
                 <line x1="120" y1="20" x2="120" y2="180" stroke="#0F766E" strokeWidth="1.5" strokeDasharray="4 4" />
                 <text x="126" y="32" fill="#0F766E" fontSize="10" fontFamily="JetBrains Mono">
-                  Stimulus Flash Onset (t = 400ms)
+                  {t('simulator.stimulusOnset')}
                 </text>
 
                 {activeTab === 'pupil' ? (
@@ -342,7 +337,7 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                       fontSize="10"
                       fontFamily="JetBrains Mono"
                     >
-                      Constriction Initiates ({current.latencyMs} ms)
+                      {t('simulator.constrictionInitiates', { ms: current.latencyMs })}
                     </text>
 
                     {/* Dynamic Pupil Diameter Curve */}
@@ -399,23 +394,23 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                 <>
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-0.5 bg-[#38BDF8]" />
-                    Pupil Constriction Profile (mm vs Time)
+                    {t('simulator.pupilLegend')}
                   </span>
-                  <span>Hover waveform to inspect instantaneous metrics</span>
+                  <span>{t('simulator.hoverHint')}</span>
                 </>
               ) : (
                 <>
                   <div className="flex items-center gap-4">
                     <span className="flex items-center gap-1.5">
                       <span className="w-3 h-0.5 bg-[#0F766E]" />
-                      Target Trajectory
+                      {t('simulator.targetTrajectory')}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <span className="w-3 h-0.5 bg-[#38BDF8]" />
-                      Gaze Follower ({current.saccadeCount} Saccades)
+                      {t('simulator.gazeFollower', { count: current.saccadeCount })}
                     </span>
                   </div>
-                  <span>0.4 Hz Sinusoid</span>
+                  <span>{t('simulator.sinusoidHz')}</span>
                 </>
               )}
             </div>
@@ -424,21 +419,21 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
           {/* Clinical Interpretation Card */}
           <div className="p-4 sm:p-5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] space-y-2 font-mono text-xs">
             <span className="text-[#64748B] block uppercase tracking-wider text-[10px] font-semibold">
-              Diagnostic Finding &amp; Protocol Recommendation:
+              {t('simulator.findingHeader')}
             </span>
             <p className="font-sans text-xs text-[#0F172A] leading-relaxed">
               {current.clinicalInterpretation}
             </p>
             <div className="pt-2 flex items-center justify-between text-[11px] border-t border-[#E2E8F0]/80">
               <span className="text-[#475569] font-sans">
-                <strong>Next Step:</strong> {current.recommendation}
+                <strong>{t('simulator.nextStep')}</strong> {current.recommendation}
               </span>
               <Link
                 to="/assessments/new"
                 onClick={() => soundFx.playClick()}
                 className="text-[#0F766E] font-semibold hover:underline flex items-center gap-1 shrink-0"
               >
-                <span>Run Screening</span>
+                <span>{t('simulator.runScreening')}</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

@@ -11,16 +11,19 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 interface StoryChapter {
   id: string;
   number: string;
   eyebrow: string;
+  tabTitle: string;
   title: string;
   subtitle: string;
 }
 
 export const JudgeStoryScroll: React.FC = () => {
+  const { t, dict } = useTranslation();
   const [activeChapter, setActiveChapter] = useState<number>(0);
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -43,43 +46,11 @@ export const JudgeStoryScroll: React.FC = () => {
   // Interactive Act 5 State (Burn After Reading Simulation)
   const [purgeStatus, setPurgeStatus] = useState<'retained' | 'purging' | 'destroyed'>('destroyed');
 
-  const chapters: StoryChapter[] = [
-    {
-      id: 'chapter-cost',
-      number: '01',
-      eyebrow: 'THE DIAGNOSTIC DIVIDE',
-      title: 'The $25,000 Hospital Wall',
-      subtitle: 'Why 99% of clinics have zero objective tools to detect early neurological reflex slowing.',
-    },
-    {
-      id: 'chapter-protocol',
-      number: '02',
-      eyebrow: 'THE CONSUMER SILICON BREAKTHROUGH',
-      title: 'Two Tests. 30 Seconds. Any Laptop.',
-      subtitle: 'Replacing hospital infrared rigs with standard consumer optical sensors in modern web browsers.',
-    },
-    {
-      id: 'chapter-math',
-      number: '03',
-      eyebrow: 'DISTANCE-INVARIANT COMPUTER VISION',
-      title: 'The 11.7 mm Universal Iris Caliper',
-      subtitle: 'Converting arbitrary webcam pixels into absolute clinical millimeters without calibration cards.',
-    },
-    {
-      id: 'chapter-delta',
-      number: '04',
-      eyebrow: 'THE CORE CLINICAL DIFFERENTIATOR',
-      title: 'Comparing You to Yourself (Δ)',
-      subtitle: 'Why static population averages fail, and how intra-patient longitudinal drift catches early decline.',
-    },
-    {
-      id: 'chapter-ethics',
-      number: '05',
-      eyebrow: 'SECURITY & SCIENTIFIC INTEGRITY',
-      title: 'Burn After Reading & Rural Edge',
-      subtitle: 'Zero raw video retention on disk, offline queuing, and radical scientific honesty.',
-    },
-  ];
+  const chapterIds = ['chapter-cost', 'chapter-protocol', 'chapter-math', 'chapter-delta', 'chapter-ethics'];
+  const chapters: StoryChapter[] = dict.story.chapters.map((ch, idx) => ({
+    ...ch,
+    id: chapterIds[idx] || `chapter-${idx}`,
+  }));
 
   // Active smooth pursuit animation loop for Act 2
   useEffect(() => {
@@ -179,14 +150,14 @@ export const JudgeStoryScroll: React.FC = () => {
         >
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#F1F5F9] border border-[#E2E8F0] text-[11px] font-mono font-medium text-[#0F172A] shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#0F766E]" />
-            <span>EXECUTIVE BRIEF FOR JUDGES &amp; CLINICIANS</span>
+            <span>{t('story.badge')}</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-[#0F172A]">
-            The OcuTrack Story: <br className="hidden sm:block" />
-            <span className="italic text-[#475569]">From $25k Calipers to Consumer Silicon.</span>
+            {t('story.headingMain')} <br className="hidden sm:block" />
+            <span className="italic text-[#475569]">{t('story.headingItalic')}</span>
           </h2>
           <p className="font-sans text-base text-[#475569] leading-relaxed">
-            Follow the 5-act narrative below to understand how OcuTrack transforms standard laptop webcams into objective neuro-reflex screening instruments in under 30 seconds.
+            {t('story.subtitle')}
           </p>
         </motion.div>
 
@@ -207,7 +178,7 @@ export const JudgeStoryScroll: React.FC = () => {
                     }`}
                   >
                     <span className="opacity-60">{ch.number}</span>
-                    <span className="hidden sm:inline">{ch.title.split(' ')[0]}</span>
+                    <span className="hidden sm:inline">{ch.tabTitle}</span>
                     {isActive && (
                       <motion.span
                         layoutId="activeStoryDot"
@@ -221,7 +192,7 @@ export const JudgeStoryScroll: React.FC = () => {
 
             <div className="flex items-center gap-2 shrink-0">
               <span className="font-mono text-[11px] text-[#64748B] hidden md:inline">
-                Act {activeChapter + 1} of {chapters.length}
+                {t('story.actOf', { current: activeChapter + 1, total: chapters.length })}
               </span>
               <div className="w-16 h-1 bg-[#E2E8F0] rounded-full overflow-hidden hidden sm:block">
                 <div
@@ -250,21 +221,21 @@ export const JudgeStoryScroll: React.FC = () => {
             {/* Story Text */}
             <div className="lg:col-span-6 space-y-5">
               <span className="font-mono text-[11px] tracking-widest text-[#64748B] uppercase font-semibold">
-                Act 01 · {chapters[0].eyebrow}
+                {t('story.act1.eyebrowPrefix')} {chapters[0].eyebrow}
               </span>
               <h3 className="font-serif text-3xl sm:text-4xl text-[#0F172A] font-normal leading-tight">
-                Why 99% of Clinics Lack Objective Reflex Diagnostics.
+                {t('story.act1.heading')}
               </h3>
               <p className="font-sans text-sm sm:text-base text-[#475569] leading-relaxed">
-                Hospital-grade infrared pupillometers cost upwards of <strong className="text-[#0F172A] font-semibold">$25,000 per unit</strong> and require specialized operator training. As a consequence, rural primary health centers, sports sidelines, and community triage rely exclusively on visual penlight inspection.
+                {t('story.act1.bodyPrefix')} <strong className="text-[#0F172A] font-semibold">{t('story.act1.bodyStrong')}</strong> {t('story.act1.bodySuffix')}
               </p>
               <div className="p-4 rounded-lg bg-[#FFFBEB] border border-[#FDE68A] text-xs font-mono text-[#92400E] space-y-1 shadow-xs">
                 <span className="font-bold flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4 text-[#D97706]" />
-                  THE CLINICAL ACCURACY GAP
+                  {t('story.act1.gapTitle')}
                 </span>
                 <p className="font-sans text-xs text-[#78350F] leading-relaxed">
-                  Human visual reaction time cannot reliably perceive millisecond-level autonomic latency shifts (&lt; 50 ms). Subtle autonomic delays caused by acute concussions or neurodegeneration go undetected until gross pathology emerges.
+                  {t('story.act1.gapDesc')}
                 </p>
               </div>
             </div>
@@ -275,7 +246,7 @@ export const JudgeStoryScroll: React.FC = () => {
                 <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                   <span className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold flex items-center gap-1.5">
                     <DollarSign className="w-3.5 h-3.5 text-[#0F766E]" />
-                    Deployment Economic Model
+                    {t('story.act1.modelTitle')}
                   </span>
                   <div className="flex items-center gap-1 bg-[#F1F5F9] p-0.5 rounded border border-[#E2E8F0]">
                     <button
@@ -289,7 +260,7 @@ export const JudgeStoryScroll: React.FC = () => {
                           : 'text-[#64748B] hover:text-[#0F172A]'
                       }`}
                     >
-                      Hospital Rig
+                      {t('story.act1.btnHospital')}
                     </button>
                     <button
                       onClick={() => {
@@ -302,7 +273,7 @@ export const JudgeStoryScroll: React.FC = () => {
                           : 'text-[#64748B] hover:text-[#0F172A]'
                       }`}
                     >
-                      OcuTrack Web
+                      {t('story.act1.btnOcutrack')}
                     </button>
                   </div>
                 </div>
@@ -319,22 +290,22 @@ export const JudgeStoryScroll: React.FC = () => {
                     >
                       <div className="p-5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] space-y-2">
                         <div className="flex justify-between items-center text-sm font-mono text-[#991B1B]">
-                          <span className="font-bold">Hardware Cost</span>
-                          <span className="text-2xl font-bold font-serif">$25,000+</span>
+                          <span className="font-bold">{t('story.act1.hwCost')}</span>
+                          <span className="text-2xl font-bold font-serif">{t('story.act1.rigCost')}</span>
                         </div>
                         <p className="font-sans text-xs text-[#7F1D1D]">
-                          Dedicated infrared hardware cart. Requires hospital capital procurement budget and proprietary consumables.
+                          {t('story.act1.rigDesc')}
                         </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 font-mono text-xs text-[#475569]">
                         <div className="p-3 bg-[#F1F5F9] rounded border border-[#E2E8F0]">
-                          <span className="block text-[10px] text-[#64748B] uppercase">Accessibility</span>
-                          <span className="font-semibold text-[#0F172A]">Top-Tier Neuro ICUs Only</span>
+                          <span className="block text-[10px] text-[#64748B] uppercase">{t('story.act1.accessibility')}</span>
+                          <span className="font-semibold text-[#0F172A]">{t('story.act1.rigAccess')}</span>
                         </div>
                         <div className="p-3 bg-[#F1F5F9] rounded border border-[#E2E8F0]">
-                          <span className="block text-[10px] text-[#64748B] uppercase">Training Time</span>
-                          <span className="font-semibold text-[#0F172A]">Dedicated Specialist</span>
+                          <span className="block text-[10px] text-[#64748B] uppercase">{t('story.act1.trainingTime')}</span>
+                          <span className="font-semibold text-[#0F172A]">{t('story.act1.rigTraining')}</span>
                         </div>
                       </div>
                     </motion.div>
@@ -349,22 +320,22 @@ export const JudgeStoryScroll: React.FC = () => {
                     >
                       <div className="p-5 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] space-y-2">
                         <div className="flex justify-between items-center text-sm font-mono text-[#0F766E]">
-                          <span className="font-bold">Hardware Cost</span>
-                          <span className="text-2xl font-bold font-serif">$0.00 (Zero CapEx)</span>
+                          <span className="font-bold">{t('story.act1.hwCost')}</span>
+                          <span className="text-2xl font-bold font-serif">{t('story.act1.ocutrackCost')}</span>
                         </div>
                         <p className="font-sans text-xs text-[#065F46]">
-                          Runs in modern web browsers (Chrome, Edge, Safari) on existing clinic laptops and standard 720p webcams.
+                          {t('story.act1.ocutrackDesc')}
                         </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 font-mono text-xs text-[#475569]">
                         <div className="p-3 bg-[#F1F5F9] rounded border border-[#E2E8F0]">
-                          <span className="block text-[10px] text-[#64748B] uppercase">Accessibility</span>
-                          <span className="font-semibold text-[#0F766E]">Universal (Every Village &amp; Sideline)</span>
+                          <span className="block text-[10px] text-[#64748B] uppercase">{t('story.act1.accessibility')}</span>
+                          <span className="font-semibold text-[#0F766E]">{t('story.act1.ocutrackAccess')}</span>
                         </div>
                         <div className="p-3 bg-[#F1F5F9] rounded border border-[#E2E8F0]">
-                          <span className="block text-[10px] text-[#64748B] uppercase">Training Time</span>
-                          <span className="font-semibold text-[#0F766E]">Zero Install · 2-Min Guidance</span>
+                          <span className="block text-[10px] text-[#64748B] uppercase">{t('story.act1.trainingTime')}</span>
+                          <span className="font-semibold text-[#0F766E]">{t('story.act1.ocutrackTraining')}</span>
                         </div>
                       </div>
                     </motion.div>
@@ -374,9 +345,9 @@ export const JudgeStoryScroll: React.FC = () => {
                 {/* Interactive Multi-Clinic Scaling Calculator */}
                 <div className="p-3 rounded-lg bg-[#F1F5F9] border border-[#E2E8F0] space-y-2 font-mono text-xs">
                   <div className="flex items-center justify-between text-[#475569]">
-                    <span>Deploy across <strong className="text-[#0F172A]">{clinicsCount} Community Clinics:</strong></span>
+                    <span>{t('story.act1.deployAcross')} <strong className="text-[#0F172A]">{clinicsCount} {t('story.act1.clinicsSuffix')}</strong></span>
                     <span className="font-bold text-[#0F766E]">
-                      Save ${(clinicsCount * 25000).toLocaleString()}
+                      {t('story.act1.savePrefix')}{(clinicsCount * 25000).toLocaleString()}
                     </span>
                   </div>
                   <input
@@ -390,7 +361,7 @@ export const JudgeStoryScroll: React.FC = () => {
                 </div>
 
                 <div className="text-right text-[11px] font-mono text-[#64748B]">
-                  Tap toggle above to switch economics view
+                  {t('story.act1.toggleHint')}
                 </div>
               </div>
             </div>
@@ -414,7 +385,7 @@ export const JudgeStoryScroll: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#0F766E] animate-pulse" />
                     <span className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-                      Interactive Protocol Sandbox
+                      {t('story.act2.sandboxTitle')}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 bg-[#F1F5F9] p-0.5 rounded border border-[#E2E8F0]">
@@ -429,7 +400,7 @@ export const JudgeStoryScroll: React.FC = () => {
                           : 'text-[#64748B] hover:text-[#0F172A]'
                       }`}
                     >
-                      01 Flash Test
+                      {t('story.act2.tabFlash')}
                     </button>
                     <button
                       onClick={() => {
@@ -442,7 +413,7 @@ export const JudgeStoryScroll: React.FC = () => {
                           : 'text-[#64748B] hover:text-[#0F172A]'
                       }`}
                     >
-                      02 Follow Dot
+                      {t('story.act2.tabPursuit')}
                     </button>
                   </div>
                 </div>
@@ -453,7 +424,7 @@ export const JudgeStoryScroll: React.FC = () => {
                       {flashPhase === 'flashing' && (
                         <div className="absolute inset-0 bg-white flex items-center justify-center z-20">
                           <span className="font-mono text-xs text-[#0F172A] font-bold uppercase tracking-widest bg-white/90 px-3 py-1 rounded shadow-sm">
-                            FLASH ONSET · 1000 MS PULSE
+                            {t('story.act2.flashBanner')}
                           </span>
                         </div>
                       )}
@@ -473,9 +444,9 @@ export const JudgeStoryScroll: React.FC = () => {
                         </div>
                         <div className="font-mono text-xs text-[#64748B]">
                           {flashPhase === 'constricting' ? (
-                            <span className="text-[#34D399] font-bold">Latency: 238 ms · Constriction Velocity: 4.8 mm/s</span>
+                            <span className="text-[#34D399] font-bold">{t('story.act2.latencyReadout')}</span>
                           ) : (
-                            <span>Resting Baseline: 5.20 mm · Ready for Pulse</span>
+                            <span>{t('story.act2.baselineReadout')}</span>
                           )}
                         </div>
                       </div>
@@ -489,7 +460,7 @@ export const JudgeStoryScroll: React.FC = () => {
                       className="btn-ramp-primary w-full text-xs font-mono py-2.5 flex items-center justify-center gap-2"
                     >
                       <Zap className="w-3.5 h-3.5 text-[#0F766E]" />
-                      <span>{isSimulating ? 'Simulating Optical Response…' : 'Simulate Screen Flash Reflex'}</span>
+                      <span>{isSimulating ? t('story.act2.simulating') : t('story.act2.simulateBtn')}</span>
                     </motion.button>
                   </div>
                 ) : (
@@ -512,17 +483,17 @@ export const JudgeStoryScroll: React.FC = () => {
                       </div>
 
                       <div className="absolute bottom-3 left-4 right-4 flex justify-between font-mono text-[10px] text-[#64748B]">
-                        <span>Gain: 0.94 (Unity)</span>
+                        <span>{t('story.act2.gainUnity')}</span>
                         <span className={pursuitPos.saccade ? 'text-[#F87171] font-bold' : ''}>
-                          {pursuitPos.saccade ? 'Catch-Up Saccade' : 'Smooth Track'}
+                          {pursuitPos.saccade ? t('story.act2.catchUpSaccade') : t('story.act2.smoothTrack')}
                         </span>
-                        <span>0.4 Hz Sweep</span>
+                        <span>{t('story.act2.sweepHz')}</span>
                       </div>
                     </div>
 
                     <div className="p-3 bg-[#F1F5F9] rounded border border-[#E2E8F0] text-xs font-mono text-[#475569] flex items-center justify-between">
-                      <span>Yellow = Moving Target &bull; Blue = Eye Follower</span>
-                      <span className="text-[#0F766E] font-semibold">Continuous Kinematics</span>
+                      <span>{t('story.act2.legend')}</span>
+                      <span className="text-[#0F766E] font-semibold">{t('story.act2.continuousKinematics')}</span>
                     </div>
                   </div>
                 )}
@@ -532,13 +503,13 @@ export const JudgeStoryScroll: React.FC = () => {
             {/* Story Text (Right) */}
             <div className="lg:col-span-6 space-y-5 order-1 lg:order-2">
               <span className="font-mono text-[11px] tracking-widest text-[#64748B] uppercase font-semibold">
-                Act 02 · {chapters[1].eyebrow}
+                {t('story.act2.eyebrowPrefix')} {chapters[1].eyebrow}
               </span>
               <h3 className="font-serif text-3xl sm:text-4xl text-[#0F172A] font-normal leading-tight">
-                Two Objective Tests Completed in 30 Seconds.
+                {t('story.act2.heading')}
               </h3>
               <p className="font-sans text-sm sm:text-base text-[#475569] leading-relaxed">
-                Rather than complex hardware calibrations, the patient completes two simple, non-invasive exercises directly in front of the laptop screen:
+                {t('story.act2.body')}
               </p>
 
               <div className="space-y-3 font-mono text-xs">
@@ -546,12 +517,12 @@ export const JudgeStoryScroll: React.FC = () => {
                   <div className="flex items-center justify-between text-[#0F172A]">
                     <span className="font-bold flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-[#0F766E]" />
-                      Test 1: Pupillary Light Reflex (15s)
+                      {t('story.act2.test1Title')}
                     </span>
-                    <span className="text-[#0F766E] font-semibold">Autonomic Loop</span>
+                    <span className="text-[#0F766E] font-semibold">{t('story.act2.test1Tag')}</span>
                   </div>
                   <p className="font-sans text-xs text-[#475569]">
-                    Screen flashes white for 1000 ms. Camera extracts constriction latency (220–260 ms) and peak velocity.
+                    {t('story.act2.test1Desc')}
                   </p>
                 </div>
 
@@ -559,12 +530,12 @@ export const JudgeStoryScroll: React.FC = () => {
                   <div className="flex items-center justify-between text-[#0F172A]">
                     <span className="font-bold flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-[#0F766E]" />
-                      Test 2: Smooth Pursuit Kinematics (15s)
+                      {t('story.act2.test2Title')}
                     </span>
-                    <span className="text-[#0F766E] font-semibold">Cerebellar Motor Loop</span>
+                    <span className="text-[#0F766E] font-semibold">{t('story.act2.test2Tag')}</span>
                   </div>
                   <p className="font-sans text-xs text-[#475569]">
-                    Smooth green target sweeps horizontally. Software measures tracking gain and flags jerky catch-up saccades.
+                    {t('story.act2.test2Desc')}
                   </p>
                 </div>
               </div>
@@ -585,24 +556,24 @@ export const JudgeStoryScroll: React.FC = () => {
             {/* Story Text */}
             <div className="lg:col-span-6 space-y-5">
               <span className="font-mono text-[11px] tracking-widest text-[#64748B] uppercase font-semibold">
-                Act 03 · {chapters[2].eyebrow}
+                {t('story.act3.eyebrowPrefix')} {chapters[2].eyebrow}
               </span>
               <h3 className="font-serif text-3xl sm:text-4xl text-[#0F172A] font-normal leading-tight">
-                The Built-In Human Ruler: Distance Invariance.
+                {t('story.act3.heading')}
               </h3>
               <p className="font-sans text-sm sm:text-base text-[#475569] leading-relaxed">
-                If a patient sits closer to the webcam, their pupil appears wider in camera pixels. How can software measure true physiological millimeters without calibration cards or depth sensors?
+                {t('story.act3.body')}
               </p>
               <div className="p-4 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-xs font-mono text-[#065F46] space-y-2 shadow-xs">
                 <span className="font-bold flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-[#0F766E]" />
-                  ANATOMICAL CONSTANT
+                  {t('story.act3.constantTitle')}
                 </span>
                 <p className="font-sans text-xs text-[#065F46] leading-relaxed">
-                  The adult human white-to-white iris diameter is remarkably constant across world populations: universally approximately <strong className="font-semibold">11.70 millimeters</strong> (±0.4 mm).
+                  {t('story.act3.constantDescPrefix')} <strong className="font-semibold">{t('story.act3.constantDescStrong')}</strong> {t('story.act3.constantDescSuffix')}
                 </p>
                 <div className="p-2.5 bg-white rounded border border-[#BBF7D0] text-[#0F172A] font-mono text-[11px]">
-                  Scale Factor = 11.7 mm / Iris_Pixel_Diameter
+                  {t('story.act3.scaleFormula')}
                 </div>
               </div>
             </div>
@@ -612,10 +583,10 @@ export const JudgeStoryScroll: React.FC = () => {
               <div className="panel-ramp p-6 space-y-6 shadow-ramp-card">
                 <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                   <span className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-                    Live Distance-Invariant Normalizer
+                    {t('story.act3.normalizerTitle')}
                   </span>
                   <span className="font-mono text-[11px] text-[#0F766E] font-semibold bg-[#F0FDF4] px-2 py-0.5 rounded border border-[#BBF7D0]">
-                    Ø = 11.70 mm Absolute
+                    {t('story.act3.badgeAbsolute')}
                   </span>
                 </div>
 
@@ -638,15 +609,15 @@ export const JudgeStoryScroll: React.FC = () => {
                   {/* Overlaid Readouts */}
                   <div className="absolute bottom-3 left-3 right-3 flex justify-between font-mono text-xs bg-[#0F172A]/92 backdrop-blur-sm p-2.5 rounded border border-white/10 text-white">
                     <div>
-                      <span className="text-[9px] text-[#64748B] block uppercase">Raw Camera Pixels</span>
+                      <span className="text-[9px] text-[#64748B] block uppercase">{t('story.act3.rawPixels')}</span>
                       <span className="font-bold text-[#0F766E]">{irisPixelCount} px</span>
                     </div>
                     <div className="text-center">
-                      <span className="text-[9px] text-[#64748B] block uppercase">Scale Ratio</span>
+                      <span className="text-[9px] text-[#64748B] block uppercase">{t('story.act3.scaleRatio')}</span>
                       <span className="font-bold text-white">{mmPerPixel} mm/px</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[9px] text-[#64748B] block uppercase">Normalized Iris</span>
+                      <span className="text-[9px] text-[#64748B] block uppercase">{t('story.act3.normalizedIris')}</span>
                       <span className="font-bold text-[#34D399]">{calculatedMillimeters} mm</span>
                     </div>
                   </div>
@@ -655,7 +626,7 @@ export const JudgeStoryScroll: React.FC = () => {
                 {/* Distance Slider Control + Quick Presets */}
                 <div className="space-y-3 font-mono text-xs">
                   <div className="flex justify-between items-center text-[#475569]">
-                    <span>Patient Distance from Lens:</span>
+                    <span>{t('story.act3.distanceLabel')}</span>
                     <span className="font-bold text-[#0F172A] text-sm">{patientDistanceCm} cm</span>
                   </div>
 
@@ -668,7 +639,7 @@ export const JudgeStoryScroll: React.FC = () => {
                         patientDistanceCm === 35 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'
                       }`}
                     >
-                      Close (35cm)
+                      {t('story.act3.presetClose')}
                     </button>
                     <button
                       type="button"
@@ -677,7 +648,7 @@ export const JudgeStoryScroll: React.FC = () => {
                         patientDistanceCm === 45 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'
                       }`}
                     >
-                      Desk (45cm)
+                      {t('story.act3.presetDesk')}
                     </button>
                     <button
                       type="button"
@@ -686,7 +657,7 @@ export const JudgeStoryScroll: React.FC = () => {
                         patientDistanceCm === 65 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'
                       }`}
                     >
-                      Arms-length (65cm)
+                      {t('story.act3.presetArms')}
                     </button>
                   </div>
 
@@ -700,7 +671,7 @@ export const JudgeStoryScroll: React.FC = () => {
                     className="w-full h-2 bg-[#E2E8F0] rounded-lg appearance-none cursor-pointer accent-[#0F172A]"
                   />
                   <p className="text-[11px] text-[#64748B] text-right">
-                    Drag slider: raw pixel size changes, but normalized millimeters remain rock-solid!
+                    {t('story.act3.sliderHint')}
                   </p>
                 </div>
               </div>
@@ -723,7 +694,7 @@ export const JudgeStoryScroll: React.FC = () => {
               <div className="panel-ramp p-6 space-y-5 shadow-ramp-card">
                 <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                   <span className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-                    The Population Fallacy Trap
+                    {t('story.act4.fallacyTitle')}
                   </span>
                   <div className="flex items-center gap-1 bg-[#F1F5F9] p-0.5 rounded border border-[#E2E8F0]">
                     <button
@@ -737,7 +708,7 @@ export const JudgeStoryScroll: React.FC = () => {
                           : 'text-[#64748B] hover:text-[#0F172A]'
                       }`}
                     >
-                      Population Average
+                      {t('story.act4.btnPopulation')}
                     </button>
                     <button
                       onClick={() => {
@@ -750,7 +721,7 @@ export const JudgeStoryScroll: React.FC = () => {
                           : 'text-[#64748B] hover:text-[#0F172A]'
                       }`}
                     >
-                      OcuTrack Delta (Δ)
+                      {t('story.act4.btnDelta')}
                     </button>
                   </div>
                 </div>
@@ -768,22 +739,21 @@ export const JudgeStoryScroll: React.FC = () => {
                       <div className="p-4 bg-[#FEF2F2] rounded-lg border border-[#FECACA] space-y-2 font-mono text-xs text-[#991B1B]">
                         <span className="font-bold block uppercase flex items-center gap-1.5">
                           <AlertTriangle className="w-4 h-4 text-[#B91C1C]" />
-                          MISSED DIAGNOSIS IN POPULATION AVERAGES
+                          {t('story.act4.missedTitle')}
                         </span>
                         <p className="font-sans text-xs text-[#7F1D1D] leading-relaxed">
-                          Alice's natural baseline latency was <strong>222 ms</strong>. Following a concussion, her latency slows to <strong>258 ms</strong> (+36 ms delay!).
-                          Because 258 ms falls within the broad &quot;healthy population band&quot; (220–270 ms), a standard test falsely marks her as &quot;Normal&quot;!
+                          {t('story.act4.missedDesc1')} <strong>222 ms</strong>{t('story.act4.missedDesc2')} <strong>258 ms</strong> {t('story.act4.missedDesc3')}
                         </p>
                       </div>
 
                       <div className="p-4 bg-[#F1F5F9] rounded-lg border border-[#E2E8F0] font-mono text-xs space-y-2">
                         <div className="flex justify-between text-[#64748B]">
-                          <span>Population Normal Band:</span>
-                          <span className="font-semibold text-[#0F172A]">220 ms: 270 ms</span>
+                          <span>{t('story.act4.popBandLabel')}</span>
+                          <span className="font-semibold text-[#0F172A]">{t('story.act4.popBandVal')}</span>
                         </div>
                         <div className="flex justify-between text-[#64748B]">
-                          <span>Alice (Visit 02):</span>
-                          <span className="font-semibold text-[#991B1B]">258 ms (Falsely Labeled Healthy)</span>
+                          <span>{t('story.act4.aliceVisitLabel')}</span>
+                          <span className="font-semibold text-[#991B1B]">{t('story.act4.aliceVisitVal')}</span>
                         </div>
                       </div>
                     </motion.div>
@@ -799,21 +769,21 @@ export const JudgeStoryScroll: React.FC = () => {
                       <div className="p-4 bg-[#F0FDF4] rounded-lg border border-[#BBF7D0] space-y-2 font-mono text-xs text-[#065F46]">
                         <span className="font-bold block uppercase flex items-center gap-1.5">
                           <CheckCircle2 className="w-4 h-4 text-[#0F766E]" />
-                          OCUTRACK DETECTS THE REAL SHIFT
+                          {t('story.act4.detectedTitle')}
                         </span>
                         <p className="font-sans text-xs text-[#065F46] leading-relaxed">
-                          OcuTrack compares Alice strictly against Alice. Comparing Visit 2 (258 ms) against her verified Visit 1 baseline (222 ms), OcuTrack immediately flags a <strong>+36 ms statistical shift</strong> and recommends clinical review.
+                          {t('story.act4.detectedDesc1')} <strong>{t('story.act4.detectedDescStrong')}</strong> {t('story.act4.detectedDesc2')}
                         </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 font-mono text-xs">
                         <div className="p-3 bg-white rounded border border-[#E2E8F0]">
-                          <span className="text-[10px] text-[#64748B] block uppercase">Visit 1 Baseline</span>
+                          <span className="text-[10px] text-[#64748B] block uppercase">{t('story.act4.visit1Label')}</span>
                           <span className="font-bold text-[#0F172A]">222 ms</span>
                         </div>
                         <div className="p-3 bg-[#FFFBEB] rounded border border-[#FDE68A]">
-                          <span className="text-[10px] text-[#B45309] block uppercase">Visit 2 Follow-Up</span>
-                          <span className="font-bold text-[#B45309]">258 ms (+36 ms Δ)</span>
+                          <span className="text-[10px] text-[#B45309] block uppercase">{t('story.act4.visit2Label')}</span>
+                          <span className="font-bold text-[#B45309]">{t('story.act4.visit2Val')}</span>
                         </div>
                       </div>
                     </motion.div>
@@ -821,7 +791,7 @@ export const JudgeStoryScroll: React.FC = () => {
                 </AnimatePresence>
 
                 <div className="text-right text-[11px] font-mono text-[#64748B]">
-                  Click buttons above to see why longitudinal delta is essential
+                  {t('story.act4.clickHint')}
                 </div>
               </div>
             </div>
@@ -829,13 +799,13 @@ export const JudgeStoryScroll: React.FC = () => {
             {/* Story Text (Right) */}
             <div className="lg:col-span-6 space-y-5 order-1 lg:order-2">
               <span className="font-mono text-[11px] tracking-widest text-[#64748B] uppercase font-semibold">
-                Act 04 · {chapters[3].eyebrow}
+                {t('story.act4.eyebrowPrefix')} {chapters[3].eyebrow}
               </span>
               <h3 className="font-serif text-3xl sm:text-4xl text-[#0F172A] font-normal leading-tight">
-                The Longitudinal Delta Engine: Self-Benchmarking.
+                {t('story.act4.heading')}
               </h3>
               <p className="font-sans text-sm sm:text-base text-[#475569] leading-relaxed">
-                Healthy human beings exhibit wide natural variation: Person A might have a baseline latency of 220 ms, while Person B is completely healthy at 268 ms. Single-point population screening is fundamentally flawed.
+                {t('story.act4.body')}
               </p>
               <div className="space-y-2 font-sans text-xs text-[#475569]">
                 <div className="flex items-start gap-2">
@@ -843,7 +813,7 @@ export const JudgeStoryScroll: React.FC = () => {
                     1
                   </div>
                   <p>
-                    <strong className="text-[#0F172A]">Establish Baseline:</strong> Visit 01 logs the patient&apos;s unique personal latency and gain coordinates.
+                    <strong className="text-[#0F172A]">{t('story.act4.step1Title')}</strong> {t('story.act4.step1Desc')}
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
@@ -851,7 +821,7 @@ export const JudgeStoryScroll: React.FC = () => {
                     2
                   </div>
                   <p>
-                    <strong className="text-[#0F172A]">Detect Micro-Drift:</strong> Subsequent visits measure variance against personal historical confidence bounds, detecting early neurological changes before symptoms worsen.
+                    <strong className="text-[#0F172A]">{t('story.act4.step2Title')}</strong> {t('story.act4.step2Desc')}
                   </p>
                 </div>
               </div>
@@ -872,33 +842,33 @@ export const JudgeStoryScroll: React.FC = () => {
             {/* Story Text */}
             <div className="lg:col-span-6 space-y-5">
               <span className="font-mono text-[11px] tracking-widest text-[#64748B] uppercase font-semibold">
-                Act 05 · {chapters[4].eyebrow}
+                {t('story.act5.eyebrowPrefix')} {chapters[4].eyebrow}
               </span>
               <h3 className="font-serif text-3xl sm:text-4xl text-[#0F172A] font-normal leading-tight">
-                Privacy by Physics &amp; Rural Health Equity.
+                {t('story.act5.heading')}
               </h3>
               <p className="font-sans text-sm sm:text-base text-[#475569] leading-relaxed">
-                OcuTrack is designed for real-world deployment in rural and community clinics where internet is fragile and patient privacy is paramount.
+                {t('story.act5.body')}
               </p>
 
               <div className="space-y-3 font-mono text-xs">
                 <div className="p-3.5 rounded-lg bg-white border border-[#E2E8F0] shadow-xs space-y-1 hover:border-[#EA580C] transition-colors">
                   <div className="flex items-center gap-2 text-[#0F172A] font-bold">
                     <Flame className="w-4 h-4 text-[#EA580C]" />
-                    <span>&quot;Burn After Reading&quot; Ephemeral Video Destruction</span>
+                    <span>{t('story.act5.burnTitle')}</span>
                   </div>
                   <p className="font-sans text-xs text-[#475569]">
-                    Raw facial video is processed in ephemeral scratch memory. Once landmark coordinates are extracted, the video file is permanently erased from disk.
+                    {t('story.act5.burnDesc')}
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-lg bg-white border border-[#E2E8F0] shadow-xs space-y-1 hover:border-[#0F766E] transition-colors">
                   <div className="flex items-center gap-2 text-[#0F172A] font-bold">
                     <WifiOff className="w-4 h-4 text-[#0F766E]" />
-                    <span>Low-Bandwidth Offline Queuing</span>
+                    <span>{t('story.act5.offlineTitle')}</span>
                   </div>
                   <p className="font-sans text-xs text-[#475569]">
-                    Client-side video quality gate checks FPS and lighting locally before upload. Data synchronizes over lightweight JSON deltas (under 50 KB).
+                    {t('story.act5.offlineDesc')}
                   </p>
                 </div>
               </div>
@@ -910,36 +880,36 @@ export const JudgeStoryScroll: React.FC = () => {
                 <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                   <span className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5 text-[#0F766E]" />
-                    Data Retention Lifecycle
+                    {t('story.act5.lifecycleTitle')}
                   </span>
                   <span className={`font-mono text-[11px] px-2 py-0.5 rounded border ${
                     purgeStatus === 'destroyed'
                       ? 'bg-[#F0FDF4] text-[#0F766E] border-[#BBF7D0]'
                       : 'bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]'
                   }`}>
-                    {purgeStatus === 'destroyed' ? '0 B Video on Disk' : 'Processing Scratch…'}
+                    {purgeStatus === 'destroyed' ? t('story.act5.disk0B') : t('story.act5.processingScratch')}
                   </span>
                 </div>
 
                 <div className="relative p-6 bg-[#0F1117] rounded-lg border border-[#27282D] text-white font-mono text-xs space-y-4 shadow-inner">
                   <div className="flex items-center justify-between text-[#64748B] text-[11px]">
-                    <span>Lifecycle Step</span>
-                    <span>Disk State</span>
+                    <span>{t('story.act5.colStep')}</span>
+                    <span>{t('story.act5.colState')}</span>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-2.5 rounded bg-[#1A1F2C]">
-                      <span>1. Webcam Optical Stream</span>
-                      <span className="text-[#38BDF8]">Client RAM Buffer</span>
+                      <span>{t('story.act5.step1')}</span>
+                      <span className="text-[#38BDF8]">{t('story.act5.state1')}</span>
                     </div>
                     <div className="flex items-center justify-between p-2.5 rounded bg-[#1A1F2C]">
-                      <span>2. MediaPipe Landmark Extraction</span>
-                      <span className="text-[#0F766E]">478 Coordinate Vectors</span>
+                      <span>{t('story.act5.step2')}</span>
+                      <span className="text-[#0F766E]">{t('story.act5.state2')}</span>
                     </div>
                     <div className="flex items-center justify-between p-2.5 rounded bg-[#1A1F2C]">
-                      <span>3. Raw Face Video Retention</span>
+                      <span>{t('story.act5.step3')}</span>
                       <span className={purgeStatus === 'destroyed' ? 'text-[#34D399] font-bold' : 'text-[#F87171]'}>
-                        {purgeStatus === 'destroyed' ? 'PERMANENTLY PURGED (0 KB)' : 'Active Ephemeral Scratch'}
+                        {purgeStatus === 'destroyed' ? t('story.act5.state3Destroyed') : t('story.act5.state3Scratch')}
                       </span>
                     </div>
                   </div>
@@ -952,12 +922,12 @@ export const JudgeStoryScroll: React.FC = () => {
                     className="w-full py-2.5 rounded bg-[#1E232F] hover:bg-[#283244] text-[#0F766E] font-semibold flex items-center justify-center gap-2 transition-colors border border-white/10"
                   >
                     <Flame className={`w-3.5 h-3.5 text-[#EA580C] ${purgeStatus === 'purging' ? 'animate-bounce' : ''}`} />
-                    <span>{purgeStatus === 'purging' ? 'Purging Ephemeral Video…' : 'Trigger Ephemeral Video Destruction'}</span>
+                    <span>{purgeStatus === 'purging' ? t('story.act5.purgingBtn') : t('story.act5.triggerPurgeBtn')}</span>
                   </motion.button>
                 </div>
 
                 <p className="font-mono text-[11px] text-[#64748B] text-right">
-                  Only anonymous numeric time-series curves are preserved.
+                  {t('story.act5.footerNote')}
                 </p>
               </div>
             </div>

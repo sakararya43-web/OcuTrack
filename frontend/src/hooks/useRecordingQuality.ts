@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { QualityStatus } from '../types/api';
 import { STANDARD_REVIEW_MESSAGES } from '../lib/constants';
+import { TranslateFn, defaultTranslator, useTranslation } from '../i18n';
 
 export interface CameraObservedSettings {
   width?: number;
@@ -35,7 +36,10 @@ export interface RecordingQualityResult {
 /**
  * Evaluates video capture parameters against clinical protocol quality standards.
  */
-export function evaluateRecordingQuality(input: RecordingQualityInput): RecordingQualityResult {
+export function evaluateRecordingQuality(
+  input: RecordingQualityInput,
+  t: TranslateFn = defaultTranslator
+): RecordingQualityResult {
   const { durationMs, sizeBytes, observedSettings, testType, isFallback } = input;
   const checks: QualityCheckItem[] = [];
   const warnings: string[] = [];
@@ -46,89 +50,94 @@ export function evaluateRecordingQuality(input: RecordingQualityInput): Recordin
       status: 'acceptable',
       isAcceptable: true,
       scoreRatio: 1.0,
-      reviewMessage: STANDARD_REVIEW_MESSAGES.QUALITY_ACCEPTABLE,
+      reviewMessage: t('review.qualityAcceptable', STANDARD_REVIEW_MESSAGES.QUALITY_ACCEPTABLE),
       warnings: [],
       checks: [
         {
-          name: 'Calibrated Benchmark',
+          name: t('quality.calibratedName'),
           passed: true,
           severity: 'ok',
-          message: 'Calibrated reference dataset with verified frame rate and ground truth.',
+          message: t('quality.calibratedMsg'),
         },
       ],
     };
   }
 
+  const sec = (durationMs / 1000).toFixed(1);
+  const durationLabel = t('quality.durationName');
+
   // 1. Duration check
   if (testType === 'pupil_reflex') {
     if (durationMs < 8000) {
       checks.push({
-        name: 'Duration',
+        name: durationLabel,
         passed: false,
         severity: 'error',
-        message: `Duration (${(durationMs / 1000).toFixed(1)}s) too short (< 8s) for pupil reflex.`,
+        message: t('quality.pupilShortErr', { sec }),
       });
-      warnings.push('Recording duration too short for pupil reflex evaluation.');
+      warnings.push(t('quality.pupilShortWarn'));
     } else if (durationMs < 12000) {
       checks.push({
-        name: 'Duration',
+        name: durationLabel,
         passed: true,
         severity: 'warning',
-        message: `Duration (${(durationMs / 1000).toFixed(1)}s) shorter than nominal 15s protocol.`,
+        message: t('quality.pupilNominalWarn', { sec }),
       });
-      warnings.push('Duration shorter than nominal 15s; recovery phase may be truncated.');
+      warnings.push(t('quality.pupilNominalWarnDesc'));
     } else {
       checks.push({
-        name: 'Duration',
+        name: durationLabel,
         passed: true,
         severity: 'ok',
-        message: `Nominal duration achieved (${(durationMs / 1000).toFixed(1)}s).`,
+        message: t('quality.nominalOk', { sec }),
       });
     }
   } else {
     // smooth_pursuit (10s nominal)
     if (durationMs < 5000) {
       checks.push({
-        name: 'Duration',
+        name: durationLabel,
         passed: false,
         severity: 'error',
-        message: `Duration (${(durationMs / 1000).toFixed(1)}s) too short (< 5s) for smooth pursuit tracking.`,
+        message: t('quality.pursuitShortErr', { sec }),
       });
-      warnings.push('Recording duration too short for smooth-pursuit tracking cycles.');
+      warnings.push(t('quality.pursuitShortWarn'));
     } else if (durationMs < 8000) {
       checks.push({
-        name: 'Duration',
+        name: durationLabel,
         passed: true,
         severity: 'warning',
-        message: `Duration (${(durationMs / 1000).toFixed(1)}s) shorter than nominal 10s protocol.`,
+        message: t('quality.pursuitNominalWarn', { sec }),
       });
-      warnings.push('Duration shorter than nominal 10s; tracking cycles incomplete.');
+      warnings.push(t('quality.pursuitNominalWarnDesc'));
     } else {
       checks.push({
-        name: 'Duration',
+        name: durationLabel,
         passed: true,
         severity: 'ok',
-        message: `Nominal duration achieved (${(durationMs / 1000).toFixed(1)}s).`,
+        message: t('quality.nominalOk', { sec }),
       });
     }
   }
 
   // 2. Video file size check (minimum decodability payload)
   if (sizeBytes !== undefined) {
+    const kb = (sizeBytes / 1024).toFixed(1);
+    const fileLabel = t('quality.fileSizeName');
     if (sizeBytes < 20000) {
       checks.push({
-        name: 'File Size',
+        name: fileLabel,
         passed: false,
         severity: 'error',
-        message: `Payload (${(sizeBytes / 1024).toFixed(1)} KB) too small; video stream may be corrupted.`,
+        message: t('quality.fileSmallErr', { kb }),
       });
-      warnings.push('Payload size too small; stream may be empty or corrupted.');
+      warnings.push(t('quality.fileSmallWarn'));
     } else {
       checks.push({
-        name: 'File Size',
+        name: fileLabel,
         passed: true,
         severity: 'ok',
-        message: `Decodable container payload size (${(sizeBytes / 1024).toFixed(1)} KB).`,
+        message: t('quality.fileOk', { kb }),
       });
     }
   }
@@ -137,28 +146,29 @@ export function evaluateRecordingQuality(input: RecordingQualityInput): Recordin
   const width = observedSettings?.width;
   const height = observedSettings?.height;
   if (width && height) {
+    const resLabel = t('quality.resolutionName');
     if (width < 640 || height < 480) {
       checks.push({
-        name: 'Resolution',
+        name: resLabel,
         passed: false,
         severity: 'error',
-        message: `Resolution (${width}x${height}) below minimum 640x480 standard.`,
+        message: t('quality.resLowErr', { w: width, h: height }),
       });
-      warnings.push('Camera resolution below minimum 640x480 standard.');
+      warnings.push(t('quality.resLowWarn'));
     } else if (width < 1280 || height < 720) {
       checks.push({
-        name: 'Resolution',
+        name: resLabel,
         passed: true,
         severity: 'warning',
-        message: `Resolution (${width}x${height}) is standard definition; 720p recommended.`,
+        message: t('quality.resSdMsg', { w: width, h: height }),
       });
-      warnings.push('Resolution below 720p; may reduce pupil contour subpixel accuracy.');
+      warnings.push(t('quality.resSdWarn'));
     } else {
       checks.push({
-        name: 'Resolution',
+        name: resLabel,
         passed: true,
         severity: 'ok',
-        message: `High definition resolution (${width}x${height}).`,
+        message: t('quality.resHdOk', { w: width, h: height }),
       });
     }
   }
@@ -166,28 +176,29 @@ export function evaluateRecordingQuality(input: RecordingQualityInput): Recordin
   // 4. Frame rate check
   const frameRate = observedSettings?.frameRate;
   if (frameRate) {
+    const fpsLabel = t('quality.frameRateName');
     if (frameRate < 15) {
       checks.push({
-        name: 'Frame Rate',
+        name: fpsLabel,
         passed: false,
         severity: 'error',
-        message: `Frame rate (${frameRate} FPS) below 15 FPS; insufficient for latency estimation.`,
+        message: t('quality.fpsLowErr', { fps: frameRate }),
       });
-      warnings.push('Frame rate below 15 FPS; insufficient temporal resolution.');
+      warnings.push(t('quality.fpsLowWarn'));
     } else if (frameRate < 24) {
       checks.push({
-        name: 'Frame Rate',
+        name: fpsLabel,
         passed: true,
         severity: 'warning',
-        message: `Frame rate (${frameRate} FPS) below 24 FPS.`,
+        message: t('quality.fps24Msg', { fps: frameRate }),
       });
-      warnings.push('Frame rate below 24 FPS; latency jitter possible.');
+      warnings.push(t('quality.fps24Warn'));
     } else {
       checks.push({
-        name: 'Frame Rate',
+        name: fpsLabel,
         passed: true,
         severity: 'ok',
-        message: `Temporal sampling rate (${frameRate} FPS) acceptable.`,
+        message: t('quality.fpsOk', { fps: frameRate }),
       });
     }
   }
@@ -202,8 +213,8 @@ export function evaluateRecordingQuality(input: RecordingQualityInput): Recordin
   const isAcceptable = !hasErrors;
   const status: QualityStatus = isAcceptable ? 'acceptable' : 'insufficient';
   const reviewMessage = isAcceptable
-    ? STANDARD_REVIEW_MESSAGES.QUALITY_ACCEPTABLE
-    : STANDARD_REVIEW_MESSAGES.QUALITY_INSUFFICIENT;
+    ? t('review.qualityAcceptable', STANDARD_REVIEW_MESSAGES.QUALITY_ACCEPTABLE)
+    : t('review.qualityInsufficient', STANDARD_REVIEW_MESSAGES.QUALITY_INSUFFICIENT);
 
   return {
     status,
@@ -219,9 +230,11 @@ export function evaluateRecordingQuality(input: RecordingQualityInput): Recordin
  * Reusable React Hook for evaluating capture quality
  */
 export function useRecordingQuality(input: RecordingQualityInput | null): RecordingQualityResult | null {
+  const { t } = useTranslation();
+
   return useMemo(() => {
     if (!input) return null;
-    return evaluateRecordingQuality(input);
+    return evaluateRecordingQuality(input, t);
   }, [
     input?.durationMs,
     input?.sizeBytes,
@@ -230,5 +243,6 @@ export function useRecordingQuality(input: RecordingQualityInput | null): Record
     input?.observedSettings?.frameRate,
     input?.testType,
     input?.isFallback,
+    t,
   ]);
 }

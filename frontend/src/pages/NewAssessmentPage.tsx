@@ -10,8 +10,10 @@ import { ErrorAlert } from '../components/common/ErrorAlert';
 import { CreatePatientModal } from '../components/patients/CreatePatientModal';
 import { ApiClientError } from '../services/apiClient';
 import { soundFx } from '../lib/soundFx';
+import { useTranslation } from '../i18n';
 
 export const NewAssessmentPage: React.FC = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const preselectedPatientId = searchParams.get('patientId');
@@ -23,7 +25,7 @@ export const NewAssessmentPage: React.FC = () => {
   const [selectedPatientId, setSelectedPatientId] = useState<string>(preselectedPatientId || '');
   const [testType, setTestType] = useState<'both' | 'pupil_reflex' | 'smooth_pursuit'>('both');
   const [lightingMethod, setLightingMethod] = useState<string>('controlled_ambient');
-  const [lightingNotes, setLightingNotes] = useState<string>('Standard room lighting, participant facing screen evenly');
+  const [lightingNotes, setLightingNotes] = useState<string>(() => t('newAssessmentPage.defaultNotes'));
   const [consentConfirmed, setConsentConfirmed] = useState<boolean>(false);
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -47,7 +49,7 @@ export const NewAssessmentPage: React.FC = () => {
       } else if (err instanceof Error) {
         setPatientsError({ message: err.message, isUnavailable: false });
       } else {
-        setPatientsError({ message: 'Failed to retrieve patient registry.', isUnavailable: true });
+        setPatientsError({ message: t('newAssessmentPage.errLoadPatients'), isUnavailable: true });
       }
     } finally {
       setLoadingPatients(false);
@@ -63,12 +65,12 @@ export const NewAssessmentPage: React.FC = () => {
     setCreationError(null);
 
     if (!selectedPatientId) {
-      setCreationError('Please select a pseudonymous patient.');
+      setCreationError(t('newAssessmentPage.errNoPatient'));
       return;
     }
 
     if (!consentConfirmed) {
-      setCreationError('You must confirm participant consent before initiating assessment recording.');
+      setCreationError(t('newAssessmentPage.errNoConsent'));
       return;
     }
 
@@ -101,7 +103,7 @@ export const NewAssessmentPage: React.FC = () => {
       } else if (err instanceof Error) {
         setCreationError(err.message);
       } else {
-        setCreationError('Failed to create assessment session on backend.');
+        setCreationError(t('newAssessmentPage.errCreateFailed'));
       }
     } finally {
       setIsSubmitting(false);
@@ -117,14 +119,14 @@ export const NewAssessmentPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-            Clinical Protocol Initiation
+            {t('newAssessmentPage.badge')}
           </span>
         </div>
         <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#0F172A] tracking-tight">
-          Initiate New <span className="italic text-[#475569]">Ocular Assessment</span>
+          {t('newAssessmentPage.headingMain')} <span className="italic text-[#475569]">{t('newAssessmentPage.headingItalic')}</span>
         </h1>
         <p className="text-sm text-[#475569] font-normal leading-relaxed font-sans">
-          Configure recording session parameters, verify informed participant consent, and initialize backend assessment tracking.
+          {t('newAssessmentPage.subtitle')}
         </p>
       </div>
 
@@ -134,17 +136,17 @@ export const NewAssessmentPage: React.FC = () => {
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div className="space-y-1.5">
-            <h2 className="text-xl sm:text-2xl font-semibold text-[#0F172A] tracking-tight">Assessment Session Initialized</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold text-[#0F172A] tracking-tight">{t('newAssessmentPage.createdTitle')}</h2>
             <p className="text-xs sm:text-sm text-[#475569] max-w-md mx-auto font-mono">
-              Session <code className="font-mono font-semibold text-[#0F172A] bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">{createdAssessment.assessment_id}</code> created for participant{' '}
+              {t('newAssessmentPage.createdDescPrefix')} <code className="font-mono font-semibold text-[#0F172A] bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">{createdAssessment.assessment_id}</code> {t('newAssessmentPage.createdDescMiddle')}{' '}
               <span className="font-semibold text-[#0F172A]">{selectedPatient?.pseudonymous_code}</span>.
             </p>
           </div>
 
           <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg p-4 text-xs text-left max-w-md mx-auto space-y-2 font-mono">
-            <div className="flex justify-between"><span className="text-[#64748B]">Protocol:</span> <span className="text-[#0F172A] font-semibold">{createdAssessment.protocol_version || PROTOCOL_VERSION}</span></div>
-            <div className="flex justify-between"><span className="text-[#64748B]">Status:</span> <span className="text-[#0F766E] font-semibold">{createdAssessment.status}</span></div>
-            <div className="flex justify-between"><span className="text-[#64748B]">Quality Gate:</span> <span className="text-[#0F172A]">{createdAssessment.quality_status}</span></div>
+            <div className="flex justify-between"><span className="text-[#64748B]">{t('newAssessmentPage.protocolLabel')}</span> <span className="text-[#0F172A] font-semibold">{createdAssessment.protocol_version || PROTOCOL_VERSION}</span></div>
+            <div className="flex justify-between"><span className="text-[#64748B]">{t('newAssessmentPage.statusLabel')}</span> <span className="text-[#0F766E] font-semibold">{createdAssessment.status}</span></div>
+            <div className="flex justify-between"><span className="text-[#64748B]">{t('newAssessmentPage.qualityGateLabel')}</span> <span className="text-[#0F172A]">{createdAssessment.quality_status}</span></div>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -154,7 +156,7 @@ export const NewAssessmentPage: React.FC = () => {
               className="btn-ramp-primary text-xs py-2.5 px-5 shadow-sm"
             >
               <Video className="w-3.5 h-3.5" />
-              <span>Proceed to Pupil Reflex Test</span>
+              <span>{t('newAssessmentPage.proceedPupil')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <button
@@ -166,7 +168,7 @@ export const NewAssessmentPage: React.FC = () => {
               }}
               className="btn-ramp-secondary text-xs py-2.5 px-4"
             >
-              Start Another Session
+              {t('newAssessmentPage.startAnother')}
             </button>
           </div>
         </div>
@@ -180,7 +182,7 @@ export const NewAssessmentPage: React.FC = () => {
           <div className="panel-ramp p-6 sm:p-8 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
               <h3 className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-                1. Select Participant
+                {t('newAssessmentPage.step1Title')}
               </h3>
               <button
                 type="button"
@@ -190,12 +192,12 @@ export const NewAssessmentPage: React.FC = () => {
                 }}
                 className="text-xs font-mono text-[#0F172A] hover:underline font-medium"
               >
-                + Register New Patient
+                {t('newAssessmentPage.registerNewPatient')}
               </button>
             </div>
 
             {loadingPatients ? (
-              <LoadingSpinner label="Loading registered participants..." />
+              <LoadingSpinner label={t('newAssessmentPage.loadingParticipants')} />
             ) : patientsError ? (
               <ErrorAlert
                 message={patientsError.message}
@@ -204,13 +206,13 @@ export const NewAssessmentPage: React.FC = () => {
               />
             ) : patients.length === 0 ? (
               <div className="text-center py-6 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] p-5">
-                <p className="text-xs font-mono text-[#475569] mb-3">No participants registered in database.</p>
+                <p className="text-xs font-mono text-[#475569] mb-3">{t('newAssessmentPage.noParticipants')}</p>
                 <button
                   type="button"
                   onClick={() => setIsPatientModalOpen(true)}
                   className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
                 >
-                  Create Pseudonymous Record
+                  {t('newAssessmentPage.createRecord')}
                 </button>
               </div>
             ) : (
@@ -225,17 +227,17 @@ export const NewAssessmentPage: React.FC = () => {
                   required
                 >
                   <option value="" disabled className="text-gray-400">
-                    -- Select Pseudonymous Code --
+                    {t('newAssessmentPage.selectPlaceholder')}
                   </option>
                   {patients.map((p) => (
                     <option key={p.patient_id} value={p.patient_id}>
-                      {p.pseudonymous_code} (Age Band: {p.age_band})
+                      {p.pseudonymous_code} ({t('newAssessmentPage.ageBandPrefix')} {p.age_band})
                     </option>
                   ))}
                 </select>
                 {selectedPatient && (
                   <p className="mt-1.5 text-xs font-mono text-[#475569]">
-                    Selected: <strong className="text-[#0F172A]">{selectedPatient.pseudonymous_code}</strong> &bull; Consent Status:{' '}
+                    {t('newAssessmentPage.selectedPrefix')} <strong className="text-[#0F172A]">{selectedPatient.pseudonymous_code}</strong> &bull; {t('newAssessmentPage.consentStatusLabel')}{' '}
                     <span className="text-[#0F766E] font-medium">{selectedPatient.consent_status}</span>
                   </p>
                 )}
@@ -246,12 +248,12 @@ export const NewAssessmentPage: React.FC = () => {
           {/* Test Protocol & Environment Card */}
           <div className="panel-ramp p-6 sm:p-8 space-y-5">
             <h3 className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold pb-3 border-b border-[#E2E8F0]">
-              2. Test Protocol &amp; Environment
+              {t('newAssessmentPage.step2Title')}
             </h3>
 
             <div className="space-y-2.5">
               <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
-                Evaluation Battery
+                {t('newAssessmentPage.evalBattery')}
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <label
@@ -270,8 +272,8 @@ export const NewAssessmentPage: React.FC = () => {
                     onChange={() => setTestType('both')}
                     className="sr-only"
                   />
-                  <span className="font-semibold text-[#0F172A] text-xs">Complete Protocol</span>
-                  <span className="text-[11px] text-[#475569] mt-1.5 font-normal">Pupil reflex + Smooth pursuit</span>
+                  <span className="font-semibold text-[#0F172A] text-xs">{t('newAssessmentPage.batteryBoth')}</span>
+                  <span className="text-[11px] text-[#475569] mt-1.5 font-normal">{t('newAssessmentPage.batteryBothDesc')}</span>
                 </label>
 
                 <label
@@ -290,8 +292,8 @@ export const NewAssessmentPage: React.FC = () => {
                     onChange={() => setTestType('pupil_reflex')}
                     className="sr-only"
                   />
-                  <span className="font-semibold text-[#0F172A] text-xs">Pupil Reflex Only</span>
-                  <span className="text-[11px] text-[#475569] mt-1.5 font-normal">Light stimulus constriction response</span>
+                  <span className="font-semibold text-[#0F172A] text-xs">{t('newAssessmentPage.batteryPupil')}</span>
+                  <span className="text-[11px] text-[#475569] mt-1.5 font-normal">{t('newAssessmentPage.batteryPupilDesc')}</span>
                 </label>
 
                 <label
@@ -310,8 +312,8 @@ export const NewAssessmentPage: React.FC = () => {
                     onChange={() => setTestType('smooth_pursuit')}
                     className="sr-only"
                   />
-                  <span className="font-semibold text-[#0F172A] text-xs">Smooth Pursuit Only</span>
-                  <span className="text-[11px] text-[#475569] mt-1.5 font-normal">Harmonic visual target vector</span>
+                  <span className="font-semibold text-[#0F172A] text-xs">{t('newAssessmentPage.batteryPursuit')}</span>
+                  <span className="text-[11px] text-[#475569] mt-1.5 font-normal">{t('newAssessmentPage.batteryPursuitDesc')}</span>
                 </label>
               </div>
             </div>
@@ -319,29 +321,29 @@ export const NewAssessmentPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="space-y-1.5">
                 <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
-                  Lighting Calibration Method
+                  {t('newAssessmentPage.lightingMethodLabel')}
                 </label>
                 <select
                   value={lightingMethod}
                   onChange={(e) => setLightingMethod(e.target.value)}
                   className="w-full px-3 py-2 text-xs border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] focus:outline-none focus:border-[#0F172A] focus:bg-white font-mono rounded-lg"
                 >
-                  <option value="controlled_ambient">Controlled Ambient Office Lighting</option>
-                  <option value="calibrated_external_luminaire">Calibrated External Luminaire</option>
-                  <option value="screen_stimulus_flash">Screen Stimulus Flash Protocol</option>
-                  <option value="natural_diffuse_daylight">Natural Diffuse Daylight</option>
+                  <option value="controlled_ambient">{t('newAssessmentPage.lightingMethods.controlled_ambient')}</option>
+                  <option value="calibrated_external_luminaire">{t('newAssessmentPage.lightingMethods.calibrated_external_luminaire')}</option>
+                  <option value="screen_stimulus_flash">{t('newAssessmentPage.lightingMethods.screen_stimulus_flash')}</option>
+                  <option value="natural_diffuse_daylight">{t('newAssessmentPage.lightingMethods.natural_diffuse_daylight')}</option>
                 </select>
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
-                  Environment &amp; Setup Notes
+                  {t('newAssessmentPage.notesLabel')}
                 </label>
                 <input
                   type="text"
                   value={lightingNotes}
                   onChange={(e) => setLightingNotes(e.target.value)}
-                  placeholder="e.g. Uniform diffuse lighting, no direct backlighting"
+                  placeholder={t('newAssessmentPage.notesPlaceholder')}
                   className="w-full px-3 py-2 text-xs border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] focus:outline-none focus:border-[#0F172A] focus:bg-white font-mono rounded-lg"
                 />
               </div>
@@ -351,16 +353,16 @@ export const NewAssessmentPage: React.FC = () => {
           {/* Consent & Safety Confirmation */}
           <div className="panel-ramp p-6 sm:p-8 space-y-4">
             <h3 className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold pb-3 border-b border-[#E2E8F0]">
-              3. Participant Consent &amp; Safety Scope
+              {t('newAssessmentPage.step3Title')}
             </h3>
 
             <div className="p-3.5 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-xs text-[#475569] space-y-1 leading-relaxed font-sans">
               <div className="flex items-center gap-1.5 font-semibold text-[#B45309]">
                 <ShieldAlert className="w-4 h-4 shrink-0" />
-                <span>Protocol Safety &amp; Device Notice</span>
+                <span>{t('newAssessmentPage.safetyNoticeTitle')}</span>
               </div>
               <p className="font-normal">
-                This software is an engineering research prototype. Measurements recorded are strictly for algorithmic benchmarking and longitudinal observation. It is not an FDA cleared diagnostic medical device.
+                {t('newAssessmentPage.safetyNoticeDesc')}
               </p>
             </div>
 
@@ -376,7 +378,7 @@ export const NewAssessmentPage: React.FC = () => {
                 className="mt-0.5 accent-[#0F172A] rounded"
               />
               <span className="text-xs text-[#475569] leading-normal font-sans">
-                <strong className="text-[#0F172A] font-medium font-mono">I verify informed consent:</strong> The participant has given consent to participate in this measurement session, understands the video capture process, and has been informed that this session is non-diagnostic.
+                <strong className="text-[#0F172A] font-medium font-mono">{t('newAssessmentPage.consentBold')}</strong> {t('newAssessmentPage.consentDesc')}
               </span>
             </label>
           </div>
@@ -391,7 +393,7 @@ export const NewAssessmentPage: React.FC = () => {
               }}
               className="btn-ramp-secondary text-xs py-2 px-4"
             >
-              Cancel
+              {t('newAssessmentPage.cancel')}
             </button>
             <button
               type="submit"
@@ -399,11 +401,11 @@ export const NewAssessmentPage: React.FC = () => {
               className="btn-ramp-primary text-xs py-2.5 px-5 disabled:opacity-50 shadow-sm"
             >
               {isSubmitting ? (
-                'Initializing Session...'
+                t('newAssessmentPage.initializing')
               ) : (
                 <>
                   <ClipboardList className="w-3.5 h-3.5" />
-                  <span>Initialize Assessment Session</span>
+                  <span>{t('newAssessmentPage.submit')}</span>
                 </>
               )}
             </button>

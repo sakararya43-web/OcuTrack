@@ -5,6 +5,7 @@ import { Patient, CreatePatientPayload } from '../../types/api';
 import { AGE_BANDS } from '../../lib/constants';
 import { ApiClientError } from '../../services/apiClient';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 interface CreatePatientModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   const [pseudonymousCode, setPseudonymousCode] = useState(
     () => `OT-${Math.floor(1000 + Math.random() * 9000)}`
   );
@@ -34,12 +36,12 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
 
     const cleanCode = pseudonymousCode.trim();
     if (!cleanCode) {
-      setError('Please provide a pseudonymous participant code.');
+      setError(t('modals.createPatient.errNoCode'));
       return;
     }
 
     if (!consentGranted) {
-      setError('Participant consent confirmation is required before registration.');
+      setError(t('modals.createPatient.errNoConsent'));
       return;
     }
 
@@ -66,7 +68,7 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Failed to register participant record.');
+        setError(t('modals.createPatient.errFailed'));
       }
     } finally {
       setIsSubmitting(false);
@@ -83,9 +85,9 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
               <UserPlus className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-sans text-base font-semibold text-[#0F172A]">Register Participant Record</h3>
+              <h3 className="font-sans text-base font-semibold text-[#0F172A]">{t('modals.createPatient.title')}</h3>
               <p className="text-xs text-[#64748B] font-mono">
-                De-identified pseudonymous cohort registration
+                {t('modals.createPatient.subtitle')}
               </p>
             </div>
           </div>
@@ -108,25 +110,25 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
           {/* Pseudonymous Code */}
           <div className="space-y-1.5">
             <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
-              Pseudonymous Code *
+              {t('modals.createPatient.codeLabel')}
             </label>
             <input
               type="text"
               required
               value={pseudonymousCode}
               onChange={(e) => setPseudonymousCode(e.target.value)}
-              placeholder="e.g. OT-1001"
+              placeholder={t('modals.createPatient.codePlaceholder')}
               className="w-full px-3 py-2 text-xs font-mono bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[#0F172A] focus:outline-none focus:border-[#0F172A] focus:bg-white"
             />
             <p className="text-[11px] text-[#64748B]">
-              Must not contain names, MRNs, dates of birth, or direct identifiers.
+              {t('modals.createPatient.codeHint')}
             </p>
           </div>
 
           {/* Age Band */}
           <div className="space-y-1.5">
             <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
-              Age Band *
+              {t('modals.createPatient.ageBandLabel')}
             </label>
             <select
               value={ageBand}
@@ -144,13 +146,13 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
           {/* Context Notes */}
           <div className="space-y-1.5">
             <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
-              Context Notes (Optional)
+              {t('modals.createPatient.notesLabel')}
             </label>
             <textarea
               rows={2}
               value={contextNotes}
               onChange={(e) => setContextNotes(e.target.value)}
-              placeholder="Non-identifying research context (e.g. Baseline assessment prior to task protocol)..."
+              placeholder={t('modals.createPatient.notesPlaceholder')}
               className="w-full px-3 py-2 text-xs font-sans bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[#0F172A] focus:outline-none focus:border-[#0F172A] focus:bg-white"
             />
           </div>
@@ -166,7 +168,7 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
                 className="mt-0.5 accent-[#0F172A] rounded"
               />
               <span className="text-xs text-[#475569] leading-normal font-sans">
-                <strong className="text-[#0F172A] font-medium">Verify informed participant consent:</strong> The subject understands that video frames are processed ephemerally, only mathematical metrics are retained, and that this evaluation is non-diagnostic.
+                <strong className="text-[#0F172A] font-medium">{t('modals.createPatient.consentBold')}</strong> {t('modals.createPatient.consentText')}
               </span>
             </label>
           </div>
@@ -174,7 +176,7 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
           {/* Notice */}
           <div className="p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex items-start gap-2 text-xs text-[#475569] leading-relaxed">
             <ShieldAlert className="w-4 h-4 text-[#B45309] shrink-0 mt-0.5" />
-            <span>Investigational software. Strictly for research observation and non-diagnostic tracking.</span>
+            <span>{t('modals.createPatient.notice')}</span>
           </div>
 
           {/* Actions */}
@@ -185,14 +187,14 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
               disabled={isSubmitting}
               className="btn-ramp-secondary text-xs py-2 px-3.5"
             >
-              Cancel
+              {t('modals.createPatient.cancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !consentGranted}
               className="btn-ramp-primary text-xs py-2 px-4 disabled:opacity-50 shadow-sm"
             >
-              {isSubmitting ? 'Registering...' : 'Register Participant'}
+              {isSubmitting ? t('modals.createPatient.submitting') : t('modals.createPatient.submit')}
             </button>
           </div>
         </form>

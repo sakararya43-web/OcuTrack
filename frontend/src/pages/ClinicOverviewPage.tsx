@@ -75,10 +75,10 @@ export const ClinicOverviewPage: React.FC = () => {
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-slate-300 bg-slate-100 text-slate-700 uppercase font-semibold">
-              COLLECTIVE TELEMETRY
+              {t('clinicOverview.collectiveTelemetry')}
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-teal-200 bg-teal-50 text-teal-800 font-bold">
-              NO CROSS-PATIENT PUPIL AVERAGING
+              {t('clinicOverview.noCrossPatientAveraging')}
             </span>
             {analytics.isSampleData && (
               <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-sky-300 bg-sky-100 text-sky-900 font-bold flex items-center gap-1.5">
@@ -126,7 +126,7 @@ export const ClinicOverviewPage: React.FC = () => {
             type="button"
             onClick={() => loadData(useSampleData)}
             disabled={loading}
-            aria-label="Refresh telemetry analytics"
+            aria-label={t('clinicOverview.refreshAria')}
             className="p-2 rounded-md border border-slate-300 bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
@@ -139,7 +139,7 @@ export const ClinicOverviewPage: React.FC = () => {
         <div className="p-3 rounded-md border border-sky-200 bg-sky-50 text-xs text-sky-900 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-sky-700 mt-0.5 flex-shrink-0" aria-hidden="true" />
           <p className="leading-relaxed">
-            <strong className="font-semibold">Evaluator Note:</strong>{' '}
+            <strong className="font-semibold">{t('clinicOverview.evaluatorNote')}</strong>{' '}
             {t('clinicOverview.demoDatasetNotice')}
           </p>
         </div>
@@ -164,7 +164,7 @@ export const ClinicOverviewPage: React.FC = () => {
           </div>
           <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
             <span className="text-teal-700 font-semibold">{t('clinicOverview.kpiDeltaWeekly')}</span>
-            <span>All Wards</span>
+            <span>{t('clinicOverview.allWards')}</span>
           </div>
         </StaggerItem>
 
@@ -177,7 +177,7 @@ export const ClinicOverviewPage: React.FC = () => {
               </span>
               <div className="text-2xl sm:text-3xl font-bold font-mono text-sky-900 tabular-nums flex items-baseline gap-2">
                 <span>{kpis.attentionQueueCount}</span>
-                <span className="text-xs font-normal text-slate-500">requiring review</span>
+                <span className="text-xs font-normal text-slate-500">{t('clinicOverview.requiringReview')}</span>
               </div>
             </div>
             <div className="w-8 h-8 rounded bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-800">
@@ -185,8 +185,8 @@ export const ClinicOverviewPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-            <span>Deltas & Quality Flags</span>
-            <span className="text-sky-800 font-semibold">Priority 1</span>
+            <span>{t('clinicOverview.deltasQualityFlags')}</span>
+            <span className="text-sky-800 font-semibold">{t('clinicOverview.priority1')}</span>
           </div>
         </StaggerItem>
 
@@ -207,7 +207,7 @@ export const ClinicOverviewPage: React.FC = () => {
           </div>
           <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
             <span className="text-teal-700 font-semibold">{t('clinicOverview.kpiPassRateTarget')}</span>
-            <span>&gt;= 80% frames</span>
+            <span>{t('clinicOverview.frames80')}</span>
           </div>
         </StaggerItem>
 
@@ -227,8 +227,8 @@ export const ClinicOverviewPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-            <span>Intra-individual track</span>
-            <span className="text-slate-700 font-semibold">&gt;= 2 visits</span>
+            <span>{t('clinicOverview.intraIndividualTrack')}</span>
+            <span className="text-slate-700 font-semibold">{t('clinicOverview.visits2Plus')}</span>
           </div>
         </StaggerItem>
       </StaggerContainer>
@@ -328,7 +328,7 @@ export const ClinicOverviewPage: React.FC = () => {
               </p>
             </div>
             <span className="text-[10px] font-mono text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-bold self-start sm:self-center">
-              Field Diagnostics
+              {t('clinicOverview.fieldDiagnostics')}
             </span>
           </div>
 
@@ -373,7 +373,7 @@ export const ClinicOverviewPage: React.FC = () => {
                   yAxisId="left"
                   type="monotone"
                   dataKey="usableFrameRatio"
-                  name="Usable Frames (%)"
+                  name={t('clinicOverview.usableFramesPct')}
                   stroke="#0369a1"
                   strokeWidth={2}
                   dot={{ r: 3, fill: '#0369a1' }}
@@ -411,7 +411,7 @@ export const ClinicOverviewPage: React.FC = () => {
                 {t('clinicOverview.queueTableTitle')}
               </h2>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-sky-300 bg-sky-100 text-sky-900 font-bold">
-                {filteredQueue.length} Flagged
+                {t('clinicOverview.flaggedCount', { count: filteredQueue.length })}
               </span>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed">
@@ -518,10 +518,10 @@ export const ClinicOverviewPage: React.FC = () => {
                     <td className="px-3 py-3 whitespace-nowrap">
                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-slate-200 bg-slate-100 text-slate-700 uppercase font-semibold">
                         {item.batteryType === 'both'
-                          ? 'Combined'
+                          ? t('clinicOverview.batteryCombined')
                           : item.batteryType === 'pupil_reflex'
-                          ? 'Pupil Reflex'
-                          : 'Smooth Pursuit'}
+                          ? t('clinicOverview.batteryPupil')
+                          : t('clinicOverview.batteryPursuit')}
                       </span>
                     </td>
 
@@ -530,12 +530,12 @@ export const ClinicOverviewPage: React.FC = () => {
                       {item.qualityStatus === 'acceptable' ? (
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-teal-300 bg-teal-50 text-teal-800 font-bold inline-flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3 text-teal-700" aria-hidden="true" />
-                          Acceptable
+                          {t('clinicOverview.badgeAcceptable')}
                         </span>
                       ) : (
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-slate-400 bg-slate-100 text-slate-800 font-bold inline-flex items-center gap-1">
                           <AlertTriangle className="w-3 h-3 text-slate-700" aria-hidden="true" />
-                          Insufficient
+                          {t('clinicOverview.badgeInsufficient')}
                         </span>
                       )}
                     </td>
@@ -544,15 +544,15 @@ export const ClinicOverviewPage: React.FC = () => {
                     <td className="px-3 py-3 whitespace-nowrap">
                       {item.triageStatus === 'change_detected' ? (
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-sky-300 bg-sky-100 text-sky-900 font-bold">
-                          Change Detected
+                          {t('clinicOverview.badgeChangeDetected')}
                         </span>
                       ) : item.triageStatus === 'insufficient_quality' ? (
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-rose-300 bg-rose-50 text-rose-800 font-bold">
-                          Repeat Test Required
+                          {t('clinicOverview.badgeRepeatRequired')}
                         </span>
                       ) : (
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-700">
-                          Stable
+                          {t('clinicOverview.badgeStable')}
                         </span>
                       )}
                     </td>
@@ -586,16 +586,16 @@ export const ClinicOverviewPage: React.FC = () => {
           <ShieldCheck className="w-4 h-4 text-teal-800 mt-0.5 flex-shrink-0" aria-hidden="true" />
           <p className="leading-relaxed">
             <strong className="font-semibold text-slate-900 font-mono">
-              Scientific Guardrail:
+              {t('clinicOverview.scientificGuardrail')}
             </strong>{' '}
-            OcuTrack measures intra-individual percent deltas against each patient's own physiological baseline. Collective triage charts track administrative operational throughput, quality pass rates, and review prioritization only. Cross-patient pupil size averaging is deliberately avoided to prevent diagnostic false positives.
+            {t('clinicOverview.scientificGuardrailText')}
           </p>
         </div>
         <Link
           to="/about"
           className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-sky-800 hover:text-sky-950 hover:underline whitespace-nowrap self-end sm:self-center"
         >
-          <span>Methodology & Safety</span>
+          <span>{t('clinicOverview.methodologySafety')}</span>
           <ExternalLink className="w-3 h-3" aria-hidden="true" />
         </Link>
       </div>

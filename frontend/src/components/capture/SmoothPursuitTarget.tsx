@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from '../../i18n';
 
 export interface TargetCoordinate {
   t_ms: number;
@@ -64,6 +65,7 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
   onComplete,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number }>({ x: 0.5, y: 0.5 });
   const [elapsedMs, setElapsedMs] = useState<number>(0);
 
@@ -151,7 +153,7 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
       {/* Top Banner info */}
       <div className="flex items-center justify-between z-10 text-xs">
         <span className="font-mono text-[10px] text-white bg-black/60 px-2 py-0.5 rounded border border-white/10">
-          Target: {PURSUIT_PATH_VERSION} (10.0s)
+          {t('capture.target.targetPrefix', { version: PURSUIT_PATH_VERSION })}
         </span>
         <span className="text-gray-300 font-mono text-xs">
           {(elapsedMs / 1000).toFixed(1)}s / {(PURSUIT_DURATION_MS / 1000).toFixed(0)}s
@@ -194,7 +196,7 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
           />
         </div>
         <p className="text-center text-[11px] text-gray-400 font-normal font-sans">
-          Follow the high-contrast target smoothly with your eyes without moving your head.
+          {t('capture.target.instruction')}
         </p>
       </div>
     </div>

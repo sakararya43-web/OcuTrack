@@ -197,10 +197,10 @@ export const HelloMondayHero: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-white text-[#0F172A] border border-slate-200 shadow-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-                Protocol {PROTOCOL_VERSION} · Investigational Telemetry
+                {t('hero.badgeProtocol', { version: PROTOCOL_VERSION })}
               </span>
               <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-[#0F766E] font-medium bg-[#F0FDF4] px-2 py-0.5 rounded border border-[#BBF7D0]">
-                11.7 mm Iris Standard
+                {t('hero.badgeIris')}
               </span>
             </div>
 
@@ -236,16 +236,16 @@ export const HelloMondayHero: React.FC = () => {
             {/* Specifications Strip */}
             <div className="pt-8 border-t border-slate-200 grid grid-cols-3 gap-6 max-w-xl text-[#475569] font-mono text-[11px]">
               <div className="space-y-1">
-                <span className="block text-[#64748B] uppercase tracking-wider text-[10px]">Anatomical Scale</span>
-                <span className="text-[#0F172A] font-semibold text-xs sm:text-sm">11.7 mm Iris Standard</span>
+                <span className="block text-[#64748B] uppercase tracking-wider text-[10px]">{t('hero.specScaleLabel')}</span>
+                <span className="text-[#0F172A] font-semibold text-xs sm:text-sm">{t('hero.specScaleVal')}</span>
               </div>
               <div className="space-y-1">
-                <span className="block text-[#64748B] uppercase tracking-wider text-[10px]">Sampling Floor</span>
-                <span className="text-[#0F172A] font-semibold text-xs sm:text-sm">&ge; 25.0 FPS Validated</span>
+                <span className="block text-[#64748B] uppercase tracking-wider text-[10px]">{t('hero.specSamplingLabel')}</span>
+                <span className="text-[#0F172A] font-semibold text-xs sm:text-sm">{t('hero.specSamplingVal')}</span>
               </div>
               <div className="space-y-1">
-                <span className="block text-[#64748B] uppercase tracking-wider text-[10px]">Participant Privacy</span>
-                <span className="text-[#0F172A] font-semibold text-xs sm:text-sm">Ephemeral Destruction</span>
+                <span className="block text-[#64748B] uppercase tracking-wider text-[10px]">{t('hero.specPrivacyLabel')}</span>
+                <span className="text-[#0F172A] font-semibold text-xs sm:text-sm">{t('hero.specPrivacyVal')}</span>
               </div>
             </div>
 
@@ -266,11 +266,11 @@ export const HelloMondayHero: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#0F766E]" />
                   <span className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-                    Optic Reflex Simulator
+                    {t('hero.simTitle')}
                   </span>
                 </div>
                 <span className="font-mono text-[10px] text-[#475569] bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                  60 FPS TELEMETRY
+                  {t('hero.simFps')}
                 </span>
               </div>
 
@@ -289,7 +289,7 @@ export const HelloMondayHero: React.FC = () => {
                 {isFlashing && (
                   <div className="absolute inset-0 bg-white flex items-center justify-center pointer-events-none transition-opacity duration-200 z-20">
                     <span className="px-3 py-1 rounded bg-[#0F172A] text-white font-mono text-xs font-bold tracking-widest">
-                      PHOTIC FLASH · 1000 MS
+                      {t('hero.flashBanner')}
                     </span>
                   </div>
                 )}
@@ -297,17 +297,17 @@ export const HelloMondayHero: React.FC = () => {
                 {/* Overlaid Telemetry Readout */}
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3 py-2.5 rounded bg-[#0F172A]/90 backdrop-blur-md border border-white/10 text-xs font-mono text-white shadow-lg">
                   <div className="space-y-0.5">
-                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">PUPIL Ø</span>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">{t('hero.pupilDia')}</span>
                     <span className="font-bold text-sm text-[#0D9488]">{pupilDiameterMm} mm</span>
                   </div>
                   <div className="space-y-0.5 text-center">
-                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">LATENCY</span>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">{t('hero.latency')}</span>
                     <span className="font-bold text-sm text-white">{latencyMs} ms</span>
                   </div>
                   <div className="space-y-0.5 text-right">
-                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">STATE</span>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">{t('hero.state')}</span>
                     <span className={`text-[10px] font-semibold ${isFlashing ? 'text-amber-400' : 'text-emerald-400'}`}>
-                      {isFlashing ? 'CONSTRICTING' : 'STEADY'}
+                      {isFlashing ? t('hero.constricting') : t('hero.steady')}
                     </span>
                   </div>
                 </div>
@@ -317,7 +317,7 @@ export const HelloMondayHero: React.FC = () => {
               <div className="space-y-3.5 pt-1 font-mono text-xs">
                 {/* Quick Presets */}
                 <div className="flex items-center justify-between gap-1.5 pt-0.5">
-                  <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Presets:</span>
+                  <span className="text-[10px] text-[#64748B] uppercase tracking-wider">{t('hero.presets')}</span>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
@@ -327,7 +327,7 @@ export const HelloMondayHero: React.FC = () => {
                       }`}
                     >
                       <Moon className="w-2.5 h-2.5" />
-                      <span>Scotopic (50 lx)</span>
+                      <span>{t('hero.scotopic')}</span>
                     </button>
                     <button
                       type="button"
@@ -336,7 +336,7 @@ export const HelloMondayHero: React.FC = () => {
                         ambientLux > 0.25 && ambientLux < 0.55 ? 'bg-[#0F172A] text-white font-semibold' : 'bg-slate-100 text-[#475569] hover:bg-slate-200'
                       }`}
                     >
-                      <span>Clinic (175 lx)</span>
+                      <span>{t('hero.clinic')}</span>
                     </button>
                     <button
                       type="button"
@@ -346,7 +346,7 @@ export const HelloMondayHero: React.FC = () => {
                       }`}
                     >
                       <Sun className="w-2.5 h-2.5" />
-                      <span>Photopic (425 lx)</span>
+                      <span>{t('hero.photopic')}</span>
                     </button>
                   </div>
                 </div>
@@ -356,9 +356,9 @@ export const HelloMondayHero: React.FC = () => {
                   <div className="flex items-center justify-between text-[#475569]">
                     <span className="flex items-center gap-1.5 text-[11px]">
                       <Sliders className="w-3.5 h-3.5 text-[#0F172A]" />
-                      Ambient Illuminance (Lux)
+                      {t('hero.ambientLux')}
                     </span>
-                    <span className="text-[#0F172A] font-semibold">{(ambientLux * 500).toFixed(0)} Lux</span>
+                    <span className="text-[#0F172A] font-semibold">{t('hero.luxUnit', { lux: (ambientLux * 500).toFixed(0) })}</span>
                   </div>
                   <input
                     type="range"
@@ -379,7 +379,7 @@ export const HelloMondayHero: React.FC = () => {
                   className="btn-ramp-primary w-full justify-center text-xs py-2.5 shadow-xs"
                 >
                   <Zap className={`w-3.5 h-3.5 text-[#0D9488] ${isFlashing ? 'animate-bounce' : ''}`} />
-                  <span>{isFlashing ? 'Stimulus Pulse Active (1000ms)...' : 'Trigger Photopic Light Pulse'}</span>
+                  <span>{isFlashing ? t('hero.pulseActive') : t('hero.triggerPulse')}</span>
                 </button>
               </div>
 

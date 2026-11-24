@@ -49,7 +49,7 @@ export const LoginPage: React.FC = () => {
       });
       navigate(from, { replace: true });
     } catch {
-      setErrorMessage('Authentication failed. Please verify credentials or use One-Click Demo.');
+      setErrorMessage(t('auth.authFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -83,9 +83,9 @@ export const LoginPage: React.FC = () => {
                 </div>
                 <div>
                   <span className="font-bold text-sm tracking-tight text-white font-mono block">
-                    OcuTrack Telemetry
+                    {t('auth.telemetryBrand')}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-400">CLINICAL SUITE</span>
+                  <span className="text-[10px] font-mono text-slate-400">{t('auth.suiteLabel')}</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-slate-800 bg-slate-900/80 text-[11px] font-mono text-teal-400">
@@ -96,22 +96,21 @@ export const LoginPage: React.FC = () => {
 
             <div className="space-y-2">
               <span className="text-[11px] font-mono text-sky-400 uppercase tracking-widest block">
-                Instrumentation Protocol
+                {t('auth.instrumentationProtocol')}
               </span>
               <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
-                Quantitative Ocular Telemetry &amp; Baseline Delta Engine
+                {t('auth.showcaseTitle')}
               </h2>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Standardized capture framework for frontline health screeners and supervising neurologists.
-                Monitors pupil light reflexes and smooth-pursuit eye movements against intra-individual baseline references.
+                {t('auth.showcaseDesc')}
               </p>
             </div>
 
             {/* Live Real-Time PLR Waveform Visualizer */}
             <div className="rounded border border-slate-800 bg-slate-900/90 p-4 space-y-3">
               <div className="flex items-center justify-between text-xs font-mono text-slate-300">
-                <span className="text-sky-300 font-semibold">PLR DYNAMICS &amp; VELOCITY PROFILE</span>
-                <span className="text-teal-400 text-[10px]">30 FPS CALIBRATED</span>
+                <span className="text-sky-300 font-semibold">{t('auth.plrProfile')}</span>
+                <span className="text-teal-400 text-[10px]">{t('auth.fpsCalibrated')}</span>
               </div>
 
               <div className="w-full bg-slate-950 rounded border border-slate-800 p-2 overflow-hidden">
@@ -120,11 +119,11 @@ export const LoginPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2 text-[11px] font-mono pt-1 text-slate-400">
                 <div className="border border-slate-800 rounded px-2 py-1 bg-slate-950/60">
-                  <span className="text-slate-500 block text-[9px] uppercase">Latency</span>
+                  <span className="text-slate-500 block text-[9px] uppercase">{t('auth.latencyLabel')}</span>
                   <span className="text-white font-semibold tabular-nums">245 ms</span>
                 </div>
                 <div className="border border-slate-800 rounded px-2 py-1 bg-slate-950/60">
-                  <span className="text-slate-500 block text-[9px] uppercase">Velocity</span>
+                  <span className="text-slate-500 block text-[9px] uppercase">{t('auth.velocityLabel')}</span>
                   <span className="text-teal-400 font-semibold tabular-nums">4.3 mm/s</span>
                 </div>
               </div>
@@ -136,7 +135,7 @@ export const LoginPage: React.FC = () => {
             <div className="flex items-start gap-2 text-slate-300 text-[11px] leading-relaxed">
               <ShieldAlert className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
               <span>
-                <strong>Regulatory Notice:</strong> {NON_DIAGNOSTIC_DISCLAIMER}
+                <strong>{t('auth.regulatoryNotice')}</strong> {t('common.disclaimer', NON_DIAGNOSTIC_DISCLAIMER)}
               </span>
             </div>
           </div>
@@ -170,7 +169,7 @@ export const LoginPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <Badge variant="navy">
                 <Lock className="w-3 h-3 text-sky-400" aria-hidden="true" />
-                <span>HOSPITAL STAFF ACCESS</span>
+                <span>{t('auth.hospitalStaffAccess')}</span>
               </Badge>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-sans">
@@ -285,7 +284,7 @@ export const LoginPage: React.FC = () => {
                   disabled={submitting}
                   className="w-full py-2.5 font-semibold text-xs tracking-wider uppercase font-mono shadow-xs"
                 >
-                  {submitting ? 'Authenticating...' : t('auth.signIn')}
+                  {submitting ? t('auth.authenticating') : t('auth.signIn')}
                 </Button>
               </form>
 
@@ -297,7 +296,7 @@ export const LoginPage: React.FC = () => {
                     <span>{t('auth.judgeFastTrack')}</span>
                   </div>
                   <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-200/80 text-sky-900 font-bold">
-                    EVALUATOR BYPASS
+                    {t('auth.evaluatorBypass')}
                   </span>
                 </div>
 
@@ -313,8 +312,8 @@ export const LoginPage: React.FC = () => {
                   >
                     <Stethoscope className="w-4 h-4 text-sky-200 flex-shrink-0" aria-hidden="true" />
                     <div className="leading-tight">
-                      <div className="text-[11px] font-bold">Supervising Clinician</div>
-                      <div className="text-[10px] text-sky-200 font-mono">Dr. Elena Vance (NEURO-04)</div>
+                      <div className="text-[11px] font-bold">{t('auth.clinicianTitle')}</div>
+                      <div className="text-[10px] text-sky-200 font-mono">{t('auth.clinicianSub')}</div>
                     </div>
                   </button>
 
@@ -325,15 +324,15 @@ export const LoginPage: React.FC = () => {
                   >
                     <UserCheck className="w-4 h-4 text-teal-700 flex-shrink-0" aria-hidden="true" />
                     <div className="leading-tight">
-                      <div className="text-[11px] font-bold">Community Screener</div>
-                      <div className="text-[10px] text-slate-500 font-mono">Aarav Sharma (FIELD-12)</div>
+                      <div className="text-[11px] font-bold">{t('auth.chwTitle')}</div>
+                      <div className="text-[10px] text-slate-500 font-mono">{t('auth.chwSub')}</div>
                     </div>
                   </button>
                 </div>
               </div>
 
           <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200 font-mono">
-            <span>Protocol v0.1-CLINICAL</span>
+            <span>{t('auth.protocolBadge')}</span>
             <Link to="/about" className="hover:text-slate-900 hover:underline">
               {t('nav.about')} OcuTrack &rarr;
             </Link>

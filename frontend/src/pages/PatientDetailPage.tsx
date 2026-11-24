@@ -11,9 +11,11 @@ import { LongitudinalTrendChart, LongitudinalDataPoint } from '../components/cha
 import { formatDate } from '../lib/formatters';
 import { ApiClientError } from '../services/apiClient';
 import { soundFx } from '../lib/soundFx';
+import { useTranslation } from '../i18n';
 
 export const PatientDetailPage: React.FC = () => {
   const { patientId } = useParams<{ patientId: string }>();
+  const { t } = useTranslation();
 
   const [patient, setPatient] = useState<Patient | null>(null);
   const [history, setHistory] = useState<AssessmentSummary[]>([]);
@@ -38,7 +40,7 @@ export const PatientDetailPage: React.FC = () => {
       } else if (err instanceof Error) {
         setError({ message: err.message, isUnavailable: false });
       } else {
-        setError({ message: 'Failed to load patient record', isUnavailable: true });
+        setError({ message: t('patientDetailPage.loadError'), isUnavailable: true });
       }
     } finally {
       setLoading(false);
@@ -52,7 +54,7 @@ export const PatientDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="panel-ramp p-16">
-        <LoadingSpinner label="Loading participant record..." />
+        <LoadingSpinner label={t('patientDetailPage.loadingLabel')} />
       </div>
     );
   }
@@ -66,10 +68,10 @@ export const PatientDetailPage: React.FC = () => {
           className="link-editorial text-xs font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Registry</span>
+          <span>{t('patientDetailPage.backToRegistry')}</span>
         </Link>
         <ErrorAlert
-          message={error?.message || 'Patient record could not be retrieved.'}
+          message={error?.message || t('patientDetailPage.notRetrieved')}
           isUnavailable={error?.isUnavailable}
           onRetry={fetchPatientDetails}
         />
@@ -107,7 +109,7 @@ export const PatientDetailPage: React.FC = () => {
           className="link-editorial text-xs font-semibold"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Patient Registry</span>
+          <span>{t('patientDetailPage.backToPatientRegistry')}</span>
         </Link>
       </div>
 
@@ -126,7 +128,7 @@ export const PatientDetailPage: React.FC = () => {
                 <StatusBadge type="consent" status={patient.consent_status} />
               </div>
               <p className="text-xs font-mono text-[#475569]">
-                Age Band: <span className="font-semibold text-[#0F172A]">{patient.age_band}</span> &bull; Enrolled:{' '}
+                {t('patientDetailPage.ageBand')} <span className="font-semibold text-[#0F172A]">{patient.age_band}</span> &bull; {t('patientDetailPage.enrolled')}{' '}
                 {formatDate(patient.created_at)}
               </p>
               {patient.context_notes && (
@@ -144,7 +146,7 @@ export const PatientDetailPage: React.FC = () => {
               className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              <span>New Assessment</span>
+              <span>{t('patientDetailPage.newAssessment')}</span>
             </Link>
           </div>
         </div>
@@ -153,7 +155,7 @@ export const PatientDetailPage: React.FC = () => {
         <div className="p-3.5 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex items-start gap-2.5 text-xs text-[#475569] leading-relaxed font-sans">
           <ShieldAlert className="w-4 h-4 shrink-0 text-[#B45309] mt-0.5" />
           <span>
-            <strong className="font-medium text-[#0F172A]">Clinical Safety Scope:</strong> Absence of observed longitudinal delta or stable measurements across visits does not establish that the participant is free of neurological impairment. Always rely on certified clinical diagnostic standards.
+            <strong className="font-medium text-[#0F172A]">{t('patientDetailPage.safetyScopeTitle')}</strong> {t('patientDetailPage.safetyScopeDesc')}
           </span>
         </div>
       </div>
@@ -164,7 +166,7 @@ export const PatientDetailPage: React.FC = () => {
           <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
             <h2 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] flex items-center gap-2 font-semibold">
               <Activity className="w-3.5 h-3.5 text-[#0F766E]" />
-              <span>Longitudinal Trajectory Across Visits</span>
+              <span>{t('patientDetailPage.trajectoryHeading')}</span>
             </h2>
             <div className="flex items-center gap-1 p-1 bg-[#F1F5F9] border border-[#E2E8F0] rounded-lg font-mono text-xs">
               {(['latency', 'velocity', 'gain'] as const).map((m) => (
@@ -180,7 +182,11 @@ export const PatientDetailPage: React.FC = () => {
                     : 'text-[#475569] hover:text-[#0F172A]'
                     }`}
                 >
-                  {m === 'latency' ? 'Latency' : m === 'velocity' ? 'Velocity' : 'Tracking Gain'}
+                  {m === 'latency'
+                    ? t('patientDetailPage.metricLatency')
+                    : m === 'velocity'
+                    ? t('patientDetailPage.metricVelocity')
+                    : t('patientDetailPage.metricGain')}
                 </button>
               ))}
             </div>
@@ -197,18 +203,18 @@ export const PatientDetailPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <History className="w-3.5 h-3.5 text-[#475569]" />
             <h2 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] font-semibold">
-              Longitudinal Assessment History
+              {t('patientDetailPage.historyHeading')}
             </h2>
           </div>
           <span className="text-xs font-mono text-[#475569]">
-            Total Visits: <strong className="text-[#0F172A]">{history.length}</strong>
+            {t('patientDetailPage.totalVisits')} <strong className="text-[#0F172A]">{history.length}</strong>
           </span>
         </div>
 
         {sortedHistory.length === 0 ? (
           <EmptyState
-            title="No assessments recorded yet"
-            description="Initiate the first assessment to record baseline pupil light reflex and smooth-pursuit measurements."
+            title={t('patientDetailPage.emptyTitle')}
+            description={t('patientDetailPage.emptyDesc')}
             icon={<Calendar className="w-5 h-5 text-[#475569]" />}
             action={
               <Link
@@ -217,7 +223,7 @@ export const PatientDetailPage: React.FC = () => {
                 className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>Capture Baseline Test</span>
+                <span>{t('patientDetailPage.captureBaseline')}</span>
               </Link>
             }
           />
@@ -227,13 +233,13 @@ export const PatientDetailPage: React.FC = () => {
               <table className="w-full text-left border-collapse font-mono text-xs">
                 <thead>
                   <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[10px] text-[#64748B] uppercase tracking-wider">
-                    <th className="px-6 py-3.5 font-semibold">Assessment Date</th>
-                    <th className="px-6 py-3.5 font-semibold">Protocol</th>
-                    <th className="px-6 py-3.5 font-semibold">Run Status</th>
-                    <th className="px-6 py-3.5 font-semibold">Quality</th>
-                    <th className="px-6 py-3.5 font-semibold">Role</th>
-                    <th className="px-6 py-3.5 font-semibold">Review Summary</th>
-                    <th className="px-6 py-3.5 text-right font-semibold">Action</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('patientDetailPage.thDate')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('patientDetailPage.thProtocol')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('patientDetailPage.thRunStatus')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('patientDetailPage.thQuality')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('patientDetailPage.thRole')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('patientDetailPage.thReviewSummary')}</th>
+                    <th className="px-6 py-3.5 text-right font-semibold">{t('patientDetailPage.thAction')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E2E8F0]">
@@ -257,14 +263,14 @@ export const PatientDetailPage: React.FC = () => {
                           {isBaseline ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0] font-mono">
                               <Award className="w-3 h-3" />
-                              Baseline
+                              {t('patientDetailPage.baseline')}
                             </span>
                           ) : (
-                            <span className="text-xs text-[#475569]">Follow-up</span>
+                            <span className="text-xs text-[#475569]">{t('patientDetailPage.followup')}</span>
                           )}
                         </td>
                         <td className="px-6 py-4 text-xs text-[#475569] max-w-xs truncate font-sans">
-                          {item.review_message || 'Analysis pending or not available'}
+                          {item.review_message || t('patientDetailPage.analysisPending')}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <Link
@@ -273,7 +279,7 @@ export const PatientDetailPage: React.FC = () => {
                             className="inline-flex items-center gap-1 text-xs font-semibold text-[#0F172A] hover:underline transition-colors"
                           >
                             <FileText className="w-3.5 h-3.5 text-[#475569]" />
-                            <span>Report →</span>
+                            <span>{t('patientDetailPage.reportArrow')}</span>
                           </Link>
                         </td>
                       </tr>

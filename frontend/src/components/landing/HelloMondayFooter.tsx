@@ -2,8 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, ShieldCheck, Lock } from 'lucide-react';
 import { APP_NAME, PROTOCOL_VERSION } from '../../lib/constants';
+import { useTranslation } from '../../i18n';
 
 export const HelloMondayFooter: React.FC = () => {
+  const { t, dict } = useTranslation();
+
   return (
     <footer className="bg-slate-50 text-[#0F172A] border-t border-slate-200">
       {/* 1. Structured Closing Section */}
@@ -11,33 +14,33 @@ export const HelloMondayFooter: React.FC = () => {
         <div className="max-w-[1440px] mx-auto">
           <div className="max-w-3xl space-y-6">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#64748B] font-semibold">
-              Deployment and Observation
+              {t('landingFooter.eyebrow')}
             </span>
             <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0F172A] leading-tight">
-              Clinical Precision through Consumer Optical Hardware
+              {t('landingFooter.heading')}
             </h2>
             <p className="font-sans text-base sm:text-lg text-[#475569] leading-relaxed">
-              Deploy repeatable ocular reflex screening and longitudinal tracking without dedicated diagnostic hardware. Open the research console or initiate your first screening session.
+              {t('landingFooter.subtitle')}
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 to="/assessments/new"
                 className="btn-ramp-primary text-xs py-2.5 px-5 shadow-sm flex items-center gap-2"
               >
-                <span>Initiate Clinical Assessment</span>
+                <span>{t('landingFooter.ctaInitiate')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <Link
                 to="/patients"
                 className="btn-ramp-secondary text-xs py-2.5 px-5"
               >
-                <span>Explore Cohort Registry</span>
+                <span>{t('landingFooter.ctaRegistry')}</span>
               </Link>
               <Link
                 to="/console"
                 className="btn-ramp-secondary text-xs py-2.5 px-5"
               >
-                <span>Open Research Console</span>
+                <span>{t('landingFooter.ctaConsole')}</span>
               </Link>
             </div>
           </div>
@@ -58,12 +61,12 @@ export const HelloMondayFooter: React.FC = () => {
               </span>
             </div>
             <p className="text-[#475569] leading-relaxed font-normal">
-              Hardware-agnostic optical pupillometry and smooth pursuit kinematics for investigational longitudinal tracking.
+              {t('landingFooter.brandDesc')}
             </p>
             <div className="pt-2">
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-                Protocol Active &amp; Validated
+                {t('landingFooter.protocolActive')}
               </span>
             </div>
           </div>
@@ -71,30 +74,30 @@ export const HelloMondayFooter: React.FC = () => {
           {/* Protocols */}
           <div className="space-y-3">
             <span className="font-mono uppercase tracking-[0.08em] font-semibold text-[11px] text-[#0F172A] block">
-              Core Protocols
+              {t('landingFooter.colProtocols')}
             </span>
             <ul className="space-y-2 text-[#475569]">
               <li>
                 <Link to="/assessments/new" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>Protocol 0.1: Pupil Light Reflex</span>
+                  <span>{dict.landingFooter.protocolLinks[0]}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
               <li>
                 <Link to="/assessments/new" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>Protocol 0.2: Smooth Pursuit</span>
+                  <span>{dict.landingFooter.protocolLinks[1]}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
               <li>
                 <Link to="/console" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>Protocol 0.3: Longitudinal Delta</span>
+                  <span>{dict.landingFooter.protocolLinks[2]}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
               <li>
                 <Link to="/about#tcn-model" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>Protocol 0.4: TCN Evaluator</span>
+                  <span>{dict.landingFooter.protocolLinks[3]}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
@@ -104,30 +107,30 @@ export const HelloMondayFooter: React.FC = () => {
           {/* Standards & Metrology */}
           <div className="space-y-3">
             <span className="font-mono uppercase tracking-[0.08em] font-semibold text-[11px] text-[#0F172A] block">
-              Standards &amp; Metrology
+              {t('landingFooter.colStandards')}
             </span>
             <ul className="space-y-2 text-[#475569]">
               <li>
                 <Link to="/about#iris-standard" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>11.7 mm Iris Calibration Standard</span>
+                  <span>{dict.landingFooter.standardLinks[0]}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
               <li>
                 <Link to="/about#privacy" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>Ephemeral Client Video Destruction</span>
+                  <span>{dict.landingFooter.standardLinks[1]}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
               <li>
                 <Link to="/about#quality" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>Frame Sampling Floor (&ge; 25 FPS)</span>
+                  <span>{dict.landingFooter.standardLinks[2]}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
               <li>
                 <Link to="/about#limitations" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>Hardware &amp; Lighting Constraints</span>
+                  <span>{dict.landingFooter.standardLinks[3]}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
@@ -137,29 +140,29 @@ export const HelloMondayFooter: React.FC = () => {
           {/* Governance & Legal Policies */}
           <div className="space-y-3">
             <span className="font-mono uppercase tracking-[0.08em] font-semibold text-[11px] text-[#0F172A] block">
-              Governance &amp; Legal
+              {t('landingFooter.colGovernance')}
             </span>
             <p className="text-[11px] text-[#475569] leading-relaxed">
-              Investigational software instrument. For clinical research and non-diagnostic observational monitoring only. Not an FDA cleared medical diagnostic device.
+              {t('landingFooter.governanceDesc')}
             </p>
             <ul className="space-y-2 text-[#475569] pt-1">
               <li>
                 <Link to="/privacy" className="hover:text-[#0F172A] transition-colors flex items-center gap-1 font-medium text-[#0F172A]">
                   <Lock className="w-3 h-3 text-[#0F766E]" />
-                  <span>Privacy Policy</span>
+                  <span>{t('landingFooter.privacyPolicy')}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
               <li>
                 <Link to="/terms" className="hover:text-[#0F172A] transition-colors flex items-center gap-1 font-medium text-[#0F172A]">
                   <ShieldCheck className="w-3 h-3 text-[#0F766E]" />
-                  <span>Terms and Conditions</span>
+                  <span>{t('landingFooter.termsConditions')}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">
-                  <span>Regulatory Notice</span>
+                  <span>{t('landingFooter.regulatoryNotice')}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </Link>
               </li>
@@ -170,21 +173,21 @@ export const HelloMondayFooter: React.FC = () => {
         {/* Bottom Bar: Copyright, Legal Links, Protocol Status */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-[#64748B] gap-4">
           <div className="flex flex-wrap items-center gap-4">
-            <p>&copy; {new Date().getFullYear()} OcuTrack Clinical Biometrics Consortium. All rights reserved.</p>
+            <p>{t('landingFooter.copyright', { year: new Date().getFullYear() })}</p>
             <div className="flex items-center gap-3">
               <Link to="/privacy" className="hover:text-[#0F172A] transition-colors underline underline-offset-2">
-                Privacy Policy
+                {t('landingFooter.privacyPolicy')}
               </Link>
               <span>&bull;</span>
               <Link to="/terms" className="hover:text-[#0F172A] transition-colors underline underline-offset-2">
-                Terms &amp; Conditions
+                {t('landingFooter.termsShort')}
               </Link>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span>Protocol {PROTOCOL_VERSION}</span>
+            <span>{t('landingFooter.protocolLabel', { version: PROTOCOL_VERSION })}</span>
             <span>&bull;</span>
-            <span>Investigational Use Only</span>
+            <span>{t('landingFooter.investigationalOnly')}</span>
           </div>
         </div>
       </div>

@@ -28,10 +28,12 @@ import { PROTOCOL_VERSION } from '../lib/constants';
 import { ErrorAlert } from '../components/common/ErrorAlert';
 import { ApiClientError } from '../services/apiClient';
 import { soundFx } from '../lib/soundFx';
+import { useTranslation } from '../i18n';
 
 export const PursuitTestPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isTargetActive, setIsTargetActive] = useState<boolean>(false);
@@ -144,7 +146,7 @@ export const PursuitTestPage: React.FC = () => {
       } else if (err instanceof Error) {
         setUploadError({ message: err.message, isUnavailable: false });
       } else {
-        setUploadError({ message: 'Pursuit recording upload could not be completed.', isUnavailable: true });
+        setUploadError({ message: t('pursuitTestPage.uploadError'), isUnavailable: true });
       }
     } finally {
       setIsUploading(false);
@@ -159,21 +161,21 @@ export const PursuitTestPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-              Protocol Test 02 · Smooth Pursuit Kinematics
+              {t('pursuitTestPage.badge')}
             </span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#0F172A] tracking-tight">
-            Smooth-Pursuit <span className="italic text-[#475569]">Kinematics Test</span>
+            {t('pursuitTestPage.headingMain')} <span className="italic text-[#475569]">{t('pursuitTestPage.headingItalic')}</span>
           </h1>
           <p className="text-sm text-[#475569] font-normal font-sans">
-            Calibrated 10-second harmonic target sweep across the horizontal visual arena.
+            {t('pursuitTestPage.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
-          <span className="text-[#64748B]">TARGET:</span>
+          <span className="text-[#64748B]">{t('pursuitTestPage.targetLabel')}</span>
           <span className="px-2.5 py-1 bg-white border border-[#E2E8F0] rounded text-[#0F172A] font-semibold">
-            {TARGET_DURATION_S}s @ 30 FPS
+            {t('pursuitTestPage.targetSpec', { sec: TARGET_DURATION_S })}
           </span>
         </div>
       </div>
@@ -184,8 +186,8 @@ export const PursuitTestPage: React.FC = () => {
           <Crosshair className="w-4 h-4" />
         </div>
         <div className="space-y-0.5 text-[#475569]">
-          <strong className="text-[#0F172A] font-mono text-xs uppercase block font-semibold">Participant Instruction:</strong>
-          Keep your head steady. Follow the moving target dot across the screen with your eyes smoothly. Do not anticipate movement or make premature saccadic jumps.
+          <strong className="text-[#0F172A] font-mono text-xs uppercase block font-semibold">{t('pursuitTestPage.instructionLabel')}</strong>
+          {t('pursuitTestPage.instructionText')}
         </div>
       </div>
 
@@ -197,12 +199,12 @@ export const PursuitTestPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <Crosshair className="w-4 h-4 text-[#0F172A]" />
               <h2 className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-                Review Recorded Pursuit Sequence
+                {t('pursuitTestPage.reviewHeading')}
               </h2>
             </div>
             {isFallbackMode && (
               <span className="px-2 py-0.5 text-[10px] font-semibold font-mono rounded bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]">
-                Fallback Benchmark Sample
+                {t('pursuitTestPage.fallbackBadge')}
               </span>
             )}
           </div>
@@ -229,25 +231,27 @@ export const PursuitTestPage: React.FC = () => {
             <div className="space-y-4 font-mono text-xs">
               <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg p-4 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">Video Duration:</span>
+                  <span className="text-[#64748B]">{t('pursuitTestPage.videoDuration')}</span>
                   <span className="font-semibold text-[#0F172A]">{(recordedVideo.durationMs / 1000).toFixed(2)}s</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">Target Coordinates:</span>
+                  <span className="text-[#64748B]">{t('pursuitTestPage.targetCoordinates')}</span>
                   <span className="font-semibold text-[#0F172A]">
-                    {trajectoryMetadata ? `${trajectoryMetadata.coordinates_normalized.length} logged` : 'Standard sweep'}
+                    {trajectoryMetadata
+                      ? t('pursuitTestPage.loggedSuffix', { count: trajectoryMetadata.coordinates_normalized.length })
+                      : t('pursuitTestPage.standardSweep')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">Container:</span>
+                  <span className="text-[#64748B]">{t('pursuitTestPage.container')}</span>
                   <span className="font-semibold text-[#0F172A]">{recordedVideo.mimeType}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">Path Version:</span>
+                  <span className="text-[#64748B]">{t('pursuitTestPage.pathVersion')}</span>
                   <span className="font-semibold text-[#0F172A]">{PURSUIT_PATH_VERSION}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">Protocol:</span>
+                  <span className="text-[#64748B]">{t('pursuitTestPage.protocolLabel')}</span>
                   <span className="font-semibold text-[#0F172A]">{PROTOCOL_VERSION}</span>
                 </div>
               </div>
@@ -268,7 +272,7 @@ export const PursuitTestPage: React.FC = () => {
                       ) : (
                         <ShieldAlert className="w-4 h-4 text-[#B91C1C]" />
                       )}
-                      Capture Quality Assessment:
+                      {t('pursuitTestPage.qualityHeader')}
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
@@ -289,14 +293,14 @@ export const PursuitTestPage: React.FC = () => {
                   )}
                   {!qualityFeedback.isAcceptable && (
                     <p className="text-[11px] font-semibold text-[#B91C1C]">
-                      Quality check failed. Please discard and retake before sending for analysis.
+                      {t('pursuitTestPage.qualityFailedHint')}
                     </p>
                   )}
                 </div>
               )}
 
               <p className="text-xs text-[#475569] leading-relaxed font-sans">
-                Both test recordings are now ready. Clicking <strong>Upload &amp; Trigger Analysis</strong> will transmit the video files and trajectory coordinates to the backend to begin computer vision extraction.
+                {t('pursuitTestPage.reviewDescPrefix')} <strong>{t('pursuitTestPage.reviewDescStrong')}</strong> {t('pursuitTestPage.reviewDescSuffix')}
               </p>
 
               <div className="flex items-center gap-3 pt-2">
@@ -313,7 +317,7 @@ export const PursuitTestPage: React.FC = () => {
                   className="btn-ramp-secondary py-2 px-3.5 text-xs"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Discard &amp; Retake</span>
+                  <span>{t('pursuitTestPage.discardRetake')}</span>
                 </button>
 
                 <button
@@ -325,12 +329,12 @@ export const PursuitTestPage: React.FC = () => {
                   {isUploading ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Uploading &amp; Analyzing...</span>
+                      <span>{t('pursuitTestPage.uploadingAnalyzing')}</span>
                     </>
                   ) : (
                     <>
                       <UploadCloud className="w-3.5 h-3.5" />
-                      <span>Upload &amp; Trigger Analysis</span>
+                      <span>{t('pursuitTestPage.uploadAnalyze')}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
@@ -354,7 +358,7 @@ export const PursuitTestPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <div className="space-y-2">
               <h4 className="text-xs font-mono uppercase tracking-wider text-[#64748B] font-semibold">
-                Participant Camera Preview
+                {t('pursuitTestPage.cameraPreviewTitle')}
               </h4>
               <div className="rounded-xl overflow-hidden shadow-sm">
                 <CameraPreview
@@ -373,12 +377,12 @@ export const PursuitTestPage: React.FC = () => {
 
             <div className="space-y-3">
               <h4 className="text-xs font-mono uppercase tracking-wider text-[#64748B] font-semibold">
-                Session Controls
+                {t('pursuitTestPage.sessionControlsTitle')}
               </h4>
 
               <div className="panel-ramp p-6 space-y-4">
                 <div className="text-xs text-[#475569] leading-relaxed font-sans">
-                  Clicking <strong>Start Pursuit Recording</strong> will initialize camera capture and synchronize the 10-second target sweep.
+                  {t('pursuitTestPage.controlsHintPrefix')} <strong>{t('pursuitTestPage.controlsHintStrong')}</strong> {t('pursuitTestPage.controlsHintSuffix')}
                 </div>
 
                 {recorder.isRecording ? (
@@ -386,7 +390,7 @@ export const PursuitTestPage: React.FC = () => {
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-[#B91C1C] font-semibold flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#B91C1C] animate-pulse" />
-                        SYNCHRONIZED RECORDING
+                        {t('pursuitTestPage.syncRecording')}
                       </span>
                       <span className="text-[#0F172A] font-semibold">
                         {(recorder.elapsedMs / 1000).toFixed(1)}s / {TARGET_DURATION_S}.0s
@@ -399,7 +403,7 @@ export const PursuitTestPage: React.FC = () => {
                       className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-xs font-medium text-white bg-[#B91C1C] hover:bg-[#991B1B] transition-colors shadow-sm"
                     >
                       <Square className="w-3.5 h-3.5 fill-current" />
-                      <span>Stop Pursuit Recording</span>
+                      <span>{t('pursuitTestPage.stopRecording')}</span>
                     </button>
                   </div>
                 ) : (
@@ -409,7 +413,7 @@ export const PursuitTestPage: React.FC = () => {
                     className="btn-ramp-primary w-full justify-center text-xs py-2.5 shadow-sm"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Start Pursuit Recording (10s)</span>
+                    <span>{t('pursuitTestPage.startRecording')}</span>
                   </button>
                 )}
               </div>
@@ -417,7 +421,7 @@ export const PursuitTestPage: React.FC = () => {
               {countdown !== null && (
                 <div className="p-5 panel-ramp text-center space-y-1 font-mono shadow-sm">
                   <span className="text-4xl font-sans font-bold text-[#0F172A]">{countdown}</span>
-                  <p className="text-xs text-[#64748B]">Synchronizing target sweep...</p>
+                  <p className="text-xs text-[#64748B]">{t('pursuitTestPage.countdownSync')}</p>
                 </div>
               )}
             </div>

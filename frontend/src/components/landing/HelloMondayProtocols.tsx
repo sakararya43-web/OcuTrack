@@ -3,98 +3,23 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
-interface ProtocolCard {
-  number: string;
-  id: string;
-  title: string;
-  tag: string;
-  headline: string;
-  primaryBiomarker: string;
-  healthyRange: string;
-  description: string;
-  pathway: string[];
-  href: string;
-  badge: string;
-}
+const PROTOCOL_HREFS: Record<string, string> = {
+  'pupil-reflex': '/assessments/new',
+  'smooth-pursuit': '/assessments/new',
+  'longitudinal-drift': '/console',
+  'causal-tcn': '/about#tcn-model',
+};
 
 export const HelloMondayProtocols: React.FC = () => {
+  const { t, dict } = useTranslation();
   const [activeCard, setActiveCard] = useState<string>('pupil-reflex');
 
-  const protocols: ProtocolCard[] = [
-    {
-      number: '01',
-      id: 'pupil-reflex',
-      tag: 'PROTOCOL 0.1 · PHOTOSTIMULATION',
-      title: 'Pupil Light Reflex Protocol',
-      headline: 'Diffuse ambient screen flash (1000 ms photopic square wave)',
-      primaryBiomarker: 'Constriction Latency & Velocity',
-      healthyRange: 'Latency: 220–260 ms · Velocity: 4.0–5.5 mm/s',
-      description: 'Quantifies the autonomic millisecond interval between luminous onset and iris sphincter pupillae contraction, indexing parasympathetic pretectal transmission.',
-      pathway: [
-        'Optic nerve (CN II)',
-        'Pretectal nucleus',
-        'Edinger-Westphal',
-        'Oculomotor nerve (CN III)',
-      ],
-      href: '/assessments/new',
-      badge: 'Core Battery',
-    },
-    {
-      number: '02',
-      id: 'smooth-pursuit',
-      tag: 'PROTOCOL 0.2 · KINEMATICS',
-      title: 'Smooth Pursuit Kinematics',
-      headline: 'Continuous sinusoidal target trajectory (0.4 Hz sweeping vector)',
-      primaryBiomarker: 'Velocity Gain Ratio & Catch-up Saccades',
-      healthyRange: 'Gain: 0.90–1.00 (Unity) · Saccades: 0–2 per sweep',
-      description: 'Evaluates the cerebellar motor loop by measuring how accurately ocular velocity matches a predictable moving target without slipping into corrective saccades.',
-      pathway: [
-        'Striate cortex (V1)',
-        'Middle temporal area (MT/V5)',
-        'Pontine nuclei',
-        'Cerebellum & Brainstem',
-      ],
-      href: '/assessments/new',
-      badge: 'Motor Kinematics',
-    },
-    {
-      number: '03',
-      id: 'longitudinal-drift',
-      tag: 'PROTOCOL 0.3 · TEMPORAL ENGINE',
-      title: 'Longitudinal Trajectory Delta',
-      headline: 'Multi-session personal baseline comparator (Δ Variance)',
-      primaryBiomarker: 'Intra-Patient Drift Metric',
-      healthyRange: 'Δ Latency: ≤ 15 ms · Δ Gain: ≤ 0.08 variance',
-      description: 'Bypasses misleading cross-sectional population distributions by benchmarking each individual strictly against their own historical verified baseline across clinic visits.',
-      pathway: [
-        'Visit 01 Baseline',
-        'Within-Subject Normalization',
-        'Variance Confidence Bounds',
-        'Automated Drift Alert',
-      ],
-      href: '/console',
-      badge: 'Baseline Comparator',
-    },
-    {
-      number: '04',
-      id: 'causal-tcn',
-      tag: 'PROTOCOL 0.4 · NEURAL PIPELINE',
-      title: 'Causal Dilated Convolution (TCN)',
-      headline: '300-frame normalized kinematic trajectory classifier',
-      primaryBiomarker: 'Sequence Trajectory Consistency Index',
-      healthyRange: 'Non-diagnostic research index (0.00 – 1.00)',
-      description: 'Temporal Convolutional Network with causal dilations evaluating velocity wave coherence with zero lookahead bias into future frames.',
-      pathway: [
-        'Sub-pixel coordinate series',
-        'Causal receptive dilations (1,2,4,8,16)',
-        'Residual Blocks',
-        'Trajectory Coherence Index',
-      ],
-      href: '/about#tcn-model',
-      badge: 'Experimental',
-    },
-  ];
+  const protocols = dict.protocolsSection.items.map((item) => ({
+    ...item,
+    href: PROTOCOL_HREFS[item.id] || '/assessments/new',
+  }));
 
   const current = protocols.find((p) => p.id === activeCard) || protocols[0];
 
@@ -112,13 +37,13 @@ export const HelloMondayProtocols: React.FC = () => {
         >
           <div className="space-y-2 max-w-2xl">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#64748B] font-semibold">
-              Standardized Formulations
+              {t('protocolsSection.eyebrow')}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-[#0F172A]">
-              Clinical Screening <span className="italic text-[#475569]">Protocols.</span>
+              {t('protocolsSection.headingMain')} <span className="italic text-[#475569]">{t('protocolsSection.headingItalic')}</span>
             </h2>
             <p className="font-sans text-sm text-[#475569] leading-relaxed">
-              Standardized optical capture protocols designed for ambient clinical research. Select a protocol to inspect neuro-anatomical pathways and target biomarkers.
+              {t('protocolsSection.subtitle')}
             </p>
           </div>
 
@@ -127,7 +52,7 @@ export const HelloMondayProtocols: React.FC = () => {
             onClick={() => soundFx.playClick()}
             className="btn-ramp-primary group text-xs py-2.5 px-4 self-start md:self-end flex items-center gap-2"
           >
-            <span>Launch Protocol Session</span>
+            <span>{t('protocolsSection.launchBtn')}</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </motion.div>
@@ -211,7 +136,7 @@ export const HelloMondayProtocols: React.FC = () => {
                   onClick={() => soundFx.playClick()}
                   className="btn-ramp-secondary text-xs py-2 px-3 flex items-center gap-1.5"
                 >
-                  <span>Protocol Spec</span>
+                  <span>{t('protocolsSection.specBtn')}</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -219,7 +144,7 @@ export const HelloMondayProtocols: React.FC = () => {
 
             {/* Two-Column Specification & Neuro-Anatomical Pathway */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
+
               {/* Left Column: Clinical Parameters */}
               <div className="lg:col-span-6 space-y-5">
                 <p className="font-sans text-sm text-[#475569] leading-relaxed">
@@ -228,12 +153,12 @@ export const HelloMondayProtocols: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
                   <div className="p-3.5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] space-y-1">
-                    <span className="text-[10px] text-[#64748B] uppercase block">Primary Endpoint</span>
+                    <span className="text-[10px] text-[#64748B] uppercase block">{t('protocolsSection.primaryEndpoint')}</span>
                     <span className="font-semibold text-[#0F172A] block">{current.primaryBiomarker}</span>
                   </div>
 
                   <div className="p-3.5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] space-y-1">
-                    <span className="text-[10px] text-[#64748B] uppercase block">Reference Band</span>
+                    <span className="text-[10px] text-[#64748B] uppercase block">{t('protocolsSection.referenceBand')}</span>
                     <span className="font-semibold text-[#0F766E] block">{current.healthyRange}</span>
                   </div>
                 </div>
@@ -242,7 +167,7 @@ export const HelloMondayProtocols: React.FC = () => {
               {/* Right Column: Interactive Anatomical Signal Pathway */}
               <div className="lg:col-span-6 space-y-4">
                 <span className="font-mono text-[10px] uppercase tracking-wider text-[#64748B] block font-semibold">
-                  Anatomical Neural Signal Pathway:
+                  {t('protocolsSection.pathwayHeader')}
                 </span>
 
                 <div className="p-4 rounded-xl bg-[#0F1117] border border-[#27282D] text-white font-mono text-xs space-y-3 shadow-inner">
@@ -255,7 +180,11 @@ export const HelloMondayProtocols: React.FC = () => {
                         <div className="flex-1 p-2 rounded bg-[#1A1F2C]/80 border border-white/5 text-xs flex items-center justify-between">
                           <span>{node}</span>
                           <span className="text-[9px] text-[#0F766E] opacity-70">
-                            {i === 0 ? 'Stimulus In' : i === current.pathway.length - 1 ? 'Motor Out' : 'Relay'}
+                            {i === 0
+                              ? t('protocolsSection.stimulusIn')
+                              : i === current.pathway.length - 1
+                              ? t('protocolsSection.motorOut')
+                              : t('protocolsSection.relay')}
                           </span>
                         </div>
                       </div>
@@ -265,9 +194,9 @@ export const HelloMondayProtocols: React.FC = () => {
                   <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-[#64748B]">
                     <span className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
-                      Continuous Synaptic Signal Integrity
+                      {t('protocolsSection.synapticIntegrity')}
                     </span>
-                    <span className="text-white/60">Sub-millisecond Timing</span>
+                    <span className="text-white/60">{t('protocolsSection.subMsTiming')}</span>
                   </div>
                 </div>
               </div>

@@ -5,12 +5,15 @@ import { Patient } from '../../types/api';
 import { StatusBadge } from '../common/StatusBadge';
 import { formatShortDate } from '../../lib/formatters';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 interface PatientCardProps {
   patient: Patient;
 }
 
 export const PatientCard: React.FC<PatientCardProps> = ({ patient }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="panel-ramp p-6 flex flex-col justify-between text-[#0F172A] transition-all duration-150 group">
       <div className="space-y-4">
@@ -23,7 +26,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient }) => {
               <h4 className="font-semibold text-[#0F172A] font-mono tracking-tight text-base group-hover:text-black transition-colors">
                 {patient.pseudonymous_code}
               </h4>
-              <p className="text-[10px] font-mono text-[#64748B]">COHORT: {patient.age_band}</p>
+              <p className="text-[10px] font-mono text-[#64748B]">{t('patientsPage.cohortPrefix')} {patient.age_band}</p>
             </div>
           </div>
           <StatusBadge type="consent" status={patient.consent_status} />
@@ -37,21 +40,21 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient }) => {
 
         <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#E2E8F0] text-xs font-mono">
           <div>
-            <span className="text-[#64748B] block mb-1 text-[9px] uppercase tracking-wider font-semibold">LAST ASSESSMENT</span>
+            <span className="text-[#64748B] block mb-1 text-[9px] uppercase tracking-wider font-semibold">{t('patientsPage.lastAssessment')}</span>
             <span className="text-[#0F172A] flex items-center gap-1.5 text-[11px] font-medium">
               <Calendar className="w-3.5 h-3.5 text-[#475569]" />
               {formatShortDate(patient.last_assessment_date)}
             </span>
           </div>
           <div>
-            <span className="text-[#64748B] block mb-1 text-[9px] uppercase tracking-wider font-semibold">QUALITY GATE</span>
+            <span className="text-[#64748B] block mb-1 text-[9px] uppercase tracking-wider font-semibold">{t('patientsPage.qualityGate')}</span>
             <StatusBadge type="quality" status={patient.last_quality_status} />
           </div>
         </div>
 
         {patient.feature_change_recorded !== undefined && patient.feature_change_recorded !== null && (
           <div className="pt-1 text-xs font-mono">
-            <span className="text-[#64748B] block mb-1 text-[9px] uppercase tracking-wider font-semibold">LONGITUDINAL DELTA</span>
+            <span className="text-[#64748B] block mb-1 text-[9px] uppercase tracking-wider font-semibold">{t('patientsPage.longitudinalDelta')}</span>
             <StatusBadge type="change" status={patient.feature_change_recorded} />
           </div>
         )}
@@ -64,14 +67,14 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient }) => {
           className="inline-flex items-center gap-1.5 text-[#0F172A] hover:underline font-semibold transition-colors"
         >
           <PlusCircle className="w-3.5 h-3.5" />
-          <span>NEW TRIAL</span>
+          <span>{t('patientsPage.newTrial')}</span>
         </Link>
         <Link
           to={`/patients/${patient.patient_id}`}
           onClick={() => soundFx.playClick()}
           className="inline-flex items-center gap-1 text-[#475569] hover:text-[#0F172A] font-medium transition-colors group/link"
         >
-          <span>TRAJECTORY</span>
+          <span>{t('patientsPage.trajectory')}</span>
           <ChevronRight className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" />
         </Link>
       </div>

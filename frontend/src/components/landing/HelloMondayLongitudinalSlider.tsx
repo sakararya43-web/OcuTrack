@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, TrendingUp, SlidersHorizontal } from 'lucide-react';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 export const HelloMondayLongitudinalSlider: React.FC = () => {
+  const { t } = useTranslation();
   const [sliderPos, setSliderPos] = useState<number>(50);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef<boolean>(false);
@@ -46,20 +48,20 @@ export const HelloMondayLongitudinalSlider: React.FC = () => {
         >
           <div className="space-y-2 max-w-2xl">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#64748B] font-semibold">
-              Chapter 03 · LONGITUDINAL TEMPORAL DRIFT
+              {t('longitudinalSlider.eyebrow')}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-[#0F172A]">
-              Dual-Session <span className="italic text-[#475569]">Longitudinal Comparator.</span>
+              {t('longitudinalSlider.headingMain')} <span className="italic text-[#475569]">{t('longitudinalSlider.headingItalic')}</span>
             </h2>
             <p className="font-sans text-sm text-[#475569] leading-relaxed">
-              Drag the vertical divider to evaluate Session 01 (Baseline) against Session 02 (Follow-up Day 60). Observe verified biomarker drift without misleading cross-sectional population assumptions.
+              {t('longitudinalSlider.subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-              Standardized Intra-Patient Protocol
+              {t('longitudinalSlider.protocolBadge')}
             </span>
           </div>
         </motion.div>
@@ -68,14 +70,14 @@ export const HelloMondayLongitudinalSlider: React.FC = () => {
         <div className="flex items-center justify-between font-mono text-xs pb-1">
           <div className="flex items-center gap-1.5">
             <SlidersHorizontal className="w-3.5 h-3.5 text-[#475569]" />
-            <span className="text-[#64748B] uppercase tracking-wider text-[10px]">Split Presets:</span>
+            <span className="text-[#64748B] uppercase tracking-wider text-[10px]">{t('longitudinalSlider.splitPresets')}</span>
             <button
               onClick={() => setPreset(15)}
               className={`px-2 py-0.5 rounded text-[10px] transition-colors ${
                 sliderPos < 25 ? 'bg-[#0F172A] text-[#0F766E] font-semibold' : 'bg-white border border-[#E2E8F0] text-[#475569]'
               }`}
             >
-              Session 02 View (Day 60)
+              {t('longitudinalSlider.presetSession2')}
             </button>
             <button
               onClick={() => setPreset(50)}
@@ -83,7 +85,7 @@ export const HelloMondayLongitudinalSlider: React.FC = () => {
                 sliderPos >= 45 && sliderPos <= 55 ? 'bg-[#0F172A] text-[#0F766E] font-semibold' : 'bg-white border border-[#E2E8F0] text-[#475569]'
               }`}
             >
-              50/50 Dual Split
+              {t('longitudinalSlider.presetSplit')}
             </button>
             <button
               onClick={() => setPreset(85)}
@@ -91,12 +93,12 @@ export const HelloMondayLongitudinalSlider: React.FC = () => {
                 sliderPos > 75 ? 'bg-[#0F172A] text-[#0F766E] font-semibold' : 'bg-white border border-[#E2E8F0] text-[#475569]'
               }`}
             >
-              Session 01 View (Baseline)
+              {t('longitudinalSlider.presetSession1')}
             </button>
           </div>
 
           <span className="text-[#64748B] text-[11px] hidden sm:inline">
-            Drag divider left / right across canvas
+            {t('longitudinalSlider.dragHint')}
           </span>
         </div>
 
@@ -112,30 +114,30 @@ export const HelloMondayLongitudinalSlider: React.FC = () => {
           <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-between bg-[#F8FAFC]">
             <div className="flex items-center justify-end">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-semibold bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]">
-                SESSION 02 · POST-ACUTE FOLLOW-UP (DAY 60)
+                {t('longitudinalSlider.session2Badge')}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-xl ml-auto text-right font-mono">
               <div className="p-4 bg-white border border-[#E2E8F0] rounded-lg space-y-1 shadow-xs">
-                <span className="text-[10px] text-[#64748B] uppercase block">Constriction Latency</span>
+                <span className="text-[10px] text-[#64748B] uppercase block">{t('longitudinalSlider.latency')}</span>
                 <span className="text-2xl font-bold text-[#B45309]">263 ms</span>
-                <span className="text-[11px] text-[#B45309] block font-semibold">+25 ms Delta (Delayed)</span>
+                <span className="text-[11px] text-[#B45309] block font-semibold">{t('longitudinalSlider.latencyDelta')}</span>
               </div>
               <div className="p-4 bg-white border border-[#E2E8F0] rounded-lg space-y-1 shadow-xs">
-                <span className="text-[10px] text-[#64748B] uppercase block">Constriction Velocity</span>
+                <span className="text-[10px] text-[#64748B] uppercase block">{t('longitudinalSlider.velocity')}</span>
                 <span className="text-2xl font-bold text-[#0F172A]">3.90 mm/s</span>
                 <span className="text-[11px] text-[#64748B] block">-0.40 mm/s</span>
               </div>
               <div className="p-4 bg-white border border-[#E2E8F0] rounded-lg space-y-1 shadow-xs">
-                <span className="text-[10px] text-[#64748B] uppercase block">Pursuit Gain Ratio</span>
+                <span className="text-[10px] text-[#64748B] uppercase block">{t('longitudinalSlider.gain')}</span>
                 <span className="text-2xl font-bold text-[#B45309]">0.86</span>
-                <span className="text-[11px] text-[#B45309] block font-semibold">-0.08 Saccadic Slip</span>
+                <span className="text-[11px] text-[#B45309] block font-semibold">{t('longitudinalSlider.gainDelta')}</span>
               </div>
             </div>
 
             <div className="flex items-center justify-end text-xs text-[#475569] font-mono">
-              <span>Patient Ref: OT-4091 &bull; Ambient Lux: 350 lx</span>
+              <span>{t('longitudinalSlider.patientRef')}</span>
             </div>
           </div>
 
@@ -146,30 +148,30 @@ export const HelloMondayLongitudinalSlider: React.FC = () => {
           >
             <div className="flex items-center justify-start min-w-[500px]">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-semibold bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0]">
-                SESSION 01 · VERIFIED BASELINE (DAY 0)
+                {t('longitudinalSlider.session1Badge')}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-xl text-left font-mono min-w-[500px]">
               <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1 shadow-xs">
-                <span className="text-[10px] text-[#64748B] uppercase block">Constriction Latency</span>
+                <span className="text-[10px] text-[#64748B] uppercase block">{t('longitudinalSlider.latency')}</span>
                 <span className="text-2xl font-bold text-[#0F766E]">238 ms</span>
-                <span className="text-[11px] text-[#0F766E] block font-semibold">Normative Range</span>
+                <span className="text-[11px] text-[#0F766E] block font-semibold">{t('longitudinalSlider.normativeRange')}</span>
               </div>
               <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1 shadow-xs">
-                <span className="text-[10px] text-[#64748B] uppercase block">Constriction Velocity</span>
+                <span className="text-[10px] text-[#64748B] uppercase block">{t('longitudinalSlider.velocity')}</span>
                 <span className="text-2xl font-bold text-[#0F172A]">4.30 mm/s</span>
-                <span className="text-[11px] text-[#64748B] block">Healthy Peak</span>
+                <span className="text-[11px] text-[#64748B] block">{t('longitudinalSlider.healthyPeak')}</span>
               </div>
               <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1 shadow-xs">
-                <span className="text-[10px] text-[#64748B] uppercase block">Pursuit Gain Ratio</span>
+                <span className="text-[10px] text-[#64748B] uppercase block">{t('longitudinalSlider.gain')}</span>
                 <span className="text-2xl font-bold text-[#0F766E]">0.94</span>
-                <span className="text-[11px] text-[#0F766E] block font-semibold">Unity Pursuit</span>
+                <span className="text-[11px] text-[#0F766E] block font-semibold">{t('longitudinalSlider.unityPursuit')}</span>
               </div>
             </div>
 
             <div className="flex items-center justify-start text-xs text-[#475569] font-mono min-w-[500px]">
-              <span>Protocol v0.1 &bull; 60 FPS Optical Calibrated</span>
+              <span>{t('longitudinalSlider.protocolCalibrated')}</span>
             </div>
           </div>
 
@@ -190,10 +192,10 @@ export const HelloMondayLongitudinalSlider: React.FC = () => {
             <TrendingUp className="w-5 h-5 text-[#0F172A] shrink-0 mt-0.5" />
             <div className="space-y-0.5">
               <span className="text-xs font-semibold text-[#0F172A] block font-sans">
-                Methodological Principle: Self-Referenced Longitudinal Benchmarking
+                {t('longitudinalSlider.principleTitle')}
               </span>
               <p className="text-xs text-[#475569] font-normal leading-relaxed">
-                Inter-individual pupil variation is wide across general populations. OcuTrack prioritizes intra-individual change metrics (Δ) over static cross-sectional tables to detect true neurological drift.
+                {t('longitudinalSlider.principleDesc')}
               </p>
             </div>
           </div>
@@ -202,7 +204,7 @@ export const HelloMondayLongitudinalSlider: React.FC = () => {
             onClick={() => soundFx.playClick()}
             className="btn-ramp-primary text-xs py-2 px-4 shrink-0 shadow-sm"
           >
-            <span>Inspect Cohort Delta Engine</span>
+            <span>{t('longitudinalSlider.inspectEngine')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

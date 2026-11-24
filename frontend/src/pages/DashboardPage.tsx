@@ -12,8 +12,10 @@ import { CreatePatientModal } from '../components/patients/CreatePatientModal';
 import { ApiClientError } from '../services/apiClient';
 import { formatDate } from '../lib/formatters';
 import { soundFx } from '../lib/soundFx';
+import { useTranslation } from '../i18n';
 
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
@@ -31,7 +33,7 @@ export const DashboardPage: React.FC = () => {
       } else if (err instanceof Error) {
         setError({ message: err.message, isUnavailable: false });
       } else {
-        setError({ message: 'Failed to connect to backend', isUnavailable: true });
+        setError({ message: t('dashboardPage.connectError'), isUnavailable: true });
       }
     } finally {
       setLoading(false);
@@ -60,15 +62,15 @@ export const DashboardPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-                Protocol {PROTOCOL_VERSION} · Console
+                {t('dashboardPage.badgeProtocol', { version: PROTOCOL_VERSION })}
               </span>
             </div>
 
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#0F172A] tracking-tight">
-              Clinical Telemetry &amp; <span className="italic text-[#475569]">Cohort Registry</span>
+              {t('dashboardPage.headingMain')} <span className="italic text-[#475569]">{t('dashboardPage.headingItalic')}</span>
             </h1>
             <p className="font-sans text-sm sm:text-base leading-relaxed text-[#475569] font-normal">
-              {APP_TAGLINE}. Engineered for feature extraction audits, longitudinal drift tracking, and non-invasive analysis of pupil light reflexes and smooth-pursuit eye movements.
+              {t('dashboardPage.description', { tagline: t('common.appTagline', APP_TAGLINE) })}
             </p>
           </div>
 
@@ -82,7 +84,7 @@ export const DashboardPage: React.FC = () => {
               className="btn-ramp-primary text-xs py-2.5 px-4 shadow-sm"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              <span>Register Participant</span>
+              <span>{t('dashboardPage.registerParticipant')}</span>
             </button>
 
             <Link
@@ -91,7 +93,7 @@ export const DashboardPage: React.FC = () => {
               className="btn-ramp-secondary text-xs py-2.5 px-4"
             >
               <ClipboardList className="w-3.5 h-3.5 text-[#475569]" />
-              <span>Initialize Test</span>
+              <span>{t('dashboardPage.initializeTest')}</span>
             </Link>
           </div>
         </div>
@@ -104,7 +106,7 @@ export const DashboardPage: React.FC = () => {
         <div className="space-y-1.5 sm:pr-6">
           <div className="flex items-center justify-between text-[#64748B]">
             <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">
-              REGISTERED COHORTS
+              {t('dashboardPage.metric1Label')}
             </span>
             <Users className="w-4 h-4 text-[#64748B]" />
           </div>
@@ -112,7 +114,7 @@ export const DashboardPage: React.FC = () => {
             {loading ? '-' : error ? '0' : patientCount}
           </div>
           <p className="text-xs text-[#475569] font-normal font-sans">
-            Pseudonymous participant records in registry
+            {t('dashboardPage.metric1Desc')}
           </p>
         </div>
 
@@ -120,7 +122,7 @@ export const DashboardPage: React.FC = () => {
         <div className="pt-4 sm:pt-0 sm:px-6 space-y-1.5">
           <div className="flex items-center justify-between text-[#64748B]">
             <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">
-              RECORDED SESSIONS
+              {t('dashboardPage.metric2Label')}
             </span>
             <FileCheck className="w-4 h-4 text-[#64748B]" />
           </div>
@@ -128,7 +130,7 @@ export const DashboardPage: React.FC = () => {
             {loading ? '-' : error ? '0' : totalAssessmentsCount}
           </div>
           <p className="text-xs text-[#475569] font-normal font-sans">
-            Completed biometric assessment trials
+            {t('dashboardPage.metric2Desc')}
           </p>
         </div>
 
@@ -136,7 +138,7 @@ export const DashboardPage: React.FC = () => {
         <div className="pt-4 sm:pt-0 sm:pl-6 space-y-1.5">
           <div className="flex items-center justify-between text-[#64748B]">
             <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">
-              REQUIRING REVIEW
+              {t('dashboardPage.metric3Label')}
             </span>
             <AlertCircle className="w-4 h-4 text-[#B45309]" />
           </div>
@@ -144,7 +146,7 @@ export const DashboardPage: React.FC = () => {
             {loading ? '-' : error ? '0' : pendingReviewCount}
           </div>
           <p className="text-xs text-[#475569] font-normal font-sans">
-            Quality flags or longitudinal delta drift
+            {t('dashboardPage.metric3Desc')}
           </p>
         </div>
 
@@ -155,21 +157,21 @@ export const DashboardPage: React.FC = () => {
         <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
           <h2 className="text-xs font-mono text-[#0F172A] font-semibold flex items-center gap-2 uppercase tracking-wider">
             <Activity className="w-3.5 h-3.5 text-[#0F766E]" />
-            <span>Recent Cohort Entries</span>
+            <span>{t('dashboardPage.recentEntries')}</span>
           </h2>
           <Link
             to="/patients"
             onClick={() => soundFx.playClick()}
             className="link-editorial text-xs font-semibold"
           >
-            <span>View All Records</span>
+            <span>{t('dashboardPage.viewAllRecords')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {loading ? (
           <div className="panel-ramp p-12">
-            <LoadingSpinner label="Querying participant database..." />
+            <LoadingSpinner label={t('dashboardPage.loadingLabel')} />
           </div>
         ) : error ? (
           <ErrorAlert
@@ -179,8 +181,8 @@ export const DashboardPage: React.FC = () => {
           />
         ) : patients.length === 0 ? (
           <EmptyState
-            title="No participants registered"
-            description="Register a pseudonymous participant to begin recording calibrated ocular biometric trials."
+            title={t('dashboardPage.emptyTitle')}
+            description={t('dashboardPage.emptyDesc')}
             action={
               <button
                 type="button"
@@ -191,7 +193,7 @@ export const DashboardPage: React.FC = () => {
                 className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>Add First Participant</span>
+                <span>{t('dashboardPage.addFirstParticipant')}</span>
               </button>
             }
           />
@@ -201,12 +203,12 @@ export const DashboardPage: React.FC = () => {
               <table className="w-full text-left border-collapse font-mono text-xs">
                 <thead>
                   <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[10px] text-[#64748B] uppercase tracking-wider">
-                    <th className="px-6 py-3.5 font-semibold">Participant Code</th>
-                    <th className="px-6 py-3.5 font-semibold">Age Band</th>
-                    <th className="px-6 py-3.5 font-semibold">Consent Status</th>
-                    <th className="px-6 py-3.5 font-semibold">Latest Session</th>
-                    <th className="px-6 py-3.5 font-semibold">Quality Gate</th>
-                    <th className="px-6 py-3.5 text-right font-semibold">Actions</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('dashboardPage.thCode')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('dashboardPage.thAgeBand')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('dashboardPage.thConsent')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('dashboardPage.thLatestSession')}</th>
+                    <th className="px-6 py-3.5 font-semibold">{t('dashboardPage.thQualityGate')}</th>
+                    <th className="px-6 py-3.5 text-right font-semibold">{t('dashboardPage.thActions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E2E8F0]">
@@ -238,7 +240,7 @@ export const DashboardPage: React.FC = () => {
                           onClick={() => soundFx.playClick()}
                           className="text-[#475569] hover:text-[#0F172A] font-medium transition-colors"
                         >
-                          Trajectory
+                          {t('dashboardPage.trajectory')}
                         </Link>
                         <span className="text-[#E2E8F0]">&bull;</span>
                         <Link
@@ -246,7 +248,7 @@ export const DashboardPage: React.FC = () => {
                           onClick={() => soundFx.playClick()}
                           className="text-[#0F172A] hover:underline transition-colors font-semibold"
                         >
-                          New Test →
+                          {t('dashboardPage.newTestArrow')}
                         </Link>
                       </td>
                     </tr>

@@ -34,7 +34,7 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const { openDrawer } = useHelpDrawer();
   const { user, isAuthenticated } = useAuth();
-  const { t } = useTranslation();
+  const { t, dict } = useTranslation();
 
   useEffect(() => {
     let isMounted = true;
@@ -86,93 +86,49 @@ export const Header: React.FC = () => {
 
   const megaMenuData: Record<string, { title: string; subtitle: string; columns: MegaMenuSection[]; featured: { title: string; desc: string; link: string; linkText: string; tag: string } }> = {
     protocols: {
-      title: 'Investigational Protocols',
-      subtitle: 'Standardized optical capture protocols designed for ambient clinical research.',
+      title: dict.header.megaMenu.protocols.title,
+      subtitle: dict.header.megaMenu.protocols.subtitle,
       columns: [
         {
-          title: 'Core Screenings & Story',
-          items: [
-            { label: 'Executive Story Chronicle', href: '/#story-chronicle', desc: '5-act scrollytelling walkthrough from $25k hospital hardware to browser silicon.', badge: 'Story' },
-            { label: 'WebGL 3D Ocular Globe', href: '/#ocular-3d-lab', desc: 'Hardware-accelerated 3D anatomical eye with real-time reflex simulation.', badge: '3D WebGL' },
-            { label: 'Diagnostic Benchmark Simulator', href: '/#clinical-simulator', desc: '1-click benchmark testing Healthy vs Concussion vs Cerebellar ataxia.', badge: 'Simulator' },
-            { label: 'Protocol 0.1: Pupil Light Reflex', href: '/assessments/new', desc: 'Diffuse photostimulation quantifying autonomic constriction latency (220–260 ms).', badge: 'Core' },
-            { label: 'Protocol 0.2: Smooth Pursuit Tracking', href: '/assessments/new', desc: 'Sinusoidal horizontal target vector measuring pursuit velocity gain and catch-up saccades.', badge: 'Core' },
-            { label: 'Longitudinal Delta Engine', href: '/console', desc: 'Comparative trajectory assessment benchmarking personal intra-patient baseline drift.', badge: 'Delta' },
-          ],
+          title: dict.header.megaMenu.protocols.col1Title,
+          items: dict.header.megaMenu.protocols.col1Items,
         },
         {
-          title: 'Measurement Standards',
-          items: [
-            { label: 'The 11.7 mm Iris Standard', href: '/about#iris-standard', desc: 'Anatomical biological ruler translating raw pixel measurements into true millimeters.' },
-            { label: 'MediaPipe Landmark Geometry', href: '/about#landmarks', desc: '478 virtual topological facial coordinates with sub-pixel iris boundary mapping.' },
-            { label: 'Pre-flight Video Bouncer', href: '/about#quality', desc: 'Client-side verification of exposure, framerate stability (≥25 FPS), and duration.' },
-          ],
+          title: dict.header.megaMenu.protocols.col2Title,
+          items: dict.header.megaMenu.protocols.col2Items,
         },
       ],
-      featured: {
-        tag: 'Investigational Monograph',
-        title: 'The Measurement of Involuntary Reflex',
-        desc: 'Why millisecond precision in involuntary pupillometry serves as an uninhibited metric of neurological state.',
-        link: '/about',
-        linkText: 'Read Clinical Methodology',
-      },
+      featured: dict.header.megaMenu.protocols.featured,
     },
     biomarkers: {
-      title: 'Quantified Biomarkers',
-      subtitle: 'Mathematical biometrics derived from high-frequency ocular computer vision.',
+      title: dict.header.megaMenu.biomarkers.title,
+      subtitle: dict.header.megaMenu.biomarkers.subtitle,
       columns: [
         {
-          title: 'Pupillometric Dynamics',
-          items: [
-            { label: 'Constriction Latency', href: '/console', desc: 'Elapsed time from stimulus onset to reflexive constriction initiation (healthy: ~220–260 ms).' },
-            { label: 'Peak Constriction Velocity', href: '/console', desc: 'Maximum rate of pupil diameter contraction (healthy: 4.0–5.5 mm/s).' },
-            { label: 'Sustained Constriction Amplitude', href: '/console', desc: 'Net pupil area reduction percentage under continuous photostimulation.' },
-          ],
+          title: dict.header.megaMenu.biomarkers.col1Title,
+          items: dict.header.megaMenu.biomarkers.col1Items,
         },
         {
-          title: 'Kinematic Smooth Pursuit',
-          items: [
-            { label: 'Tracking Gain Ratio', href: '/console', desc: 'Ratio of instantaneous eye gaze velocity to target velocity (ideal = 1.0).' },
-            { label: 'Catch-up Saccade Frequency', href: '/console', desc: 'Rapid ballistic re-fixation jumps triggered when pursuit slips behind target.' },
-            { label: 'Trajectory Phase Lag', href: '/console', desc: 'Temporal delay between target movement inversion and ocular tracking response.' },
-          ],
+          title: dict.header.megaMenu.biomarkers.col2Title,
+          items: dict.header.megaMenu.biomarkers.col2Items,
         },
       ],
-      featured: {
-        tag: 'Experimental AI Architecture',
-        title: 'Temporal Convolutional Network (TCN)',
-        desc: '300-frame causal dilated convolutions evaluating temporal feature series with zero future lookahead.',
-        link: '/about#tcn-model',
-        linkText: 'Inspect TCN Architecture',
-      },
+      featured: dict.header.megaMenu.biomarkers.featured,
     },
     science: {
-      title: 'Scientific Foundations',
-      subtitle: 'Transparent documentation on clinical assumptions, limitations, and ethics.',
+      title: dict.header.megaMenu.science.title,
+      subtitle: dict.header.megaMenu.science.subtitle,
       columns: [
         {
-          title: 'Clinical Methodology',
-          items: [
-            { label: 'Investigational Scope & Device Status', href: '/about', desc: 'Clear boundaries separating clinical research instrumentation from diagnostic devices.' },
-            { label: 'Webcam Optical Limitations', href: '/about#limitations', desc: 'Frame jitter, ambient lux variability, and consumer rolling shutter effects.' },
-            { label: 'Longitudinal Drift vs. Population Norms', href: '/about#longitudinal', desc: 'Why self-referenced baseline comparisons supersede cross-sectional population tables.' },
-          ],
+          title: dict.header.megaMenu.science.col1Title,
+          items: dict.header.megaMenu.science.col1Items,
         },
         {
-          title: 'Ethics & Privacy Architecture',
-          items: [
-            { label: 'The Ephemeral Video Standard', href: '/about#privacy', desc: 'Permanent destruction of patient facial recordings immediately following feature extraction.' },
-            { label: 'Non-diagnostic Transparency Notice', href: '/about#disclaimer', desc: 'Standard operating principles ensuring patient safety and clinical integrity.' },
-          ],
+          title: dict.header.megaMenu.science.col2Title,
+          items: dict.header.megaMenu.science.col2Items,
         },
       ],
-      featured: {
-        tag: 'Clinical Research Console',
-        title: 'Central Clinical Registry',
-        desc: 'Access anonymous patient cohorts, baseline comparisons, and longitudinal feature series.',
-        link: '/console',
-        linkText: 'Enter Clinical Console',
-      },
+      featured: dict.header.megaMenu.science.featured,
     },
   };
 
@@ -301,8 +257,8 @@ export const Header: React.FC = () => {
                 soundFx.playClick();
                 openDrawer();
               }}
-              title="Open Clinical Protocol Guide (Shift+?)"
-              aria-label="Open Clinical Protocol Guide"
+              title={t('nav.openProtocolGuide')}
+              aria-label={t('nav.openProtocolGuideAria')}
               className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs font-mono shrink-0"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#0F766E]" />
@@ -314,7 +270,7 @@ export const Header: React.FC = () => {
             <Link
               to="/login"
               onClick={() => soundFx.playClick()}
-              title={isAuthenticated && user ? `Logged in as ${user.name}` : 'Staff Portal Login'}
+              title={isAuthenticated && user ? t('nav.loggedInAs', { name: user.name }) : t('nav.staffPortalLogin')}
               className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs font-medium text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs shrink-0"
             >
               <User className="w-3.5 h-3.5 text-[#64748B]" />
@@ -331,8 +287,8 @@ export const Header: React.FC = () => {
                 soundFx.playClick();
                 setSearchOpen(true);
               }}
-              title="Search patient records (Cmd+K)"
-              aria-label="Search patient records"
+              title={t('nav.searchPatientRecords')}
+              aria-label={t('nav.searchPatientRecordsAria')}
               className="hidden lg:flex items-center gap-1.5 px-2 py-1.5 2xl:px-2.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs shrink-0"
             >
               <Search className="w-3.5 h-3.5 text-[#64748B]" />
@@ -344,10 +300,10 @@ export const Header: React.FC = () => {
 
             {/* API Health Beacon */}
             <div
-              title="Backend Telemetry Health"
+              title={t('nav.backendTelemetryHealth')}
               className="hidden xl:flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] px-2 py-1 rounded-md bg-white border border-[#E2E8F0] shrink-0"
             >
-              <span className="text-[10px] uppercase text-[#64748B]">API</span>
+              <span className="text-[10px] uppercase text-[#64748B]">{t('nav.api')}</span>
               {backendStatus === 'connected' && (
                 <span className="text-[#0F766E] font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
@@ -384,7 +340,7 @@ export const Header: React.FC = () => {
                 soundFx.playClick();
                 setMobileMenuOpen(!mobileMenuOpen);
               }}
-              aria-label="Toggle mobile menu"
+              aria-label={t('nav.toggleMobileMenu')}
               className="lg:hidden p-1.5 text-[#0F172A] hover:bg-[#F1F5F9] rounded-md transition-colors"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -412,7 +368,7 @@ export const Header: React.FC = () => {
                   {megaMenuData[activeMenu].title}
                 </span>
                 <h3 className="font-serif text-2xl font-normal leading-snug text-[#0F172A]">
-                  Clinical Observation &amp; <span className="italic text-[#475569]">Reflex</span>
+                  {t('header.clinicalObservation')} <span className="italic text-[#475569]">{t('header.reflex')}</span>
                 </h3>
                 <p className="text-xs leading-relaxed text-[#475569] font-normal">
                   {megaMenuData[activeMenu].subtitle}
@@ -426,7 +382,7 @@ export const Header: React.FC = () => {
                     }}
                     className="link-editorial text-xs font-semibold"
                   >
-                    <span>Read Full Methodology</span>
+                    <span>{t('header.readFullMethodology')}</span>
                     <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
@@ -510,7 +466,7 @@ export const Header: React.FC = () => {
             <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
               <div className="flex items-center gap-2">
                 <Search className="w-4 h-4 text-[#475569]" />
-                <h3 className="font-sans text-sm font-semibold text-[#0F172A]">Participant &amp; Cohort Search</h3>
+                <h3 className="font-sans text-sm font-semibold text-[#0F172A]">{t('header.searchModalTitle')}</h3>
               </div>
               <button
                 onClick={() => setSearchOpen(false)}
@@ -525,7 +481,7 @@ export const Header: React.FC = () => {
                 <input
                   type="text"
                   autoFocus
-                  placeholder="Type participant code (e.g. OT-1001) or notes..."
+                  placeholder={t('header.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg px-3.5 py-2.5 text-xs text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:border-[#0F172A] font-mono"
@@ -534,13 +490,13 @@ export const Header: React.FC = () => {
                   type="submit"
                   className="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1 bg-[#0F172A] hover:bg-[#27282D] text-white text-[11px] font-medium rounded-md transition-colors"
                 >
-                  Search
+                  {t('header.searchButton')}
                 </button>
               </div>
             </form>
 
             <div className="flex items-center justify-between text-xs text-[#64748B] font-mono pt-1">
-              <span>Quick: Try "OT-1001", "baseline"</span>
+              <span>{t('header.searchQuick')}</span>
               <button
                 onClick={() => {
                   setSearchOpen(false);
@@ -548,7 +504,7 @@ export const Header: React.FC = () => {
                 }}
                 className="text-[#0F172A] hover:underline font-medium"
               >
-                Browse all cohorts →
+                {t('header.browseAllCohorts')}
               </button>
             </div>
           </div>
@@ -564,49 +520,49 @@ export const Header: React.FC = () => {
               onClick={() => setMobileMenuOpen(false)}
               className="block text-[#0F172A] hover:text-[#475569]"
             >
-              Overview &amp; Experience
+              {t('nav.overviewExperience')}
             </Link>
             <Link
               to="/console"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-[#0F172A] hover:text-[#475569]"
             >
-              Clinical Console
+              {t('nav.clinicalConsole')}
             </Link>
             <Link
               to="/patients"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-[#0F172A] hover:text-[#475569]"
             >
-              Cohort Registry
+              {t('nav.cohortRegistry')}
             </Link>
             <Link
               to="/clinic-overview"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-[#0F172A] hover:text-[#475569]"
             >
-              Clinic Overview &amp; Tracker
+              {t('nav.clinicOverviewTracker')}
             </Link>
             <Link
               to="/login"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-[#0F172A] hover:text-[#475569]"
             >
-              Hospital Staff Portal
+              {t('nav.staffPortal')}
             </Link>
             <Link
               to="/assessments/new"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-[#0F172A] hover:text-[#475569]"
             >
-              Initiate New Trial
+              {t('nav.initiateNewTrial')}
             </Link>
             <Link
               to="/about"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-[#0F172A] hover:text-[#475569]"
             >
-              Methodology &amp; Scope
+              {t('nav.methodologyScope')}
             </Link>
           </div>
 
@@ -621,7 +577,7 @@ export const Header: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#0F766E] font-medium border border-[#E2E8F0] rounded-md bg-white"
               >
                 <BookOpen className="w-3.5 h-3.5" />
-                <span>Protocol Guide</span>
+                <span>{t('nav.protocolGuide')}</span>
               </button>
             </div>
             <Link
@@ -629,10 +585,10 @@ export const Header: React.FC = () => {
               onClick={() => setMobileMenuOpen(false)}
               className="btn-ramp-primary w-full justify-center text-xs py-2"
             >
-              Start Clinical Trial
+              {t('nav.startClinicalTrial')}
             </Link>
             <div className="text-center font-mono text-[10px] text-[#64748B]">
-              Investigational Non-Diagnostic Device
+              {t('nav.investigationalDevice')}
             </div>
           </div>
         </div>

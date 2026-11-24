@@ -22,10 +22,12 @@ import { PROTOCOL_VERSION } from '../lib/constants';
 import { ErrorAlert } from '../components/common/ErrorAlert';
 import { ApiClientError } from '../services/apiClient';
 import { soundFx } from '../lib/soundFx';
+import { useTranslation } from '../i18n';
 
 export const PupilTestPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isStimulusActive, setIsStimulusActive] = useState<boolean>(false);
@@ -127,7 +129,7 @@ export const PupilTestPage: React.FC = () => {
       } else if (err instanceof Error) {
         setUploadError({ message: err.message, isUnavailable: false });
       } else {
-        setUploadError({ message: 'Video upload could not be completed.', isUnavailable: true });
+        setUploadError({ message: t('pupilTestPage.uploadError'), isUnavailable: true });
       }
     } finally {
       setIsUploading(false);
@@ -140,10 +142,10 @@ export const PupilTestPage: React.FC = () => {
       {isStimulusActive && (
         <div
           role="region"
-          aria-label="Light stimulus active"
+          aria-label={t('pupilTestPage.stimulusAria')}
           className="fixed inset-0 bg-white z-50 pointer-events-none transition-opacity duration-200 opacity-95 flex items-center justify-center text-[#0F172A] font-mono text-sm font-bold tracking-wider uppercase shadow-2xl"
         >
-          <span>[ Diffuse Light Stimulus Active: Hold Gaze ]</span>
+          <span>{t('pupilTestPage.stimulusBanner')}</span>
         </div>
       )}
 
@@ -153,21 +155,21 @@ export const PupilTestPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-              Protocol Test 01 · Pupillometry
+              {t('pupilTestPage.badge')}
             </span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#0F172A] tracking-tight">
-            Autonomic Pupillary <span className="italic text-[#475569]">Light Reflex Test</span>
+            {t('pupilTestPage.headingMain')} <span className="italic text-[#475569]">{t('pupilTestPage.headingItalic')}</span>
           </h1>
           <p className="text-sm text-[#475569] font-normal font-sans">
-            Calibrated 15-second recording. A diffuse screen illumination pulse occurs automatically at second 5.0.
+            {t('pupilTestPage.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
-          <span className="text-[#64748B]">TARGET:</span>
+          <span className="text-[#64748B]">{t('pupilTestPage.targetLabel')}</span>
           <span className="px-2.5 py-1 bg-white border border-[#E2E8F0] rounded text-[#0F172A] font-semibold">
-            {TARGET_DURATION_S}s @ 30 FPS
+            {t('pupilTestPage.targetSpec', { sec: TARGET_DURATION_S })}
           </span>
         </div>
       </div>
@@ -178,8 +180,8 @@ export const PupilTestPage: React.FC = () => {
           <SunMedium className="w-4 h-4" />
         </div>
         <div className="space-y-0.5 text-[#475569]">
-          <strong className="text-[#0F172A] font-mono text-xs uppercase block font-semibold">Participant Instruction:</strong>
-          Sit approximately 45–50 cm from the camera. Look straight ahead into the reticle guide. Keep eyes open and steady. At second 5.0, the screen will illuminate briefly to measure constriction onset latency and velocity.
+          <strong className="text-[#0F172A] font-mono text-xs uppercase block font-semibold">{t('pupilTestPage.instructionLabel')}</strong>
+          {t('pupilTestPage.instructionText')}
         </div>
       </div>
 
@@ -191,12 +193,12 @@ export const PupilTestPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-[#0F172A]" />
               <h2 className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-                Review Recorded Pupil Sequence
+                {t('pupilTestPage.reviewHeading')}
               </h2>
             </div>
             {isFallbackMode && (
               <span className="px-2 py-0.5 text-[10px] font-semibold font-mono rounded bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]">
-                Fallback Benchmark Sample
+                {t('pupilTestPage.fallbackBadge')}
               </span>
             )}
           </div>
@@ -223,19 +225,19 @@ export const PupilTestPage: React.FC = () => {
             <div className="space-y-4 font-mono text-xs">
               <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg p-4 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">Actual Duration:</span>
+                  <span className="text-[#64748B]">{t('pupilTestPage.actualDuration')}</span>
                   <span className="font-semibold text-[#0F172A]">{(recordedVideo.durationMs / 1000).toFixed(2)}s</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">File Size:</span>
+                  <span className="text-[#64748B]">{t('pupilTestPage.fileSize')}</span>
                   <span className="font-semibold text-[#0F172A]">{(recordedVideo.sizeBytes / 1024).toFixed(1)} KB</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">Container:</span>
+                  <span className="text-[#64748B]">{t('pupilTestPage.container')}</span>
                   <span className="font-semibold text-[#0F172A]">{recordedVideo.mimeType}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#64748B]">Protocol Version:</span>
+                  <span className="text-[#64748B]">{t('pupilTestPage.protocolVersion')}</span>
                   <span className="font-semibold text-[#0F172A]">{PROTOCOL_VERSION}</span>
                 </div>
               </div>
@@ -256,7 +258,7 @@ export const PupilTestPage: React.FC = () => {
                       ) : (
                         <ShieldAlert className="w-4 h-4 text-[#B91C1C]" />
                       )}
-                      Capture Quality Assessment:
+                      {t('pupilTestPage.qualityHeader')}
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
@@ -277,14 +279,14 @@ export const PupilTestPage: React.FC = () => {
                   )}
                   {!qualityFeedback.isAcceptable && (
                     <p className="text-[11px] font-semibold text-[#B91C1C]">
-                      Quality check failed. Please discard and retake before sending for analysis.
+                      {t('pupilTestPage.qualityFailedHint')}
                     </p>
                   )}
                 </div>
               )}
 
               <p className="text-xs text-[#475569] leading-relaxed font-sans">
-                Review the recorded pupil video. Verify that the eye is in focus and visible throughout the duration. Click below to upload video to the backend and advance to the smooth-pursuit evaluation.
+                {t('pupilTestPage.reviewDesc')}
               </p>
 
               <div className="flex items-center gap-3 pt-2">
@@ -300,7 +302,7 @@ export const PupilTestPage: React.FC = () => {
                   className="btn-ramp-secondary py-2 px-3.5 text-xs"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Discard &amp; Retake</span>
+                  <span>{t('pupilTestPage.discardRetake')}</span>
                 </button>
 
                 <button
@@ -312,12 +314,12 @@ export const PupilTestPage: React.FC = () => {
                   {isUploading ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Uploading Video...</span>
+                      <span>{t('pupilTestPage.uploadingVideo')}</span>
                     </>
                   ) : (
                     <>
                       <UploadCloud className="w-3.5 h-3.5" />
-                      <span>Upload &amp; Continue to Pursuit</span>
+                      <span>{t('pupilTestPage.uploadContinue')}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
@@ -347,7 +349,7 @@ export const PupilTestPage: React.FC = () => {
               <div className="absolute inset-0 bg-[#0F1117]/90 backdrop-blur-sm flex flex-col items-center justify-center text-white z-20">
                 <span className="text-7xl font-sans font-bold text-[#0F766E]">{countdown}</span>
                 <span className="text-xs font-mono uppercase tracking-wider text-gray-300 mt-3 font-semibold">
-                  Get ready: Look into camera reticle
+                  {t('pupilTestPage.countdownPrompt')}
                 </span>
               </div>
             )}
@@ -359,7 +361,7 @@ export const PupilTestPage: React.FC = () => {
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-[#B91C1C] font-semibold flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#B91C1C] animate-pulse" />
-                  RECORDING IN PROGRESS
+                  {t('pupilTestPage.recordingInProgress')}
                 </span>
                 <span className="text-[#0F172A] font-semibold">
                   {(recorder.elapsedMs / 1000).toFixed(1)}s / {TARGET_DURATION_S}.0s
@@ -378,8 +380,8 @@ export const PupilTestPage: React.FC = () => {
           <div className="panel-ramp p-4 flex items-center justify-between">
             <div className="text-xs font-mono text-[#475569]">
               {recorder.isRecording
-                ? 'Recording will auto-stop after 15 seconds.'
-                : 'Click Record to start a 3-second countdown.'}
+                ? t('pupilTestPage.autoStopHint')
+                : t('pupilTestPage.countdownHint')}
             </div>
 
             <div className="flex items-center gap-3">
@@ -393,7 +395,7 @@ export const PupilTestPage: React.FC = () => {
                   className="px-4 py-2 rounded-md bg-[#B91C1C] hover:bg-[#991B1B] text-white font-medium text-xs tracking-normal transition-colors flex items-center gap-1.5 shadow-sm"
                 >
                   <Square className="w-3 h-3 fill-current" />
-                  <span>Stop Recording</span>
+                  <span>{t('pupilTestPage.stopRecording')}</span>
                 </button>
               ) : (
                 <button
@@ -402,7 +404,7 @@ export const PupilTestPage: React.FC = () => {
                   className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Start 15s Recording</span>
+                  <span>{t('pupilTestPage.startRecording')}</span>
                 </button>
               )}
             </div>

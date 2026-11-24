@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Film, Upload } from 'lucide-react';
 import { RecordedVideo } from '../../hooks/useMediaRecorder';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 interface SampleVideoFallbackProps {
   testType: 'pupil_reflex' | 'smooth_pursuit';
@@ -14,6 +15,7 @@ export const SampleVideoFallback: React.FC<SampleVideoFallbackProps> = ({
   onSampleSelected,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
@@ -160,16 +162,16 @@ export const SampleVideoFallback: React.FC<SampleVideoFallbackProps> = ({
         <div className="flex items-center gap-2">
           <Film className="w-4 h-4 text-[#475569]" />
           <h4 className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-            Hardware Fallback &amp; Benchmark Options
+            {t('capture.fallback.title')}
           </h4>
         </div>
         <span className="text-[10px] font-mono text-[#64748B]">
-          For headless testing or camera-restricted environments
+          {t('capture.fallback.subtitle')}
         </span>
       </div>
 
       <p className="text-xs text-[#475569] font-normal font-sans leading-relaxed">
-        If you are evaluating this platform without an active webcam, you can generate a calibrated synthetic video sample or upload a pre-recorded test sequence.
+        {t('capture.fallback.desc')}
       </p>
 
       <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -179,12 +181,12 @@ export const SampleVideoFallback: React.FC<SampleVideoFallbackProps> = ({
           disabled={isGenerating}
           className="btn-ramp-secondary text-xs py-2 px-3.5 flex items-center gap-1.5"
         >
-          <span>{isGenerating ? 'Rendering Synthetic Video...' : 'Generate Standard Synthetic Benchmark'}</span>
+          <span>{isGenerating ? t('capture.fallback.rendering') : t('capture.fallback.generateBtn')}</span>
         </button>
 
         <label className="btn-ramp-secondary text-xs py-2 px-3.5 flex items-center gap-1.5 cursor-pointer">
           <Upload className="w-3.5 h-3.5 text-[#475569]" />
-          <span>{selectedFileName ? `Loaded: ${selectedFileName}` : 'Upload Benchmark File'}</span>
+          <span>{selectedFileName ? t('capture.fallback.loadedPrefix', { name: selectedFileName }) : t('capture.fallback.uploadBtn')}</span>
           <input
             type="file"
             accept="video/*"

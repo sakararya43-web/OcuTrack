@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Shield, Trash2, Sliders, Scale } from 'lucide-react';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 export const HelloMondayScience: React.FC = () => {
+  const { t } = useTranslation();
   const [caliperWidth, setCaliperWidth] = useState<number>(180); // Pixels corresponding to 11.7mm
   const [isPurging, setIsPurging] = useState<boolean>(false);
   const [purgeCompleted, setPurgeCompleted] = useState<boolean>(false);
@@ -35,13 +37,13 @@ export const HelloMondayScience: React.FC = () => {
           className="max-w-4xl mx-auto space-y-6"
         >
           <span className="inline-flex px-2.5 py-1 rounded-md text-[10px] font-mono font-semibold bg-white text-[#0F172A] border border-[#E2E8F0] shadow-xs">
-            Scientific Foundations &amp; Metrology
+            {t('science.quoteBadge')}
           </span>
           <blockquote className="font-serif text-2xl sm:text-4xl lg:text-5xl font-normal italic leading-[1.22] text-[#0F172A] tracking-tight">
-            &ldquo;The human eye is not merely a sensor of light, but an uninhibited window into the autonomic cadence of the central nervous system.&rdquo;
+            {t('science.quote')}
           </blockquote>
           <cite className="font-mono text-xs text-[#475569] block not-italic pt-2">
-            Foundations of Neuro-Ophthalmological Latency &bull; Clinical Biometrics Consortium
+            {t('science.quoteCite')}
           </cite>
         </motion.div>
       </section>
@@ -56,7 +58,7 @@ export const HelloMondayScience: React.FC = () => {
               <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] text-xs font-mono">
                 <span className="text-[#64748B] uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1.5">
                   <Scale className="w-3.5 h-3.5 text-[#0F766E]" />
-                  Anatomical Constant
+                  {t('science.constantLabel')}
                 </span>
                 <span className="text-[#0F172A] font-semibold">Ø = 11.70 mm</span>
               </div>
@@ -118,7 +120,7 @@ export const HelloMondayScience: React.FC = () => {
                 <div className="flex items-center justify-between text-[#475569]">
                   <span className="flex items-center gap-1.5">
                     <Sliders className="w-3.5 h-3.5 text-[#0F172A]" />
-                    Sensor Pixel Pitch Scaling
+                    {t('science.pixelPitch')}
                   </span>
                   <span className="text-[#0F172A] font-semibold">{caliperWidth} px (1 px = {mmRatio} mm)</span>
                 </div>
@@ -129,21 +131,21 @@ export const HelloMondayScience: React.FC = () => {
                     onClick={() => setCaliperWidth(140)}
                     className={`px-2 py-0.5 rounded text-[10px] ${caliperWidth === 140 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'}`}
                   >
-                    Far (140px)
+                    {t('science.presetFar')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setCaliperWidth(180)}
                     className={`px-2 py-0.5 rounded text-[10px] ${caliperWidth === 180 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'}`}
                   >
-                    Nominal (180px)
+                    {t('science.presetNominal')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setCaliperWidth(220)}
                     className={`px-2 py-0.5 rounded text-[10px] ${caliperWidth === 220 ? 'bg-[#0F172A] text-[#0F766E]' : 'bg-[#F1F5F9] text-[#475569]'}`}
                   >
-                    Macro (220px)
+                    {t('science.presetMacro')}
                   </button>
                 </div>
 
@@ -158,7 +160,7 @@ export const HelloMondayScience: React.FC = () => {
               </div>
 
               <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] text-[11px] font-mono text-[#475569] flex items-center justify-between">
-                <span>Computed Scaling Factor:</span>
+                <span>{t('science.scalingFactor')}</span>
                 <span className="font-semibold text-[#0F172A]">{mmRatio} mm / pixel</span>
               </div>
             </div>
@@ -166,21 +168,17 @@ export const HelloMondayScience: React.FC = () => {
             {/* Right: Architectural Monograph on Biological Ruler */}
             <div className="lg:col-span-6 space-y-6">
               <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#64748B] font-semibold">
-                Anatomical Calibration Standard
+                {t('science.eyebrow')}
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight text-[#0F172A]">
-                The 11.7 mm Iris <span className="italic text-[#475569]">Standard.</span>
+                {t('science.headingMain')} <span className="italic text-[#475569]">{t('science.headingItalic')}</span>
               </h2>
               <div className="space-y-4 text-sm text-[#475569] font-normal leading-relaxed">
+                <p>{t('science.p1')}</p>
                 <p>
-                  A primary challenge of webcam pupillometry is converting pixel counts into true anatomical millimeters without specialized depth sensors. Standard video hardware lacks fixed focal lengths and participants sit at variable distances.
+                  {t('science.p2Prefix')} <strong>{t('science.p2Strong')}</strong>.
                 </p>
-                <p>
-                  OcuTrack anchors its optical coordinate system to the adult horizontal visible iris diameter (HVID), which exhibits extreme biological constancy across diverse adult populations with a normative mean of <strong>11.70 ± 0.5 mm</strong>.
-                </p>
-                <p>
-                  By fitting sub-pixel topological iris boundaries via 478 MediaPipe facial coordinates on every frame, OcuTrack derives an instantaneous millimeters-per-pixel ratio. This converts raw sensor pupil pixels into validated millimeters without requiring external calibration cards.
-                </p>
+                <p>{t('science.p3')}</p>
               </div>
 
               <div className="pt-2">
@@ -188,7 +186,7 @@ export const HelloMondayScience: React.FC = () => {
                   to="/about#iris-standard"
                   className="btn-ramp-secondary text-xs py-2 px-3 inline-flex items-center gap-1.5"
                 >
-                  <span>Read Full Metrological Proof</span>
+                  <span>{t('science.readProof')}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -205,21 +203,17 @@ export const HelloMondayScience: React.FC = () => {
 
             <div className="lg:col-span-6 space-y-6">
               <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#64748B] font-semibold">
-                Privacy-by-Design Governance
+                {t('science.privacyEyebrow')}
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight text-[#0F172A]">
-                The Ephemeral Video <span className="italic text-[#475569]">Standard.</span>
+                {t('science.privacyHeadingMain')} <span className="italic text-[#475569]">{t('science.privacyHeadingItalic')}</span>
               </h2>
               <div className="space-y-4 text-sm text-[#475569] font-normal leading-relaxed">
+                <p>{t('science.privacyP1')}</p>
                 <p>
-                  Patient facial recordings represent sensitive biometrics. Traditional computer-vision tools store raw video files indefinitely on disk, creating compliance liabilities and privacy vulnerabilities.
+                  {t('science.privacyP2Prefix')} <strong>{t('science.privacyP2Strong')}</strong>{t('science.privacyP2Suffix')}
                 </p>
-                <p>
-                  OcuTrack enforces an <strong>Ephemeral Video Pipeline</strong>: incoming video streams are decoded in memory, converted into mathematical coordinate series, and immediately destroyed. Zero raw facial video frames persist in the database.
-                </p>
-                <p>
-                  Only anonymous mathematical curves (pupil diameter vs. time, gaze vectors, latency in milliseconds) and pseudonymous cohort tags are retained for longitudinal tracking.
-                </p>
+                <p>{t('science.privacyP3')}</p>
               </div>
 
               <div className="pt-2">
@@ -227,7 +221,7 @@ export const HelloMondayScience: React.FC = () => {
                   to="/about#privacy"
                   className="btn-ramp-secondary text-xs py-2 px-3 inline-flex items-center gap-1.5"
                 >
-                  <span>Inspect Data Retention Policy</span>
+                  <span>{t('science.inspectPolicy')}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -239,27 +233,31 @@ export const HelloMondayScience: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-[#0F766E]" />
                   <span className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
-                    Memory Stream Destruction Simulator
+                    {t('science.destructionTitle')}
                   </span>
                 </div>
                 <span className="font-mono text-[10px] text-[#0F766E] bg-[#F0FDF4] px-2 py-0.5 rounded border border-[#BBF7D0]">
-                  ACTIVE ZERO-RETENTION
+                  {t('science.activeZeroRetention')}
                 </span>
               </div>
 
               <div className="space-y-3 font-mono text-xs">
                 <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg flex items-center justify-between">
-                  <span className="text-[#475569]">1. Raw Stream Ingest:</span>
-                  <span className="text-[#0F172A] font-medium">Memory Buffer (Decoded)</span>
+                  <span className="text-[#475569]">{t('science.step1Label')}</span>
+                  <span className="text-[#0F172A] font-medium">{t('science.step1Val')}</span>
                 </div>
                 <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg flex items-center justify-between">
-                  <span className="text-[#475569]">2. Landmark Extraction:</span>
-                  <span className="text-[#0F172A] font-medium">478 Topological Vectors</span>
+                  <span className="text-[#475569]">{t('science.step2Label')}</span>
+                  <span className="text-[#0F172A] font-medium">{t('science.step2Val')}</span>
                 </div>
                 <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg flex items-center justify-between">
-                  <span className="text-[#475569]">3. Raw Video Destruction:</span>
+                  <span className="text-[#475569]">{t('science.step3Label')}</span>
                   <span className={purgeCompleted ? 'text-[#0F766E] font-semibold' : 'text-[#B45309]'}>
-                    {isPurging ? 'Purging Raw Video...' : purgeCompleted ? 'Destroyed (0 bytes on disk)' : 'Pending Analysis Trigger'}
+                    {isPurging
+                      ? t('science.step3Purging')
+                      : purgeCompleted
+                      ? t('science.step3Destroyed')
+                      : t('science.step3Pending')}
                   </span>
                 </div>
               </div>
@@ -274,7 +272,7 @@ export const HelloMondayScience: React.FC = () => {
                   className="btn-ramp-primary w-full justify-center text-xs py-2.5"
                 >
                   <Trash2 className="w-3.5 h-3.5 text-[#0F766E]" />
-                  <span>{isPurging ? 'Zeroing In-Memory Buffers...' : 'Trigger Ephemeral Video Purge'}</span>
+                  <span>{isPurging ? t('science.zeroingBuffers') : t('science.triggerPurge')}</span>
                 </motion.button>
               </div>
 
@@ -285,7 +283,7 @@ export const HelloMondayScience: React.FC = () => {
                   className="p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg text-xs font-mono text-[#0F766E] flex items-center gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Ephemeral Standard verified: Zero video frames persisted. Feature telemetry preserved.</span>
+                  <span>{t('science.verifiedBanner')}</span>
                 </motion.div>
               )}
             </div>

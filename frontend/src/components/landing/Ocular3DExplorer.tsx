@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { Eye, Zap, Layers, Activity, Sliders, RotateCw } from 'lucide-react';
 import { soundFx } from '../../lib/soundFx';
+import { useTranslation } from '../../i18n';
 
 type VisualMode = 'anatomy' | 'landmarks' | 'neural';
 
 export const Ocular3DExplorer: React.FC = () => {
+  const { t } = useTranslation();
   const mountRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<VisualMode>('anatomy');
   const [ambientLux, setAmbientLux] = useState<number>(0.35); // 0 (dark) to 1 (bright)
@@ -426,10 +428,10 @@ export const Ocular3DExplorer: React.FC = () => {
         <div className="flex items-center gap-2.5">
           <span className="w-2.5 h-2.5 rounded-full bg-[#0F766E] animate-pulse" />
           <span className="font-mono text-xs uppercase tracking-wider text-white font-semibold">
-            WebGL 3D Biometric Globe
+            {t('ocular3d.globeTitle')}
           </span>
           <span className="font-mono text-[10px] text-[#64748B] bg-[#1E2230] px-2 py-0.5 rounded border border-[#2B3145]">
-            Hardware Accelerated · 60 FPS
+            {t('ocular3d.hwAccel')}
           </span>
         </div>
 
@@ -447,7 +449,7 @@ export const Ocular3DExplorer: React.FC = () => {
             }`}
           >
             <Eye className="w-3 h-3 text-[#0F766E]" />
-            <span>Anatomy</span>
+            <span>{t('ocular3d.tabAnatomy')}</span>
           </button>
 
           <button
@@ -462,7 +464,7 @@ export const Ocular3DExplorer: React.FC = () => {
             }`}
           >
             <Layers className="w-3 h-3 text-[#0F766E]" />
-            <span>478 Mesh</span>
+            <span>{t('ocular3d.tabMesh')}</span>
           </button>
 
           <button
@@ -477,7 +479,7 @@ export const Ocular3DExplorer: React.FC = () => {
             }`}
           >
             <Activity className="w-3 h-3 text-[#F59E0B]" />
-            <span>Neural Arc</span>
+            <span>{t('ocular3d.tabNeural')}</span>
           </button>
         </div>
       </div>
@@ -496,7 +498,7 @@ export const Ocular3DExplorer: React.FC = () => {
         {isFlashing && (
           <div className="absolute inset-0 bg-white/95 pointer-events-none transition-opacity duration-150 flex items-center justify-center">
             <span className="font-mono text-xs uppercase tracking-widest text-[#0F172A] font-bold bg-white/90 px-3 py-1 rounded shadow">
-              PHOTIC FLASH STIMULUS (1000 MS)
+              {t('ocular3d.flashOverlay')}
             </span>
           </div>
         )}
@@ -505,21 +507,25 @@ export const Ocular3DExplorer: React.FC = () => {
         <div className="absolute top-4 left-4 pointer-events-none space-y-2 font-mono text-xs">
           <div className="bg-[#090A0E]/85 backdrop-blur-md px-3.5 py-2.5 rounded-lg border border-white/10 text-white space-y-1 shadow-lg">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Aperture Ø</span>
+              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">{t('ocular3d.apertureLabel')}</span>
               <span className="font-bold text-sm text-[#0F766E]">{pupilMm.toFixed(2)} mm</span>
             </div>
             <div className="flex items-center justify-between gap-4">
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">Iris Constant</span>
+              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">{t('ocular3d.irisConstant')}</span>
               <span className="text-xs text-white">11.70 mm</span>
             </div>
             <div className="flex items-center justify-between gap-4">
-              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">State</span>
+              <span className="text-[10px] text-[#64748B] uppercase tracking-wider">{t('ocular3d.stateLabel')}</span>
               <span
                 className={`text-[10px] font-bold uppercase ${
                   isFlashing ? 'text-[#F87171]' : pupilMm < 3.2 ? 'text-[#38BDF8]' : 'text-[#34D399]'
                 }`}
               >
-                {latencyTimer !== null ? `LATENCY WINDOW (${latencyTimer}ms)` : isFlashing ? 'CONSTRICTING' : 'DYNAMIC EQUILIBRIUM'}
+                {latencyTimer !== null
+                  ? t('ocular3d.latencyWindow', { ms: latencyTimer })
+                  : isFlashing
+                  ? t('ocular3d.stateConstricting')
+                  : t('ocular3d.stateEquilibrium')}
               </span>
             </div>
           </div>
@@ -529,7 +535,7 @@ export const Ocular3DExplorer: React.FC = () => {
         <div className="absolute top-4 right-4 pointer-events-none">
           <div className="bg-[#090A0E]/80 backdrop-blur-md px-2.5 py-1.5 rounded-md border border-white/10 text-[10px] font-mono text-[#64748B] flex items-center gap-1.5">
             <RotateCw className="w-3 h-3 text-[#0F766E]" />
-            <span>Drag to Orbit · Mouse to Track Gaze</span>
+            <span>{t('ocular3d.orbitHint')}</span>
           </div>
         </div>
 
@@ -537,25 +543,25 @@ export const Ocular3DExplorer: React.FC = () => {
         <div className="absolute bottom-4 left-4 max-w-sm pointer-events-none">
           {mode === 'anatomy' && (
             <div className="bg-[#090A0E]/85 backdrop-blur-md p-3 rounded-lg border border-white/10 text-xs font-mono text-[#A0A5B5] space-y-1">
-              <p className="text-white font-semibold text-[11px]">Human Sclera, Iris Crypts &amp; Cornea</p>
+              <p className="text-white font-semibold text-[11px]">{t('ocular3d.anatomyTitle')}</p>
               <p className="text-[10px] leading-relaxed">
-                Physical cornea curvature (IOR 1.376) and radial sphincter pupillae fiber dynamics simulated in real-time WebGL.
+                {t('ocular3d.anatomyDesc')}
               </p>
             </div>
           )}
           {mode === 'landmarks' && (
             <div className="bg-[#090A0E]/85 backdrop-blur-md p-3 rounded-lg border border-[#0F766E]/40 text-xs font-mono text-[#A0A5B5] space-y-1">
-              <p className="text-[#0F766E] font-semibold text-[11px]">MediaPipe Iris Coordinates (468–477)</p>
+              <p className="text-[#0F766E] font-semibold text-[11px]">{t('ocular3d.landmarksTitle')}</p>
               <p className="text-[10px] leading-relaxed">
-                Subpixel iris edge landmarks bound the 11.7mm standard circle, providing distance-invariant millimeter calibration.
+                {t('ocular3d.landmarksDesc')}
               </p>
             </div>
           )}
           {mode === 'neural' && (
             <div className="bg-[#090A0E]/85 backdrop-blur-md p-3 rounded-lg border border-[#F59E0B]/40 text-xs font-mono text-[#A0A5B5] space-y-1">
-              <p className="text-[#F59E0B] font-semibold text-[11px]">Parasympathetic Pupillary Reflex Arc</p>
+              <p className="text-[#F59E0B] font-semibold text-[11px]">{t('ocular3d.neuralTitle')}</p>
               <p className="text-[10px] leading-relaxed">
-                Light activates CN II (Optic) → Pretectal Nucleus → Edinger-Westphal → CN III (Oculomotor) constriction.
+                {t('ocular3d.neuralDesc')}
               </p>
             </div>
           )}
@@ -576,7 +582,7 @@ export const Ocular3DExplorer: React.FC = () => {
             }`}
           >
             <Zap className="w-4 h-4 fill-current" />
-            <span>{isFlashing ? 'Stimulus Active…' : 'Trigger Photopic Flash Reflex'}</span>
+            <span>{isFlashing ? t('ocular3d.stimulusActive') : t('ocular3d.triggerFlash')}</span>
           </button>
         </div>
 
@@ -585,9 +591,9 @@ export const Ocular3DExplorer: React.FC = () => {
           <Sliders className="w-4 h-4 text-[#64748B] shrink-0" />
           <div className="w-full space-y-1">
             <div className="flex justify-between text-[10px] text-[#64748B]">
-              <span>Scotopic (Dark)</span>
-              <span className="text-[#0F766E]">{Math.round(ambientLux * 100)}% Lux</span>
-              <span>Photopic (Bright)</span>
+              <span>{t('ocular3d.scotopicDark')}</span>
+              <span className="text-[#0F766E]">{t('ocular3d.luxLabel', { pct: Math.round(ambientLux * 100) })}</span>
+              <span>{t('ocular3d.photopicBright')}</span>
             </div>
             <input
               type="range"
@@ -610,7 +616,7 @@ export const Ocular3DExplorer: React.FC = () => {
               onChange={(e) => setGazeFollow(e.target.checked)}
               className="w-4 h-4 rounded border-[#27282D] text-[#0F766E] focus:ring-0 bg-[#090A0E]"
             />
-            <span className="text-xs text-white">Mouse Pursuit</span>
+            <span className="text-xs text-white">{t('ocular3d.mousePursuit')}</span>
           </label>
         </div>
       </div>

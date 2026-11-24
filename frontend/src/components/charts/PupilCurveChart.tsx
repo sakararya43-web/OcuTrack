@@ -11,6 +11,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { TimeSeriesPoint } from '../../types/api';
+import { useTranslation } from '../../i18n';
 
 interface PupilCurveChartProps {
   series?: TimeSeriesPoint[];
@@ -25,12 +26,14 @@ export const PupilCurveChart: React.FC<PupilCurveChartProps> = ({
   stimulusDurationMs = 1500,
   className = '',
 }) => {
+  const { t } = useTranslation();
+
   if (!series || series.length === 0) {
     return (
       <div className={`flex flex-col items-center justify-center p-8 bg-white rounded-xl border border-[#E2E8F0] text-center ${className}`}>
-        <p className="text-xs font-mono font-semibold text-[#0F172A]">Pupil Time-Series Data Unavailable</p>
+        <p className="text-xs font-mono font-semibold text-[#0F172A]">{t('charts.pupil.unavailableTitle')}</p>
         <p className="text-[11px] text-[#475569] mt-1 font-normal font-sans max-w-sm">
-          Raw pupil diameter series was not returned by the analysis pipeline or quality was insufficient to track boundaries.
+          {t('charts.pupil.unavailableDesc')}
         </p>
       </div>
     );
@@ -50,19 +53,19 @@ export const PupilCurveChart: React.FC<PupilCurveChartProps> = ({
     <div className={`panel-ramp p-6 space-y-4 shadow-sm ${className}`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
         <div>
-          <h4 className="font-sans text-sm font-semibold text-[#0F172A]">Pupil Constriction Curve</h4>
+          <h4 className="font-sans text-sm font-semibold text-[#0F172A]">{t('charts.pupil.title')}</h4>
           <p className="text-xs text-[#475569] font-sans font-normal">
-            Calibrated pupil diameter over 15-second recording window
+            {t('charts.pupil.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs font-mono">
           <span className="flex items-center gap-1.5 text-[#0F172A] font-medium text-[11px]">
             <span className="w-3 h-0.5 bg-[#0F172A] rounded-full inline-block" />
-            Pupil Diameter (mm)
+            {t('charts.pupil.diameterLegend')}
           </span>
           <span className="flex items-center gap-1.5 text-[#B45309] font-medium text-[11px]">
             <span className="w-2.5 h-2.5 bg-[#FEF3C7] border border-[#FDE68A] rounded inline-block" />
-            Stimulus Window
+            {t('charts.pupil.stimulusWindow')}
           </span>
         </div>
       </div>
@@ -93,13 +96,13 @@ export const PupilCurveChart: React.FC<PupilCurveChartProps> = ({
                   const data = payload[0].payload;
                   return (
                     <div className="bg-white border border-[#E2E8F0] text-[#0F172A] p-2.5 rounded-lg text-xs shadow-ramp-card space-y-1 font-mono">
-                      <p className="text-[#475569]">Time: {data.timeSec}s</p>
+                      <p className="text-[#475569]">{t('charts.pupil.timeLabel')} {data.timeSec}s</p>
                       <p className="font-semibold text-[#0F172A]">
-                        Diameter:{' '}
-                        {data.diameter !== null ? `${data.diameter} mm` : 'Not available'}
+                        {t('charts.pupil.diameterLabel')}{' '}
+                        {data.diameter !== null ? `${data.diameter} mm` : t('charts.pupil.notAvailable')}
                       </p>
                       {!data.valid && (
-                        <p className="text-[10px] text-[#B91C1C]">Warning: Motion artifact flag</p>
+                        <p className="text-[10px] text-[#B91C1C]">{t('charts.pupil.motionWarning')}</p>
                       )}
                     </div>
                   );
@@ -119,7 +122,7 @@ export const PupilCurveChart: React.FC<PupilCurveChartProps> = ({
               stroke="#B45309"
               strokeDasharray="3 3"
               label={{
-                value: 'Flash',
+                value: t('charts.pupil.flashLabel'),
                 position: 'insideTopLeft',
                 fill: '#B45309',
                 fontSize: 10,

@@ -21,7 +21,7 @@ import {
 
 export const ProtocolHelpDrawer: React.FC = () => {
   const { isOpen, closeDrawer, activeSectionId } = useHelpDrawer();
-  const { t } = useTranslation();
+  const { t, dict } = useTranslation();
   const location = useLocation();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -29,11 +29,33 @@ export const ProtocolHelpDrawer: React.FC = () => {
   const [expandedSectionIds, setExpandedSectionIds] = useState<Record<string, boolean>>({});
   const [expandedTroubleIds, setExpandedTroubleIds] = useState<Record<string, boolean>>({});
 
+  const localizedProtocols = useMemo(() => {
+    const map = dict.helpRegistry.protocols as Record<
+      string,
+      {
+        category: string;
+        title: string;
+        description: string;
+        parameters: { label: string; value: string }[];
+        checklist: string[];
+        referenceStandard: string;
+      }
+    >;
+    return CLINICAL_PROTOCOLS.map((p) => {
+      const loc = map[p.id];
+      return loc ? { ...p, ...loc } : p;
+    });
+  }, [dict]);
+
+  const localizedTroubleshooting = useMemo(() => {
+    return dict.helpRegistry.troubleshooting || TROUBLESHOOTING_ITEMS;
+  }, [dict]);
+
   // Determine current active protocol based on URL route
   const currentRouteProtocol = useMemo(() => {
-    const matched = CLINICAL_PROTOCOLS.find((p) => p.routeMatch(location.pathname));
-    return matched || CLINICAL_PROTOCOLS[1]; // fallback to dashboard
-  }, [location.pathname]);
+    const matched = localizedProtocols.find((p) => p.routeMatch(location.pathname));
+    return matched || localizedProtocols[1]; // fallback to dashboard
+  }, [location.pathname, localizedProtocols]);
 
   // When drawer opens or route changes, expand the current route protocol automatically
   useEffect(() => {
@@ -65,14 +87,14 @@ export const ProtocolHelpDrawer: React.FC = () => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) {
       // Put current route protocol at the top
-      return [...CLINICAL_PROTOCOLS].sort((a, b) => {
+      return [...localizedProtocols].sort((a, b) => {
         if (a.id === currentRouteProtocol.id) return -1;
         if (b.id === currentRouteProtocol.id) return 1;
         return 0;
       });
     }
 
-    return CLINICAL_PROTOCOLS.filter((p) => {
+    return localizedProtocols.filter((p) => {
       const inTitle = p.title.toLowerCase().includes(q);
       const inDesc = p.description.toLowerCase().includes(q);
       const inCategory = p.category.toLowerCase().includes(q);
@@ -82,20 +104,20 @@ export const ProtocolHelpDrawer: React.FC = () => {
       const inChecklist = p.checklist.some((item) => item.toLowerCase().includes(q));
       return inTitle || inDesc || inCategory || inParams || inChecklist;
     });
-  }, [searchQuery, currentRouteProtocol.id]);
+  }, [searchQuery, currentRouteProtocol.id, localizedProtocols]);
 
   const filteredTroubleshooting = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return TROUBLESHOOTING_ITEMS;
+    if (!q) return localizedTroubleshooting;
 
-    return TROUBLESHOOTING_ITEMS.filter((item) => {
+    return localizedTroubleshooting.filter((item) => {
       const inQ = item.question.toLowerCase().includes(q);
       const inCause = item.cause.toLowerCase().includes(q);
       const inRemedy = item.remedy.some((r) => r.toLowerCase().includes(q));
       const inTags = item.tags.some((tag) => tag.toLowerCase().includes(q));
       return inQ || inCause || inRemedy || inTags;
     });
-  }, [searchQuery]);
+  }, [searchQuery, localizedTroubleshooting]);
 
   const showProtocols = activeTab === 'all' || activeTab === 'protocols';
   const showTroubleshooting = activeTab === 'all' || activeTab === 'troubleshooting';
@@ -208,7 +230,7 @@ export const ProtocolHelpDrawer: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    aria-label="Clear search"
+                    aria-label={t('help.clearSearch')}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5"
                   >
                     <X className="w-3.5 h-3.5" aria-hidden="true" />
@@ -272,10 +294,10 @@ export const ProtocolHelpDrawer: React.FC = () => {
                       <div className="flex items-center justify-between text-xs font-mono text-slate-600 border-b border-slate-200 pb-1.5">
                         <span className="font-semibold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
                           <Layers className="w-3.5 h-3.5 text-sky-700" aria-hidden="true" />
-                          Clinical Operating Protocols
+                          {t('help.clinicalOperatingProtocols')}
                         </span>
                         <span className="text-[11px] text-slate-500">
-                          {filteredProtocols.length} standard specifications
+                          {t('help.standardSpecifications', { count: filteredProtocols.length })}
                         </span>
                       </div>
 
@@ -380,7 +402,7 @@ export const ProtocolHelpDrawer: React.FC = () => {
 
                                     {/* Reference Standard Footnote */}
                                     <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between text-[10px] font-mono text-slate-500">
-                                      <span>Standard: {protocol.referenceStandard}</span>
+                                      <span>{t('help.standardLabel')} {protocol.referenceStandard}</span>
                                     </div>
                                   </motion.div>
                                 )}
@@ -401,7 +423,7 @@ export const ProtocolHelpDrawer: React.FC = () => {
                           {t('help.troubleshootingHeader')}
                         </span>
                         <span className="text-[11px] text-slate-500">
-                          {filteredTroubleshooting.length} diagnostic topics
+                          {t('help.diagnosticTopics', { count: filteredTroubleshooting.length })}
                         </span>
                       </div>
 
@@ -455,7 +477,7 @@ export const ProtocolHelpDrawer: React.FC = () => {
                                   >
                                     <div className="space-y-1">
                                       <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                                        Underlying Cause
+                                        {t('help.underlyingCause')}
                                       </span>
                                       <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-200">
                                         {item.cause}
@@ -464,7 +486,7 @@ export const ProtocolHelpDrawer: React.FC = () => {
 
                                     <div className="space-y-1.5">
                                       <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                                        Remediation Steps
+                                        {t('help.remediationSteps')}
                                       </span>
                                       <ul className="space-y-1.5 text-xs text-slate-700">
                                         {item.remedy.map((step, sIdx) => (
@@ -499,8 +521,8 @@ export const ProtocolHelpDrawer: React.FC = () => {
                 </p>
               </div>
               <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 pt-1 border-t border-slate-200/60">
-                <span>Keyboard shortcut: Shift + ?</span>
-                <span>OcuTrack v0.1 Instrumentation</span>
+                <span>{t('help.keyboardShortcut')}</span>
+                <span>{t('help.instrumentationFooter')}</span>
               </div>
             </div>
           </motion.aside>
