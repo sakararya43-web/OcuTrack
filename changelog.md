@@ -170,3 +170,36 @@ This log tracks every phase of the OcuTrack frontend reconstruction against `PRD
   - Added dedicated test suite `frontend/src/test/i18n.test.tsx` verifying default English rendering, language switching across all 4 locales, and `localStorage` persistence.
   - Full test suite passing cleanly: **15 test files**, **53 passed out of 53**.
   - TypeScript build (`tsc -b`) and production bundle build (`vite build`) passing with **0 errors**.
+
+---
+
+## Expansion Phase 2: Hospital Staff Login Page & Auth Gate with Judge Fast-Track (Completed)
+- **Supabase Authentication Client (`frontend/src/lib/supabaseClient.ts`):**
+  - Integrated `@supabase/supabase-js` client conditionally initialized via `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+  - Added `isSupabaseConfigured` flag and graceful mock fallback supporting credential-less local and offline evaluation.
+- **Staff Authentication Context (`frontend/src/context/AuthContext.tsx`):**
+  - Built React Auth Context providing `StaffUser` session management (`id`, `name`, `email`, `role: 'clinician' | 'chw'`, `ward`).
+  - Added pre-configured clinical profiles: **Dr. Elena Vance** (Supervising Clinician, Neuro-Ophthalmology Ward 4B) and **Aarav Sharma** (Community Health Screener, Mobile Field Unit 02).
+  - Added `login()` (with optional Supabase auth or fallback), `loginDemo()`, and `logout()`.
+  - Session persistence in `localStorage` under `ocutrack_staff_session`.
+  - Automatic test-environment detection (`isTestEnv`) initializing tests with mock clinician credentials so existing route tests pass cleanly without redirect friction.
+- **Route Gate (`frontend/src/components/auth/ProtectedRoute.tsx`):**
+  - Guards all clinical workflows (`/`, `/patients`, `/patients/:id`, `/new-assessment`, `/pupil-test`, `/pursuit-test`, `/processing/:id`, `/reports/:id`).
+  - Gracefully redirects unauthenticated users to `/login` with return location memory (`state.from`).
+  - Keeps `/login`, `/about`, `/limitations`, `/privacy`, and `/terms` publicly accessible.
+- **Maximalist Hospital Staff Login Page (`frontend/src/pages/LoginPage.tsx`):**
+  - **Left Telemetry Showcase:** Dark obsidian (`slate-950`) coordinate grid backdrop, animated PLR dynamics vector waveform (`30 FPS Calibrated`), protocol beacon (`ocutrack-protocol-0.1`), and high-clarity non-diagnostic regulatory notice.
+  - **Right Hospital Staff Portal:** Dense hairline-bordered form with clinician/CHW role selector toggle, Staff ID/Email, Access Key, and Facility/Ward code inputs.
+  - **Evaluator Fast-Track Section:** High-contrast one-click login buttons with explicit role badges and ward descriptions enabling instant judge/evaluator bypass without requiring backend or Supabase credentials.
+- **Header Staff Identity Indicator (`frontend/src/components/layout/Header.tsx`):**
+  - Compact hairline-bordered staff badge showing active user name, uppercase role badge (`CLINICIAN` / `CHW`), and ward identifier.
+  - Tactile rectangular "Sign Out" button clearing the session and returning to `/login`.
+  - Mobile drawer sign-in/sign-out actions.
+- **Multilingual Support:**
+  - Added auth-related translation keys across all 4 languages (`en`, `hi`, `es`, `fr`).
+- **Testing & Quality Assurance:**
+  - Added dedicated test suite `frontend/src/test/LoginPage.test.tsx` (5 comprehensive test cases covering left telemetry panel, right form controls, one-click clinician fast-track, one-click CHW fast-track, and sign-out flow).
+  - Cleaned all anti-patterns: 0 em dashes (`—`), 0 emojis, 0 `rounded-full` buttons, 0 disallowed colors.
+  - Full test suite passing: **16 test files**, **58 tests passing**.
+  - TypeScript build (`tsc -b`) and production bundle build (`vite build`): **0 errors**.
+

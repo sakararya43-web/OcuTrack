@@ -123,6 +123,13 @@ export interface TranslationDictionary {
     ward: string;
     signIn: string;
     judgeFastTrack: string;
+    judgeFastTrackChw: string;
+    judgeFastTrackClinician: string;
+    demoNotice: string;
+    alreadyAuthenticated: string;
+    goToWorkspace: string;
+    facilityPlaceholder: string;
+    staffIdPlaceholder: string;
     signOut: string;
     communityWorker: string;
     clinician: string;

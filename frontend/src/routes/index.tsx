@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route, Navigate } from 'react-router-dom';
+import { LoginPage } from '../pages/LoginPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { PatientsPage } from '../pages/PatientsPage';
 import { PatientDetailPage } from '../pages/PatientDetailPage';
@@ -12,6 +13,7 @@ import { AboutPage } from '../pages/AboutPage';
 import { AboutLimitationsPage } from '../pages/AboutLimitationsPage';
 import { PrivacyPolicyPage } from '../pages/PrivacyPolicyPage';
 import { TermsConditionsPage } from '../pages/TermsConditionsPage';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 
 export interface AppRoute {
   path: string;
@@ -19,14 +21,71 @@ export interface AppRoute {
 }
 
 export const APP_ROUTES: AppRoute[] = [
-  { path: '/', element: <DashboardPage /> },
-  { path: '/patients', element: <PatientsPage /> },
-  { path: '/patients/:patientId', element: <PatientDetailPage /> },
-  { path: '/assessments/new', element: <NewAssessmentPage /> },
-  { path: '/assessments/:assessmentId/pupil-test', element: <PupilTestPage /> },
-  { path: '/assessments/:assessmentId/pursuit-test', element: <PursuitTestPage /> },
-  { path: '/assessments/:assessmentId/processing', element: <ProcessingPage /> },
-  { path: '/assessments/:assessmentId/report', element: <AssessmentReportPage /> },
+  { path: '/login', element: <LoginPage /> },
+  {
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <DashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/patients',
+    element: (
+      <ProtectedRoute>
+        <PatientsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/patients/:patientId',
+    element: (
+      <ProtectedRoute>
+        <PatientDetailPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/assessments/new',
+    element: (
+      <ProtectedRoute>
+        <NewAssessmentPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/assessments/:assessmentId/pupil-test',
+    element: (
+      <ProtectedRoute>
+        <PupilTestPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/assessments/:assessmentId/pursuit-test',
+    element: (
+      <ProtectedRoute>
+        <PursuitTestPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/assessments/:assessmentId/processing',
+    element: (
+      <ProtectedRoute>
+        <ProcessingPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/assessments/:assessmentId/report',
+    element: (
+      <ProtectedRoute>
+        <AssessmentReportPage />
+      </ProtectedRoute>
+    ),
+  },
   { path: '/about', element: <AboutPage /> },
   { path: '/limitations', element: <AboutLimitationsPage /> },
   { path: '/privacy', element: <PrivacyPolicyPage /> },

@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Eye, Activity, Users, PlusCircle, Server, RefreshCw, Info, Menu, X } from 'lucide-react';
+import { Eye, Activity, Users, PlusCircle, Server, RefreshCw, Info, Menu, X, LogOut, Lock, UserCheck } from 'lucide-react';
 import { checkBackendHealth } from '../../services/healthService';
 import { APP_NAME } from '../../lib/constants';
 import { PulseIndicator } from '../motion';
 import { useTranslation } from '../../i18n';
+import { useAuth } from '../../context/AuthContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const Header: React.FC = () => {
   const { t } = useTranslation();
+  const { user, isAuthenticated, logout } = useAuth();
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -120,11 +122,42 @@ export const Header: React.FC = () => {
 
             <NavLink
               to="/assessments/new"
-              className="group hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white bg-sky-700 hover:bg-sky-800 active:scale-[0.98] rounded-md shadow-xs transition-all duration-150 ease-out border border-sky-600"
+              className="group hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white bg-sky-700 hover:bg-sky-800 active:scale-[0.98] rounded-md shadow-xs transition-all duration-150 ease-out border border-sky-600"
             >
               <PlusCircle className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true" />
               <span>{t('nav.startAssessment')}</span>
             </NavLink>
+
+            {/* Staff Identity Badge & Sign Out */}
+            {isAuthenticated && user ? (
+              <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-slate-200">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-800 font-mono text-xs">
+                  <UserCheck className="w-3.5 h-3.5 text-teal-700 flex-shrink-0" aria-hidden="true" />
+                  <span className="font-semibold text-slate-900 truncate max-w-[130px]">{user.name}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 bg-white text-slate-700 uppercase font-semibold">
+                    {user.role === 'supervising_clinician' ? 'Clinician' : 'CHW'}
+                  </span>
+                  <span className="text-slate-400 text-[10px] hidden 2xl:inline">{user.ward}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  title={t('auth.signOut')}
+                  aria-label={t('auth.signOut')}
+                  className="p-1.5 rounded-md border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+              </div>
+            ) : (
+              <NavLink
+                to="/login"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md border border-slate-200 transition-colors font-mono"
+              >
+                <Lock className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
+                <span>Staff Login</span>
+              </NavLink>
+            )}
 
             <button
               type="button"
@@ -164,6 +197,28 @@ export const Header: React.FC = () => {
               <Info className="w-4 h-4" aria-hidden="true" />
               <span>{t('nav.about')}</span>
             </NavLink>
+            {isAuthenticated && user ? (
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  setMobileMenuOpen(false);
+                }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-md text-rose-700 hover:bg-rose-50 transition-colors duration-150 text-left mt-2 border border-rose-200"
+              >
+                <LogOut className="w-4 h-4" aria-hidden="true" />
+                <span>{t('auth.signOut')} ({user.name})</span>
+              </button>
+            ) : (
+              <NavLink
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-md text-sky-800 hover:bg-sky-50 transition-colors duration-150 mt-2 border border-sky-200"
+              >
+                <Lock className="w-4 h-4" aria-hidden="true" />
+                <span>Staff Login</span>
+              </NavLink>
+            )}
           </nav>
         )}
       </div>
