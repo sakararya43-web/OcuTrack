@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sliders, Zap, Sun, Moon, Eye } from 'lucide-react';
 import { PROTOCOL_VERSION } from '../../lib/constants';
+import { useTranslation } from '../../i18n';
 
 export const HelloMondayHero: React.FC = () => {
+  const { t } = useTranslation();
   const [ambientLux, setAmbientLux] = useState<number>(0.35); // 0 (dark) to 1 (bright)
   const [isFlashing, setIsFlashing] = useState<boolean>(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -204,12 +206,12 @@ export const HelloMondayHero: React.FC = () => {
 
             {/* Clear, Product-Focused Headline */}
             <h1 className="font-sans text-4xl sm:text-5xl lg:text-[56px] font-bold leading-[1.08] tracking-tight text-[#0F172A]">
-              Quantitative Ocular Telemetry and Involuntary Reflex Screening
+              {t('hero.title', 'Quantitative Ocular Telemetry and Involuntary Reflex Screening')}
             </h1>
 
             {/* Product-Focused Sub-headline */}
             <p className="font-sans text-base sm:text-lg leading-relaxed text-[#475569] font-normal max-w-2xl">
-              A hardware-agnostic clinical screening platform measuring autonomic pupillary constriction latency and cerebellar smooth pursuit gain through standard consumer optical sensors.
+              {t('hero.subtitle', 'A hardware-agnostic clinical screening platform measuring autonomic pupillary constriction latency and cerebellar smooth pursuit gain through standard consumer optical sensors.')}
             </p>
 
             {/* Action Buttons (Clean Rectangular, Subtle Corner Radii) */}
@@ -218,7 +220,7 @@ export const HelloMondayHero: React.FC = () => {
                 to="/console"
                 className="btn-ramp-primary group text-xs py-3 px-6 shadow-sm flex items-center gap-2 font-medium"
               >
-                <span>ENTER RESEARCH CONSOLE</span>
+                <span>{t('hero.enterConsole', 'ENTER RESEARCH CONSOLE')}</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </Link>
 
@@ -227,7 +229,7 @@ export const HelloMondayHero: React.FC = () => {
                 className="btn-ramp-secondary text-xs py-3 px-6 shadow-xs flex items-center gap-2 font-medium"
               >
                 <Eye className="w-3.5 h-3.5 text-[#475569]" />
-                <span>Start Clinical Screening</span>
+                <span>{t('hero.startScreening', 'Start Clinical Screening')}</span>
               </Link>
             </div>
 

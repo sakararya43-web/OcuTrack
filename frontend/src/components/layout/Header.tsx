@@ -17,6 +17,7 @@ import { soundFx } from '../../lib/soundFx';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useHelpDrawer } from '../../context/HelpDrawerContext';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../i18n';
 
 interface MegaMenuSection {
   title: string;
@@ -33,6 +34,7 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const { openDrawer } = useHelpDrawer();
   const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     let isMounted = true;
@@ -218,7 +220,7 @@ export const Header: React.FC = () => {
                 onMouseLeave={handleMouseLeave}
               >
                 <span className={`inline-flex items-center gap-0.5 xl:gap-1 transition-colors ${activeMenu === 'protocols' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
-                  PROTOCOL
+                  {t('nav.protocol', 'PROTOCOL')}
                   <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${activeMenu === 'protocols' ? 'rotate-180 text-[#0F172A]' : 'text-[#64748B]'}`} />
                 </span>
               </div>
@@ -229,7 +231,7 @@ export const Header: React.FC = () => {
                 onMouseLeave={handleMouseLeave}
               >
                 <span className={`inline-flex items-center gap-0.5 xl:gap-1 transition-colors ${activeMenu === 'biomarkers' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
-                  Biomarkers
+                  {t('nav.biomarkers', 'Biomarkers')}
                   <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${activeMenu === 'biomarkers' ? 'rotate-180 text-[#0F172A]' : 'text-[#64748B]'}`} />
                 </span>
               </div>
@@ -240,7 +242,7 @@ export const Header: React.FC = () => {
                 onMouseLeave={handleMouseLeave}
               >
                 <span className={`inline-flex items-center gap-0.5 xl:gap-1 transition-colors ${activeMenu === 'science' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
-                  The Science
+                  {t('nav.theScience', 'The Science')}
                   <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${activeMenu === 'science' ? 'rotate-180 text-[#0F172A]' : 'text-[#64748B]'}`} />
                 </span>
               </div>
@@ -250,7 +252,7 @@ export const Header: React.FC = () => {
                 onClick={() => soundFx.playClick()}
                 className="py-5 transition-colors hover:text-[#0F172A] shrink-0"
               >
-                STORY
+                {t('nav.story', 'STORY')}
               </a>
 
               <a
@@ -258,7 +260,7 @@ export const Header: React.FC = () => {
                 onClick={() => soundFx.playClick()}
                 className="py-5 transition-colors hover:text-[#0F172A] text-[#0F766E] font-semibold shrink-0"
               >
-                3D GLOBE
+                {t('nav.globe3D', '3D GLOBE')}
               </a>
 
               <NavLink
@@ -266,7 +268,7 @@ export const Header: React.FC = () => {
                 onClick={() => soundFx.playClick()}
                 className={({ isActive }) => `py-5 transition-colors shrink-0 ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
               >
-                CONSOLE
+                {t('nav.console', 'CONSOLE')}
               </NavLink>
 
               <NavLink
@@ -274,7 +276,7 @@ export const Header: React.FC = () => {
                 onClick={() => soundFx.playClick()}
                 className={({ isActive }) => `py-5 transition-colors shrink-0 ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
               >
-                COHORTS
+                {t('nav.cohorts', 'COHORTS')}
               </NavLink>
 
               <NavLink
@@ -282,7 +284,7 @@ export const Header: React.FC = () => {
                 onClick={() => soundFx.playClick()}
                 className={({ isActive }) => `py-5 transition-colors shrink-0 ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
               >
-                OVERVIEW
+                {t('nav.overview', 'OVERVIEW')}
               </NavLink>
             </nav>
           </div>
@@ -304,7 +306,7 @@ export const Header: React.FC = () => {
               className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs font-mono shrink-0"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#0F766E]" />
-              <span className="hidden xl:inline text-xs font-medium">Guide</span>
+              <span className="hidden xl:inline text-xs font-medium">{t('nav.guide', 'Guide')}</span>
               <kbd className="hidden sm:inline-flex items-center px-1 text-[9px] bg-[#F1F5F9] border border-[#E2E8F0] rounded text-[#64748B]">?</kbd>
             </button>
 
@@ -319,7 +321,7 @@ export const Header: React.FC = () => {
               <span className="hidden xl:inline">
                 {isAuthenticated && user
                   ? (user.name.startsWith('Dr.') ? user.name.split(' ')[1] || 'Doctor' : user.name.split(' ')[0])
-                  : 'Staff'}
+                  : t('nav.staff', 'Staff')}
               </span>
             </Link>
 
@@ -334,7 +336,7 @@ export const Header: React.FC = () => {
               className="hidden lg:flex items-center gap-1.5 px-2 py-1.5 2xl:px-2.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs shrink-0"
             >
               <Search className="w-3.5 h-3.5 text-[#64748B]" />
-              <span className="font-sans text-xs hidden 2xl:inline">Search</span>
+              <span className="font-sans text-xs hidden 2xl:inline">{t('nav.search', 'Search')}</span>
               <kbd className="hidden 2xl:inline-flex items-center gap-0.5 px-1 py-0.2 text-[10px] font-mono text-[#64748B] bg-[#F1F5F9] border border-[#E2E8F0] rounded">
                 <Command className="w-2.5 h-2.5" /> K
               </kbd>
@@ -349,19 +351,19 @@ export const Header: React.FC = () => {
               {backendStatus === 'connected' && (
                 <span className="text-[#0F766E] font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-                  <span className="hidden 2xl:inline">ONLINE</span>
+                  <span className="hidden 2xl:inline">{t('nav.apiConnected', 'ONLINE')}</span>
                 </span>
               )}
               {backendStatus === 'checking' && (
                 <span className="text-[#B45309] font-medium flex items-center gap-1">
                   <RefreshCw className="w-2.5 h-2.5 animate-spin" />
-                  <span className="hidden 2xl:inline">SYNC</span>
+                  <span className="hidden 2xl:inline">{t('nav.apiChecking', 'SYNC')}</span>
                 </span>
               )}
               {backendStatus === 'disconnected' && (
                 <span className="text-[#B91C1C] font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C]" />
-                  <span className="hidden 2xl:inline">OFFLINE</span>
+                  <span className="hidden 2xl:inline">{t('nav.apiOffline', 'OFFLINE')}</span>
                 </span>
               )}
             </div>
@@ -372,7 +374,7 @@ export const Header: React.FC = () => {
               onClick={() => soundFx.playClick()}
               className="btn-ramp-primary hidden sm:inline-flex text-xs py-2 px-3.5 shrink-0 whitespace-nowrap"
             >
-              <span>Initiate Trial</span>
+              <span>{t('nav.initiateTrial', 'Initiate Trial')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 

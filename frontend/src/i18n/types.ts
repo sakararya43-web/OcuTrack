@@ -43,6 +43,25 @@ export interface TranslationDictionary {
     apiConnected: string;
     apiOffline: string;
     refreshApi: string;
+    protocol?: string;
+    biomarkers?: string;
+    theScience?: string;
+    story?: string;
+    globe3D?: string;
+    console?: string;
+    cohorts?: string;
+    overview?: string;
+    search?: string;
+    guide?: string;
+    staff?: string;
+    initiateTrial?: string;
+    notice?: string;
+  };
+  hero?: {
+    title: string;
+    subtitle: string;
+    enterConsole: string;
+    startScreening: string;
   };
   dashboard: {
     heroTitle: string;
