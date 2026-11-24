@@ -95,6 +95,38 @@ export const APP_ROUTES: AppRoute[] = [
       </ProtectedRoute>
     ),
   },
+  {
+    path: '/pupil-test',
+    element: (
+      <ProtectedRoute>
+        <PupilTestPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/pursuit-test',
+    element: (
+      <ProtectedRoute>
+        <PursuitTestPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/processing/:assessmentId',
+    element: (
+      <ProtectedRoute>
+        <ProcessingPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/reports/:assessmentId',
+    element: (
+      <ProtectedRoute>
+        <AssessmentReportPage />
+      </ProtectedRoute>
+    ),
+  },
   { path: '/about', element: <AboutPage /> },
   { path: '/limitations', element: <AboutLimitationsPage /> },
   { path: '/privacy', element: <PrivacyPolicyPage /> },

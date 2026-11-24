@@ -26,8 +26,12 @@ describe('App Root, Navigation, and Footer Legal Routes', () => {
     expect(screen.getByText('OcuTrack')).toBeInTheDocument();
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Patients')).toBeInTheDocument();
+    expect(screen.getByText('Clinic Overview')).toBeInTheDocument();
     expect(screen.getByText('New Assessment')).toBeInTheDocument();
     expect(screen.getAllByText('Limitations').length).toBeGreaterThanOrEqual(1);
+
+    // Protocol Guide trigger
+    expect(screen.getAllByRole('button', { name: /Protocol Guide/i }).length).toBeGreaterThanOrEqual(1);
 
     // Required footer links on Home / Dashboard
     expect(screen.getAllByRole('link', { name: /Privacy Policy/i }).length).toBeGreaterThanOrEqual(1);
