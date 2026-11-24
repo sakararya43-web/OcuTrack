@@ -203,3 +203,42 @@ This log tracks every phase of the OcuTrack frontend reconstruction against `PRD
   - Full test suite passing: **16 test files**, **58 tests passing**.
   - TypeScript build (`tsc -b`) and production bundle build (`vite build`): **0 errors**.
 
+---
+
+## Expansion Phase 3: Contextual Protocol & Help Drawer (Deterministic Screen-Aware Guide) (Completed)
+- **Help Drawer State & Keyboard Listeners (`frontend/src/context/HelpDrawerContext.tsx`):**
+  - Created `HelpDrawerContext` managing open/closed state, active section navigation, and global keyboard shortcuts.
+  - Implemented `Shift + ?` (or `?`) keyboard listener to toggle the drawer from anywhere in the app (ignoring inputs/textareas), and `Escape` key listener to dismiss.
+  - Wrapped root in `<HelpDrawerProvider>` in `frontend/src/App.tsx`.
+- **Structured Clinical Protocols & Diagnostics (`frontend/src/components/help/protocolRegistry.ts`):**
+  - Documented 9 screen-aware clinical protocols with precise technical parameters, standard operating checklists, and reference standards:
+    1. **Login & Staff Access (`/login`)**: Security model, evaluator bypass, and non-diagnostic prototype scope.
+    2. **Clinical Workspace (`/`)**: Active protocol beacon, automated 30s heartbeat, pseudonymous roster, and attention priority.
+    3. **Patient Registry & Profiles (`/patients`, `/patients/:id`)**: Pseudonymous IDs, explicit consent status, and intra-individual reference anchors.
+    4. **Assessment Setup (`/assessments/new`)**: Test battery selection, ambient lux recommendations (300-500 lux), and HD camera pre-flight.
+    5. **Pupil Light Reflex Protocol (`/pupil-test`)**: 45-60 cm subject distance, 5s dark adaptation, stimulus flash, 10s recovery window, 30 FPS calibration.
+    6. **Smooth Pursuit Kinematics (`/pursuit-test`)**: 50-60 cm viewing distance, 0.2-0.4 Hz sinusoidal trajectory, 15-30 deg/s target velocity, zero head motion.
+    7. **Assessment Report Interpretation (`/reports/:id`, `/processing/:id`)**: Baseline/minimum pupil diameter, constriction velocity, latency, 80% usable frame criterion, and non-diagnostic scope.
+    8. **Clinic Triage & Collective Quality (`/clinic-overview`)**: Facility pass rate targets (>= 90%), attention priority queue, and longitudinal monitoring.
+    9. **System Methodology & Boundaries (`/about`, `/limitations`)**: Investigational clinical decision support classification, zero raw video storage, and personal baseline deltas.
+  - Documented 5 structured troubleshooting cards (camera permission/hardware lock, insufficient recording quality causes, ambient lux variation, baseline delta math, pseudonymous data security).
+- **Slide-Over Contextual Help Drawer (`frontend/src/components/help/ProtocolHelpDrawer.tsx`):**
+  - High-craft Framer Motion slide-over drawer from right (`x: '100%' -> 0`) with subtle backdrop blur.
+  - **Deterministic Route Awareness:** Uses `useLocation().pathname` to automatically identify, expand, and pin the relevant protocol section with an `[ ACTIVE CONTEXT : CURRENT SCREEN ]` beacon.
+  - Real-time client-side keyword search input filtering across protocol titles, parameters, checklists, and troubleshooting FAQs.
+  - Interactive topic filters (`All Topics`, `Protocols (9)`, `Troubleshooting (5)`).
+  - Expandable accordion views with technical parameter grids, standard operating checklists, and step-by-step remediation procedures.
+  - Non-diagnostic clinical safety disclaimer and keyboard hint footer.
+  - Embedded in `frontend/src/components/layout/AppLayout.tsx`.
+- **Top Navigation Trigger (`frontend/src/components/layout/Header.tsx`):**
+  - Added rectangular "Protocol Guide" button in desktop header with `HelpCircle` icon and `[ ? ]` keyboard shortcut indicator.
+  - Added "Protocol Guide" action in mobile navigation menu.
+- **Multilingual Support:**
+  - Added full translation dictionaries for `help` across English (`en`), Hindi (`hi`), Spanish (`es`), and French (`fr`).
+- **Testing & Quality Assurance:**
+  - Added dedicated test suite `frontend/src/test/ProtocolHelpDrawer.test.tsx` (7 tests covering trigger button, open/close, `Shift + ?` and `Escape` shortcuts, route-aware detection for pupil and pursuit tests, search filtering, and troubleshooting accordion).
+  - Verified 0 em dashes (`—`), 0 emojis, 0 `rounded-full` buttons, 0 prohibited colors, 0 `<Sparkles />` icons, 0 diagnostic claims.
+  - Full test suite passing: **17 test files**, **65 tests passed out of 65**.
+  - TypeScript build (`tsc -b`) and production bundle build (`vite build`): **0 errors**.
+
+

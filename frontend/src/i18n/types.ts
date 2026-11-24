@@ -134,4 +134,24 @@ export interface TranslationDictionary {
     communityWorker: string;
     clinician: string;
   };
+  help: {
+    guideButton: string;
+    guideTitle: string;
+    guideSubtitle: string;
+    searchPlaceholder: string;
+    activeContextBadge: string;
+    filterAll: string;
+    filterProtocols: string;
+    filterTroubleshooting: string;
+    parametersHeader: string;
+    checklistHeader: string;
+    troubleshootingHeader: string;
+    noResultsTitle: string;
+    noResultsDesc: string;
+    closeDrawer: string;
+    shortcutHint: string;
+    nonDiagnosticNote: string;
+    activeScreen: string;
+    jumpToSection: string;
+  };
 }

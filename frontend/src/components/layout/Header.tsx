@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Eye, Activity, Users, PlusCircle, Server, RefreshCw, Info, Menu, X, LogOut, Lock, UserCheck } from 'lucide-react';
+import { Eye, Activity, Users, PlusCircle, Server, RefreshCw, Info, Menu, X, LogOut, Lock, UserCheck, HelpCircle } from 'lucide-react';
 import { checkBackendHealth } from '../../services/healthService';
 import { APP_NAME } from '../../lib/constants';
 import { PulseIndicator } from '../motion';
 import { useTranslation } from '../../i18n';
 import { useAuth } from '../../context/AuthContext';
+import { useHelpDrawer } from '../../context/HelpDrawerContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const Header: React.FC = () => {
   const { t } = useTranslation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { toggleDrawer } = useHelpDrawer();
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -78,6 +80,21 @@ export const Header: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Protocol Guide Button */}
+            <button
+              type="button"
+              onClick={toggleDrawer}
+              aria-label={t('help.guideButton')}
+              title={`${t('help.guideButton')} (Shift + ?)`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-md border border-slate-200 bg-slate-50 text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:scale-[0.98] transition-all duration-150 font-mono shadow-xs"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-sky-700" aria-hidden="true" />
+              <span className="hidden sm:inline">{t('help.guideButton')}</span>
+              <kbd className="hidden xl:inline-block px-1 py-0.2 text-[9px] rounded bg-slate-200 border border-slate-300 text-slate-600 font-mono">
+                ?
+              </kbd>
+            </button>
+
             {/* Language Switcher */}
             <LanguageSwitcher />
 
@@ -197,6 +214,17 @@ export const Header: React.FC = () => {
               <Info className="w-4 h-4" aria-hidden="true" />
               <span>{t('nav.about')}</span>
             </NavLink>
+            <button
+              type="button"
+              onClick={() => {
+                toggleDrawer();
+                setMobileMenuOpen(false);
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-md text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors duration-150 text-left border border-slate-200"
+            >
+              <HelpCircle className="w-4 h-4 text-sky-700" aria-hidden="true" />
+              <span>{t('help.guideButton')}</span>
+            </button>
             {isAuthenticated && user ? (
               <button
                 type="button"
