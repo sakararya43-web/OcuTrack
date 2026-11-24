@@ -10,7 +10,7 @@ export const LanguageSwitcher: React.FC<{ className?: string }> = ({ className }
     <div
       role="group"
       aria-label="Language selector"
-      className={`relative inline-flex items-center rounded-md border border-slate-200 bg-slate-100 p-0.5 text-[11px] font-mono select-none ${className || ''}`}
+      className={`relative inline-flex items-center rounded-md border border-slate-200 bg-slate-100 p-0.5 text-[11px] font-mono select-none shrink-0 ${className || ''}`}
     >
       <Globe className="w-3 h-3 text-slate-500 ml-1.5 mr-1 hidden sm:inline-block" aria-hidden="true" />
       {supportedLanguages.map((lang) => {

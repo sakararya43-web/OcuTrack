@@ -186,10 +186,10 @@ export const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 bg-[#F8FAFC]/95 backdrop-blur-md text-[#0F172A] border-b border-[#E2E8F0] transition-colors">
       <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-3">
+        <div className="flex items-center justify-between h-16 gap-3 flex-nowrap">
 
-          {/* Left: Understated OcuTrack Branding */}
-          <div className="flex items-center gap-4 xl:gap-7 min-w-0">
+          {/* Left: Understated OcuTrack Branding & Navigation */}
+          <div className="flex items-center gap-3 xl:gap-6 shrink-0">
             <Link
               to="/"
               onClick={() => soundFx.playClick()}
@@ -211,35 +211,35 @@ export const Header: React.FC = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 text-[11px] xl:text-[12px] uppercase tracking-[0.05em] font-medium text-[#475569]">
+            <nav className="hidden lg:flex items-center gap-2 xl:gap-3 2xl:gap-4.5 text-[11px] xl:text-[12px] uppercase tracking-[0.03em] xl:tracking-[0.05em] font-medium text-[#475569] shrink-0 whitespace-nowrap">
               <div
-                className="relative py-5 cursor-pointer"
+                className="relative py-5 cursor-pointer shrink-0"
                 onMouseEnter={() => handleMouseEnter('protocols')}
                 onMouseLeave={handleMouseLeave}
               >
-                <span className={`inline-flex items-center gap-1 transition-colors ${activeMenu === 'protocols' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
+                <span className={`inline-flex items-center gap-0.5 xl:gap-1 transition-colors ${activeMenu === 'protocols' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
                   PROTOCOL
                   <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${activeMenu === 'protocols' ? 'rotate-180 text-[#0F172A]' : 'text-[#64748B]'}`} />
                 </span>
               </div>
 
               <div
-                className="relative py-5 cursor-pointer"
+                className="relative py-5 cursor-pointer shrink-0"
                 onMouseEnter={() => handleMouseEnter('biomarkers')}
                 onMouseLeave={handleMouseLeave}
               >
-                <span className={`inline-flex items-center gap-1 transition-colors ${activeMenu === 'biomarkers' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
+                <span className={`inline-flex items-center gap-0.5 xl:gap-1 transition-colors ${activeMenu === 'biomarkers' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
                   Biomarkers
                   <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${activeMenu === 'biomarkers' ? 'rotate-180 text-[#0F172A]' : 'text-[#64748B]'}`} />
                 </span>
               </div>
 
               <div
-                className="relative py-5 cursor-pointer"
+                className="relative py-5 cursor-pointer shrink-0"
                 onMouseEnter={() => handleMouseEnter('science')}
                 onMouseLeave={handleMouseLeave}
               >
-                <span className={`inline-flex items-center gap-1 transition-colors ${activeMenu === 'science' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
+                <span className={`inline-flex items-center gap-0.5 xl:gap-1 transition-colors ${activeMenu === 'science' ? 'text-[#0F172A]' : 'hover:text-[#0F172A]'}`}>
                   The Science
                   <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${activeMenu === 'science' ? 'rotate-180 text-[#0F172A]' : 'text-[#64748B]'}`} />
                 </span>
@@ -248,7 +248,7 @@ export const Header: React.FC = () => {
               <a
                 href="/#story-chronicle"
                 onClick={() => soundFx.playClick()}
-                className="py-5 transition-colors hover:text-[#0F172A]"
+                className="py-5 transition-colors hover:text-[#0F172A] shrink-0"
               >
                 STORY
               </a>
@@ -256,7 +256,7 @@ export const Header: React.FC = () => {
               <a
                 href="/#ocular-3d-lab"
                 onClick={() => soundFx.playClick()}
-                className="py-5 transition-colors hover:text-[#0F172A] text-[#0F766E] font-semibold"
+                className="py-5 transition-colors hover:text-[#0F172A] text-[#0F766E] font-semibold shrink-0"
               >
                 3D GLOBE
               </a>
@@ -264,7 +264,7 @@ export const Header: React.FC = () => {
               <NavLink
                 to="/console"
                 onClick={() => soundFx.playClick()}
-                className={({ isActive }) => `py-5 transition-colors ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
+                className={({ isActive }) => `py-5 transition-colors shrink-0 ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
               >
                 CONSOLE
               </NavLink>
@@ -272,7 +272,7 @@ export const Header: React.FC = () => {
               <NavLink
                 to="/patients"
                 onClick={() => soundFx.playClick()}
-                className={({ isActive }) => `py-5 transition-colors ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
+                className={({ isActive }) => `py-5 transition-colors shrink-0 ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
               >
                 COHORTS
               </NavLink>
@@ -280,7 +280,7 @@ export const Header: React.FC = () => {
               <NavLink
                 to="/clinic-overview"
                 onClick={() => soundFx.playClick()}
-                className={({ isActive }) => `py-5 transition-colors ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
+                className={({ isActive }) => `py-5 transition-colors shrink-0 ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
               >
                 OVERVIEW
               </NavLink>
@@ -288,10 +288,10 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Right: Search, Language, Guide, Auth, API Status & CTA */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 mr-1 sm:mr-3 lg:mr-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 xl:gap-2.5 shrink-0">
 
             {/* Language Switcher */}
-            <LanguageSwitcher className="hidden lg:inline-flex" />
+            <LanguageSwitcher className="hidden lg:inline-flex shrink-0" />
 
             {/* Protocol Help Guide Trigger (Non-LLM Assistant) */}
             <button
@@ -301,11 +301,11 @@ export const Header: React.FC = () => {
               }}
               title="Open Clinical Protocol Guide (Shift+?)"
               aria-label="Open Clinical Protocol Guide"
-              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs font-mono"
+              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs font-mono shrink-0"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#0F766E]" />
-              <span className="hidden sm:inline text-xs font-medium">Guide</span>
-              <kbd className="hidden md:inline-flex items-center px-1 text-[9px] bg-[#F1F5F9] border border-[#E2E8F0] rounded text-[#64748B]">?</kbd>
+              <span className="hidden xl:inline text-xs font-medium">Guide</span>
+              <kbd className="hidden sm:inline-flex items-center px-1 text-[9px] bg-[#F1F5F9] border border-[#E2E8F0] rounded text-[#64748B]">?</kbd>
             </button>
 
             {/* Staff Authentication Portal */}
@@ -313,10 +313,14 @@ export const Header: React.FC = () => {
               to="/login"
               onClick={() => soundFx.playClick()}
               title={isAuthenticated && user ? `Logged in as ${user.name}` : 'Staff Portal Login'}
-              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs font-medium text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs"
+              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs font-medium text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs shrink-0"
             >
               <User className="w-3.5 h-3.5 text-[#64748B]" />
-              <span className="hidden sm:inline">{isAuthenticated && user ? user.name.split(' ')[0] : 'Staff'}</span>
+              <span className="hidden xl:inline">
+                {isAuthenticated && user
+                  ? (user.name.startsWith('Dr.') ? user.name.split(' ')[1] || 'Doctor' : user.name.split(' ')[0])
+                  : 'Staff'}
+              </span>
             </Link>
 
             {/* Quick Command Search Trigger */}
@@ -325,8 +329,9 @@ export const Header: React.FC = () => {
                 soundFx.playClick();
                 setSearchOpen(true);
               }}
+              title="Search patient records (Cmd+K)"
               aria-label="Search patient records"
-              className="hidden xl:flex items-center gap-1.5 px-2 py-1.5 2xl:px-2.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs"
+              className="hidden lg:flex items-center gap-1.5 px-2 py-1.5 2xl:px-2.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs shrink-0"
             >
               <Search className="w-3.5 h-3.5 text-[#64748B]" />
               <span className="font-sans text-xs hidden 2xl:inline">Search</span>
@@ -338,25 +343,25 @@ export const Header: React.FC = () => {
             {/* API Health Beacon */}
             <div
               title="Backend Telemetry Health"
-              className="hidden md:flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] px-2 py-1 rounded-md bg-white border border-[#E2E8F0]"
+              className="hidden xl:flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] px-2 py-1 rounded-md bg-white border border-[#E2E8F0] shrink-0"
             >
               <span className="text-[10px] uppercase text-[#64748B]">API</span>
               {backendStatus === 'connected' && (
                 <span className="text-[#0F766E] font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
-                  ONLINE
+                  <span className="hidden 2xl:inline">ONLINE</span>
                 </span>
               )}
               {backendStatus === 'checking' && (
                 <span className="text-[#B45309] font-medium flex items-center gap-1">
                   <RefreshCw className="w-2.5 h-2.5 animate-spin" />
-                  SYNC
+                  <span className="hidden 2xl:inline">SYNC</span>
                 </span>
               )}
               {backendStatus === 'disconnected' && (
                 <span className="text-[#B91C1C] font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C]" />
-                  OFFLINE
+                  <span className="hidden 2xl:inline">OFFLINE</span>
                 </span>
               )}
             </div>
@@ -365,7 +370,7 @@ export const Header: React.FC = () => {
             <Link
               to="/assessments/new"
               onClick={() => soundFx.playClick()}
-              className="btn-ramp-primary hidden sm:inline-flex text-xs py-2 px-3.5 shrink-0"
+              className="btn-ramp-primary hidden sm:inline-flex text-xs py-2 px-3.5 shrink-0 whitespace-nowrap"
             >
               <span>Initiate Trial</span>
               <ArrowRight className="w-3.5 h-3.5" />
