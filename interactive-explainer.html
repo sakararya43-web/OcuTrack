@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OcuTrack: Interactive Project Explainer</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --background: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --card-border: #334155;
+      --foreground: #f8fafc;
+      --muted-foreground: #94a3b8;
+      --primary: #38bdf8;
+      --primary-foreground: #0f172a;
+      --accent: #38bdf8;
+    }
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      border-color: var(--primary);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-8 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- Main Container -->
+  <div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-700 pb-5 space-y-2">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 font-bold text-lg ring-1 ring-sky-500/30">👁️</span>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            OcuTrack Interactive Explainer
+            <span class="text-xs px-2.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-mono font-medium">Investigational Prototype</span>
+          </h1>
+          <p class="text-sm text-slate-400">A plain-English interactive walkthrough of how OcuTrack records, measures, and monitors eye reflexes.</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex flex-wrap gap-2 pt-3" id="tabNav">
+        <button onclick="switchTab('overview')" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs border border-slate-700 bg-slate-800 text-slate-300 transition-all">🚀 The Big Picture</button>
+        <button onclick="switchTab('sim')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs border border-slate-700 bg-slate-800 text-slate-300 transition-all">⚡ Live Eye Simulator</button>
+        <button onclick="switchTab('ruler')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs border border-slate-700 bg-slate-800 text-slate-300 transition-all">📏 The 11.7mm Iris Ruler</button>
+        <button onclick="switchTab('biometrics')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs border border-slate-700 bg-slate-800 text-slate-300 transition-all">📊 Biometrics Decoder</button>
+        <button onclick="switchTab('delta')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs border border-slate-700 bg-slate-800 text-slate-300 transition-all">⏳ Personal Baseline (Δ)</button>
+        <button onclick="switchTab('privacy')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs border border-slate-700 bg-slate-800 text-slate-300 transition-all">🔒 Data & Privacy</button>
+      </nav>
+    </header>
+
+    <!-- TAB 1: THE BIG PICTURE -->
+    <section id="tab-overview" class="tab-content space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 space-y-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">1</div>
+          <h3 class="font-bold text-white text-sm">The Clinical Problem</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Hospitals use <strong>$25,000 infrared pupillometers</strong> to spot early neurological signals. Rural community clinics only have cheap penlights and visual guesswork.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 space-y-2">
+          <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold">2</div>
+          <h3 class="font-bold text-white text-sm">The OcuTrack Solution</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            OcuTrack turns any <strong>standard laptop webcam</strong> into a millisecond-precision eye measurement console inside a normal web browser.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 space-y-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">3</div>
+          <h3 class="font-bold text-white text-sm">The Secret Weapon</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Instead of comparing you to a generic stranger, it tracks <strong>intra-individual deltas (Δ)</strong>. It checks if <em>your</em> eyes are slowing down compared to <em>your</em> last visit.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Workflow Timeline Card -->
+      <div class="bg-slate-800/40 border border-slate-700 rounded-xl p-5 space-y-4">
+        <h3 class="font-bold text-white text-sm">The 20-Second Patient Experience</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-700/60 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-sky-400">TEST 1: SCREEN FLASH</span>
+              <span class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">6–8 seconds</span>
+            </div>
+            <p class="text-xs text-slate-300">The screen flashes white for 1 second. The webcam measures: <em>How fast and sharply does your pupil shrink?</em></p>
+          </div>
+
+          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-700/60 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-emerald-400">TEST 2: FOLLOW THE DOT</span>
+              <span class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">10 seconds</span>
+            </div>
+            <p class="text-xs text-slate-300">A smooth green dot sweeps across the screen. The webcam measures: <em>Does the eye follow smoothly or make jerky catch-up jumps?</em></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: LIVE EYE SIMULATOR -->
+    <section id="tab-sim" class="tab-content hidden space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Interactive Eye Canvas Stage -->
+        <div class="lg:col-span-7 bg-slate-800/60 border border-slate-700 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span class="font-mono font-medium" id="simTitle">Mode: Pupil Light Reflex</span>
+            <span class="font-mono px-2.5 py-1 rounded-md bg-sky-500/10 text-sky-400 font-bold" id="simTimerBadge">Latency: 0 ms</span>
+          </div>
+
+          <!-- Screen Flash Overlay -->
+          <div id="simFlashOverlay" class="absolute inset-0 bg-white opacity-0 pointer-events-none transition-opacity duration-150 z-20"></div>
+
+          <!-- SVG Visual Representation -->
+          <div class="w-full h-48 flex items-center justify-center my-2">
+            <svg id="mainEyeSvg" viewBox="0 0 300 160" class="w-64 h-40 drop-shadow-xl">
+              <!-- Sclera -->
+              <path d="M 30,80 Q 150,15 270,80 Q 150,145 30,80 Z" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+              <!-- Iris -->
+              <circle id="svgIris" cx="150" cy="80" r="44" fill="#2563eb" stroke="#1d4ed8" stroke-width="2"/>
+              <circle id="svgIrisRing" cx="150" cy="80" r="34" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="3,2" opacity="0.6"/>
+              <!-- Pupil -->
+              <circle id="svgPupil" cx="150" cy="80" r="23" fill="#090d16"/>
+              <!-- Glint highlight -->
+              <circle id="svgGlint" cx="143" cy="73" r="3.5" fill="#ffffff" opacity="0.8"/>
+              <!-- Reticle / MediaPipe Tracking Pin Ring -->
+              <circle id="svgReticle" cx="150" cy="80" r="46" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,3"/>
+              <!-- Target dot for smooth pursuit -->
+              <circle id="svgDot" cx="150" cy="80" r="7" fill="#10b981" class="hidden"/>
+            </svg>
+          </div>
+
+          <!-- Trigger Controls -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-700">
+            <div class="flex gap-2">
+              <button onclick="triggerFlashTest()" id="btnTriggerFlash" class="px-4 py-2 rounded-lg bg-sky-500 text-slate-900 font-bold text-xs hover:bg-sky-400 active:scale-95 transition-all shadow-lg shadow-sky-500/20">
+                ⚡ Trigger Light Flash
+              </button>
+              <button onclick="toggleFollowDot()" id="btnToggleDot" class="px-3.5 py-2 rounded-lg bg-slate-700 text-white font-medium text-xs hover:bg-slate-600 transition-all">
+                🎯 Toggle Follow Dot
+              </button>
+            </div>
+            <span id="simStatusText" class="text-xs font-mono text-slate-400">Ready</span>
+          </div>
+        </div>
+
+        <!-- Telemetry Readout -->
+        <div class="lg:col-span-5 bg-slate-800/40 border border-slate-700 rounded-xl p-4 flex flex-col justify-between space-y-3">
+          <div>
+            <h4 class="font-bold text-white text-xs mb-1">Live Biometric Extraction</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              When the screen flashes, the optical reflex travels down the optic nerve into the brainstem and returns to contract the iris sphincter muscle.
+            </p>
+          </div>
+
+          <div class="space-y-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 font-mono text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Pupil Diameter:</span>
+              <span id="readoutDiameter" class="text-white font-bold">4.80 mm</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Constriction Latency:</span>
+              <span id="readoutLatency" class="text-sky-400 font-bold">245 ms</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Constriction Speed:</span>
+              <span id="readoutVelocity" class="text-emerald-400 font-bold">4.8 mm/s</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Smooth Pursuit Gain:</span>
+              <span id="readoutGain" class="text-indigo-400 font-bold">0.95 ratio</span>
+            </div>
+          </div>
+
+          <div class="p-2.5 rounded bg-sky-500/10 border border-sky-500/20 text-[11px] text-sky-300">
+            💡 <strong>Notice:</strong> This is mathematical feature extraction. No disease labels are invented.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: THE 11.7mm IRIS RULER -->
+    <section id="tab-ruler" class="tab-content hidden space-y-5">
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-5 space-y-4">
+        <div>
+          <h3 class="font-bold text-white text-sm">How OcuTrack Turns Screen Pixels into Real Millimeters</h3>
+          <p class="text-xs text-slate-400 mt-1">
+            If a person sits closer to the webcam, their pupil appears larger on the screen. How does OcuTrack measure the true physical size in millimeters?
+          </p>
+        </div>
+
+        <!-- Distance Slider Control -->
+        <div class="space-y-2 bg-slate-900/50 p-4 rounded-lg border border-slate-700/80">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-400">Drag Distance from Webcam:</span>
+            <span id="sliderDistLabel" class="font-mono font-bold text-sky-400 text-sm">45 cm</span>
+          </div>
+          <input type="range" id="camDistSlider" min="25" max="85" value="45" class="w-full accent-sky-400 cursor-pointer" oninput="handleRulerDistance(this.value)">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+            <span>25 cm (Very Close)</span>
+            <span>45 cm (Standard Position)</span>
+            <span>85 cm (Far Away)</span>
+          </div>
+        </div>
+
+        <!-- 3 Formula Step Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-slate-900/70 p-3.5 rounded-lg border border-slate-700 text-center space-y-1">
+            <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wide">1. Detected Pixels</span>
+            <div id="boxIrisPixels" class="text-lg font-mono font-bold text-white">117 px</div>
+            <p class="text-[11px] text-slate-400">Camera sees iris width</p>
+          </div>
+
+          <div class="bg-slate-900/70 p-3.5 rounded-lg border border-slate-700 text-center space-y-1">
+            <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wide">2. Human Biological Constant</span>
+            <div class="text-lg font-mono font-bold text-sky-400">11.7 mm</div>
+            <p class="text-[11px] text-slate-400">Universal human iris size</p>
+          </div>
+
+          <div class="bg-slate-900/70 p-3.5 rounded-lg border border-slate-700 text-center space-y-1">
+            <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wide">3. Real-World Ruler</span>
+            <div id="boxScaleFactor" class="text-lg font-mono font-bold text-emerald-400">10.0 px/mm</div>
+            <p class="text-[11px] text-slate-400">1 millimeter = 10 pixels</p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span class="text-slate-300">Measured Pupil on Screen: <strong id="valPupilPx" class="text-white font-mono">48 px</strong></span>
+          <span class="text-emerald-400 font-bold font-mono">Converted True Physical Size = <span id="valPupilMm">4.80</span> mm</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: BIOMETRICS DECODER -->
+    <section id="tab-biometrics" class="tab-content hidden space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+        
+        <!-- Button List -->
+        <div class="md:col-span-5 space-y-2">
+          <button onclick="showMetric('latency')" id="btnM-latency" class="metric-card w-full text-left p-3 rounded-lg border border-sky-500 bg-sky-500/10 text-white transition-all">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-xs">Constriction Latency</span>
+              <span class="font-mono text-xs text-sky-400">220–260 ms</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Optic nerve transmission speed</p>
+          </button>
+
+          <button onclick="showMetric('velocity')" id="btnM-velocity" class="metric-card w-full text-left p-3 rounded-lg border border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600 transition-all">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-xs">Constriction Velocity</span>
+              <span class="font-mono text-xs text-slate-400">4.0–5.5 mm/s</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Pupil sphincter contraction speed</p>
+          </button>
+
+          <button onclick="showMetric('gain')" id="btnM-gain" class="metric-card w-full text-left p-3 rounded-lg border border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600 transition-all">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-xs">Smooth Pursuit Gain</span>
+              <span class="font-mono text-xs text-slate-400">0.90–1.00</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Eye Speed / Target Speed ratio</p>
+          </button>
+
+          <button onclick="showMetric('saccades')" id="btnM-saccades" class="metric-card w-full text-left p-3 rounded-lg border border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600 transition-all">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-xs">Catch-up Saccades</span>
+              <span class="font-mono text-xs text-slate-400">0–2 count</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Jerky corrective stutter jumps</p>
+          </button>
+        </div>
+
+        <!-- Metric Details Display -->
+        <div class="md:col-span-7 bg-slate-800/40 border border-slate-700 rounded-xl p-4 flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-700">
+              <h4 id="detailTitle" class="font-bold text-sm text-white">Constriction Latency</h4>
+              <span id="detailBadge" class="text-xs px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 font-mono font-bold">Milliseconds (ms)</span>
+            </div>
+            <p id="detailDesc" class="text-xs text-slate-300 mt-2 leading-relaxed">
+              The exact delay between the instant the screen flash reaches the retina and the first physical contraction of the pupil margin.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/70 p-3 rounded-lg border border-slate-700/80 space-y-2 text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Physiological Pathway:</span>
+              <span id="detailPath" class="text-white font-medium">Optic & Oculomotor Cranial Nerves</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Technical Threshold:</span>
+              <span id="detailThreshold" class="font-mono text-amber-400 font-bold">> 15 ms delta from personal baseline</span>
+            </div>
+          </div>
+
+          <div class="p-2.5 rounded bg-slate-900 border border-slate-700 text-xs text-slate-400" id="detailNote">
+            📌 <strong>Remember:</strong> A latency of 260ms may be completely normal for Person A, but abnormal if Person A was 230ms last month!
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 5: PERSONAL BASELINE (Δ) SIMULATOR -->
+    <section id="tab-delta" class="tab-content hidden space-y-5">
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-5 space-y-4">
+        <div>
+          <h3 class="font-bold text-white text-sm">Longitudinal Delta Simulator: Personal Baseline vs. Follow-up</h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Test OcuTrack's core clinical logic. Move the slider to see how the system compares a follow-up assessment with the established baseline.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Baseline Card -->
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-xs text-white">Visit 1: Baseline Assessment</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold">LOCKED</span>
+            </div>
+            <div class="text-2xl font-mono font-bold text-white">245 ms</div>
+            <p class="text-xs text-slate-400">Established on Oct 15 under controlled room lighting.</p>
+          </div>
+
+          <!-- Follow-up Card with Interactive Slider -->
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-xs text-white">Visit 2: Follow-up Assessment</span>
+              <span id="txtFollowUpVal" class="text-xs font-mono font-bold text-sky-400">245 ms</span>
+            </div>
+            <input type="range" id="rangeDelta" min="215" max="315" value="245" class="w-full accent-sky-400 cursor-pointer" oninput="handleDeltaSlider(this.value)">
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+              <span>215 ms (Faster)</span>
+              <span>245 ms (Same)</span>
+              <span>315 ms (Slower)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Delta Result Banner -->
+        <div id="boxDeltaResult" class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-between transition-all duration-200">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="tagDeltaStatus" class="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">STABLE</span>
+              <span id="txtDeltaDiff" class="font-mono font-bold text-sm text-white">Δ = 0 ms</span>
+            </div>
+            <p id="txtDeltaMessage" class="text-xs text-slate-300 mt-1">
+              Measurement remains stable within expected physiological variation across visits.
+            </p>
+          </div>
+          <span id="iconDelta" class="text-2xl">✅</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: DATA & PRIVACY -->
+    <section id="tab-privacy" class="tab-content hidden space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        
+        <div class="bg-slate-800/40 border border-slate-700 rounded-xl p-4 space-y-2">
+          <div class="flex items-center gap-2 font-bold text-xs text-white">
+            <span class="text-sky-400">👤</span> Tier 1: Live Human
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Real webcam stream. Evaluated on the fly like a digital ruler; no pre-training on the patient's face required.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/40 border border-slate-700 rounded-xl p-4 space-y-2">
+          <div class="flex items-center gap-2 font-bold text-xs text-white">
+            <span class="text-emerald-400">🎯</span> Tier 2: Synthetic Benchmark
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Canvas-generated eye video in <code>SampleVideoFallback.tsx</code>. Allows testing if webcam or clinic light fails.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/40 border border-slate-700 rounded-xl p-4 space-y-2">
+          <div class="flex items-center gap-2 font-bold text-xs text-white">
+            <span class="text-amber-400">📈</span> Tier 3: Math Fixture
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Simulated sequence vectors to verify TCN causal neural network code without creating fake medical diagnoses.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Ephemeral Storage Simulator -->
+      <div class="bg-slate-800/40 border border-slate-700 rounded-xl p-5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+              <span>🔒</span> "Burn After Reading" Ephemeral Video Retention
+            </h4>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Raw patient facial video is permanently deleted from temporary disk immediately after numbers are extracted.
+            </p>
+          </div>
+          <button onclick="simulateShredder()" id="btnShredder" class="px-4 py-2 rounded-lg bg-sky-500 text-slate-900 font-bold text-xs hover:bg-sky-400 active:scale-95 transition-all">
+            🗑️ Simulate Video Erasure
+          </button>
+        </div>
+
+        <div id="bannerShredded" class="hidden p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs">
+          ✓ Temporary file unlinked: <code>/tmp/assessments/session_vid_942.webm</code> wiped permanently from disk. Only anonymous numerical records saved.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Interactive JavaScript Logic -->
+  <script>
+    // Tab switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+      event.target.classList.add('active');
+    }
+
+    // TAB 2: Pupil & Pursuit Simulator
+    let isFlashing = false;
+    let pursuitActive = false;
+    let pursuitTimer = null;
+
+    function triggerFlashTest() {
+      if (isFlashing) return;
+      isFlashing = true;
+
+      const overlay = document.getElementById('simFlashOverlay');
+      const pupil = document.getElementById('svgPupil');
+      const badge = document.getElementById('simTimerBadge');
+      const status = document.getElementById('simStatusText');
+      const rDia = document.getElementById('readoutDiameter');
+      const rLat = document.getElementById('readoutLatency');
+      const rVel = document.getElementById('readoutVelocity');
+
+      status.innerText = "White Screen Flash Triggered...";
+      overlay.style.opacity = "0.95";
+      badge.innerText = "Stimulus t = 0 ms";
+
+      setTimeout(() => {
+        overlay.style.opacity = "0";
+      }, 300);
+
+      // 245ms Physiological Latency
+      setTimeout(() => {
+        badge.innerText = "Constriction Onset: 245 ms";
+        status.innerText = "Pupil Constricting...";
+        rLat.innerText = "245 ms";
+        rVel.innerText = "4.8 mm/s";
+
+        let rad = 23;
+        const shrinkInterval = setInterval(() => {
+          if (rad > 14) {
+            rad -= 0.6;
+            pupil.setAttribute('r', rad);
+            rDia.innerText = ((rad / 23) * 4.8).toFixed(2) + " mm";
+          } else {
+            clearInterval(shrinkInterval);
+            status.innerText = "Minimum Constriction Reached";
+
+            // Dilation recovery phase
+            setTimeout(() => {
+              status.innerText = "Dilation Recovery Phase...";
+              const dilateInterval = setInterval(() => {
+                if (rad < 23) {
+                  rad += 0.4;
+                  pupil.setAttribute('r', rad);
+                  rDia.innerText = ((rad / 23) * 4.8).toFixed(2) + " mm";
+                } else {
+                  clearInterval(dilateInterval);
+                  status.innerText = "Ready";
+                  isFlashing = false;
+                }
+              }, 30);
+            }, 600);
+          }
+        }, 30);
+      }, 245);
+    }
+
+    function toggleFollowDot() {
+      pursuitActive = !pursuitActive;
+      const dot = document.getElementById('svgDot');
+      const iris = document.getElementById('svgIris');
+      const pupil = document.getElementById('svgPupil');
+      const ring = document.getElementById('svgIrisRing');
+      const glint = document.getElementById('svgGlint');
+      const reticle = document.getElementById('svgReticle');
+      const title = document.getElementById('simTitle');
+      const btn = document.getElementById('btnToggleDot');
+
+      if (pursuitActive) {
+        title.innerText = "Mode: Smooth Pursuit Target Tracking";
+        btn.innerText = "⚡ Back to Flash Test";
+        btn.classList.add('bg-sky-500', 'text-slate-900');
+        dot.classList.remove('hidden');
+
+        let theta = 0;
+        pursuitTimer = setInterval(() => {
+          theta += 0.04;
+          const targetX = 150 + Math.sin(theta) * 75;
+          const gazeX = 150 + Math.sin(theta - 0.05) * 70; // realistic tracking lag
+
+          dot.setAttribute('cx', targetX);
+          iris.setAttribute('cx', gazeX);
+          pupil.setAttribute('cx', gazeX);
+          ring.setAttribute('cx', gazeX);
+          glint.setAttribute('cx', gazeX - 7);
+          reticle.setAttribute('cx', gazeX);
+        }, 20);
+      } else {
+        clearInterval(pursuitTimer);
+        title.innerText = "Mode: Pupil Light Reflex";
+        btn.innerText = "🎯 Toggle Follow Dot";
+        btn.classList.remove('bg-sky-500', 'text-slate-900');
+        dot.classList.add('hidden');
+
+        iris.setAttribute('cx', 150);
+        pupil.setAttribute('cx', 150);
+        ring.setAttribute('cx', 150);
+        glint.setAttribute('cx', 143);
+        reticle.setAttribute('cx', 150);
+      }
+    }
+
+    // TAB 3: 11.7mm Ruler Math
+    function handleRulerDistance(cm) {
+      document.getElementById('sliderDistLabel').innerText = cm + " cm";
+      // Inverse proportion
+      const irisPx = Math.round((117 * 45) / cm);
+      document.getElementById('boxIrisPixels').innerText = irisPx + " px";
+
+      const scale = (irisPx / 11.7).toFixed(1);
+      document.getElementById('boxScaleFactor').innerText = scale + " px/mm";
+
+      const pupilPx = Math.round(irisPx * (4.8 / 11.7));
+      document.getElementById('valPupilPx').innerText = pupilPx + " px";
+
+      const resultMm = (pupilPx / (irisPx / 11.7)).toFixed(2);
+      document.getElementById('valPupilMm').innerText = resultMm;
+    }
+
+    // TAB 4: Biometrics Dictionary
+    const metricsData = {
+      latency: {
+        title: "Constriction Latency",
+        badge: "Milliseconds (ms)",
+        desc: "The exact delay between the instant the screen flash reaches the retina and the first physical contraction of the pupil margin.",
+        path: "Optic Nerve (CN II) & Oculomotor Nerve (CN III)",
+        threshold: "> 15 ms delta from personal baseline",
+        note: "Normal variation exists across people. A latency of 260ms may be normal for Person A, but abnormal if Person A was 230ms last month!"
+      },
+      velocity: {
+        title: "Constriction Velocity",
+        badge: "Millimeters per second (mm/s)",
+        desc: "Peak rate of pupil constriction following stimulus onset. Measures the autonomic parasympathetic tone driving the iris sphincter.",
+        path: "Efferent Parasympathetic Oculomotor Pathway",
+        threshold: "> 0.30 mm/s delta from personal baseline",
+        note: "Sluggish velocity can indicate autonomic dysregulation or medication effects."
+      },
+      gain: {
+        title: "Smooth Pursuit Gain",
+        badge: "Velocity Ratio (Eye / Target)",
+        desc: "Measures how accurately eye angular velocity matches target angular velocity across the 10-second horizontal trajectory.",
+        path: "Cerebellar and Cortical Visual Motion Networks",
+        threshold: "> 0.05 drop in gain ratio from personal baseline",
+        note: "A gain of 1.0 is ideal synchronization. A drop below 0.85 usually triggers catch-up saccades."
+      },
+      saccades: {
+        title: "Catch-up Saccades",
+        badge: "Occurrence Count",
+        desc: "Rapid micro-jumps (> 30 deg/sec) where the eye realizes it has lagged behind the moving green dot and makes a jerky leap to re-center.",
+        path: "Frontal Eye Field Saccadic Compensation",
+        threshold: "Increase of ≥ 2 saccadic intrusions over baseline",
+        note: "Frequent catch-up saccades indicate difficulty maintaining continuous smooth pursuit."
+      }
+    };
+
+    function showMetric(id) {
+      document.querySelectorAll('.metric-card').forEach(btn => {
+        btn.classList.remove('border-sky-500', 'bg-sky-500/10', 'text-white');
+        btn.classList.add('border-slate-700', 'bg-slate-800/40', 'text-slate-300');
+      });
+      const selected = document.getElementById('btnM-' + id);
+      selected.classList.remove('border-slate-700', 'bg-slate-800/40', 'text-slate-300');
+      selected.classList.add('border-sky-500', 'bg-sky-500/10', 'text-white');
+
+      const data = metricsData[id];
+      document.getElementById('detailTitle').innerText = data.title;
+      document.getElementById('detailBadge').innerText = data.badge;
+      document.getElementById('detailDesc').innerText = data.desc;
+      document.getElementById('detailPath').innerText = data.path;
+      document.getElementById('detailThreshold').innerText = data.threshold;
+      document.getElementById('detailNote').innerHTML = "📌 <strong>Remember:</strong> " + data.note;
+    }
+
+    // TAB 5: Delta Simulator
+    function handleDeltaSlider(val) {
+      document.getElementById('txtFollowUpVal').innerText = val + " ms";
+      const delta = val - 245;
+      const tag = document.getElementById('tagDeltaStatus');
+      const diff = document.getElementById('txtDeltaDiff');
+      const msg = document.getElementById('txtDeltaMessage');
+      const box = document.getElementById('boxDeltaResult');
+      const icon = document.getElementById('iconDelta');
+
+      diff.innerText = (delta >= 0 ? "+" + delta : delta) + " ms";
+
+      if (Math.abs(delta) <= 15) {
+        tag.innerText = "STABLE";
+        tag.className = "px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        box.className = "p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-between";
+        msg.innerText = "Measurement remains stable within expected physiological variation across visits.";
+        icon.innerText = "✅";
+      } else {
+        tag.innerText = "VARIATION DETECTED";
+        tag.className = "px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30";
+        box.className = "p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center justify-between";
+        msg.innerText = "Change exceeds technical threshold (+15ms). Recommend repeat recording and clinician review.";
+        icon.innerText = "⚠️";
+      }
+    }
+
+    // TAB 6: Shredder Simulator
+    function simulateShredder() {
+      const banner = document.getElementById('bannerShredded');
+      const btn = document.getElementById('btnShredder');
+      btn.disabled = true;
+      btn.innerText = "Wiping Video Bytes...";
+
+      setTimeout(() => {
+        banner.classList.remove('hidden');
+        btn.innerText = "✓ Video Wiped";
+      }, 400);
+    }
+  </script>
+</body>
+</html>

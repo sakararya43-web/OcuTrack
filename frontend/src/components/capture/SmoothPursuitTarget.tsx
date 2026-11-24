@@ -17,11 +17,10 @@ export const PURSUIT_DURATION_MS = 10000;
 
 /**
  * Deterministic formula for target position at elapsed time t_ms:
- * Oscillates horizontally centered at x=0.5 between 0.12 and 0.88 with frequency 0.4 Hz.
+ * Oscillates horizontally centered at x=0.5 between 0.12 and 0.88 with frequency 0.3 Hz.
  */
 export function calculateTargetPosition(t_ms: number, totalDurationMs: number = PURSUIT_DURATION_MS): { x: number; y: number } {
   const clampedT = Math.min(Math.max(0, t_ms), totalDurationMs);
-  // Frequency: 2 full cycles in 10 seconds (0.2 Hz) or 4 cycles (0.4 Hz)
   const frequency = 0.3; // 3 cycles in 10s
   const x = 0.5 + 0.36 * Math.sin((2 * Math.PI * frequency * clampedT) / 1000);
   const y = 0.5; // Fixed vertical baseline
@@ -117,7 +116,6 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
         // Animation completed
         if (!hasCompletedRef.current) {
           hasCompletedRef.current = true;
-          // Ensure end coordinate recorded
           recordedCoordsRef.current.push({
             t_ms: PURSUIT_DURATION_MS,
             x: pos.x,
@@ -148,14 +146,14 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
 
   return (
     <div
-      className={`relative w-full h-64 sm:h-80 bg-slate-950 rounded-2xl border-2 border-slate-800 overflow-hidden shadow-2xl flex flex-col justify-between p-4 ${className}`}
+      className={`relative w-full h-64 sm:h-80 bg-[#0F1117] rounded-xl border border-[#27282D] overflow-hidden shadow-ramp-card flex flex-col justify-between p-4 ${className}`}
     >
       {/* Top Banner info */}
       <div className="flex items-center justify-between z-10 text-xs">
-        <span className="font-mono text-sky-400 font-semibold bg-slate-900/90 px-2.5 py-1 rounded border border-slate-700">
+        <span className="font-mono text-[10px] text-white bg-black/60 px-2 py-0.5 rounded border border-white/10">
           Target: {PURSUIT_PATH_VERSION} (10.0s)
         </span>
-        <span className="text-slate-300 font-mono">
+        <span className="text-gray-300 font-mono text-xs">
           {(elapsedMs / 1000).toFixed(1)}s / {(PURSUIT_DURATION_MS / 1000).toFixed(0)}s
         </span>
       </div>
@@ -163,10 +161,10 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
       {/* Target arena */}
       <div className="relative w-full flex-1">
         {/* Horizontal Guide Axis */}
-        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-800 -translate-y-1/2 pointer-events-none"></div>
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-white/15 -translate-y-1/2 pointer-events-none" />
 
         {/* Center fixation marker */}
-        <div className="absolute top-1/2 left-1/2 w-3 h-3 border border-slate-700 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 w-2.5 h-2.5 border border-white/30 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none" />
 
         {/* High-contrast animated stimulus target */}
         <div
@@ -175,28 +173,28 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
             left: `${currentPos.x * 100}%`,
           }}
         >
-          {/* Target circle */}
+          {/* Target circle (Clinical High-Contrast Calibrated Target) */}
           <div className="relative flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full bg-cyan-400 border-2 border-white shadow-[0_0_20px_rgba(34,211,238,0.8)] flex items-center justify-center animate-pulse">
-              <div className="w-3 h-3 rounded-full bg-slate-950"></div>
+            <div className="w-8 h-8 rounded-full bg-[#0F766E] border border-white flex items-center justify-center shadow-sm">
+              <div className="w-2.5 h-2.5 rounded-full bg-white" />
             </div>
             {/* Crosshair indicator */}
-            <div className="absolute w-14 h-0.5 bg-cyan-400/40 pointer-events-none"></div>
-            <div className="absolute h-14 w-0.5 bg-cyan-400/40 pointer-events-none"></div>
+            <div className="absolute w-12 h-px bg-[#0F766E]/50 pointer-events-none" />
+            <div className="absolute h-12 w-px bg-[#0F766E]/50 pointer-events-none" />
           </div>
         </div>
       </div>
 
       {/* Progress Bar & Instructions */}
       <div className="space-y-2 z-10">
-        <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+        <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
           <div
-            className="bg-cyan-400 h-full transition-all duration-100 ease-linear"
+            className="bg-[#0F766E] h-full transition-all duration-100 ease-linear"
             style={{ width: `${progressPercent}%` }}
-          ></div>
+          />
         </div>
-        <p className="text-center text-xs text-slate-400 font-medium">
-          Follow the high-contrast target with your eyes smoothly without moving your head.
+        <p className="text-center text-[11px] text-gray-400 font-normal font-sans">
+          Follow the high-contrast target smoothly with your eyes without moving your head.
         </p>
       </div>
     </div>

@@ -21,9 +21,9 @@ export const SmoothPursuitChart: React.FC<SmoothPursuitChartProps> = ({
 }) => {
   if (!series || series.length === 0) {
     return (
-      <div className={`flex flex-col items-center justify-center p-8 bg-slate-50 border border-slate-200 rounded-xl text-center ${className}`}>
-        <p className="text-xs font-semibold text-slate-700">Pursuit Kinematic Series Unavailable</p>
-        <p className="text-[11px] text-slate-500 mt-1">
+      <div className={`flex flex-col items-center justify-center p-8 bg-white rounded-xl border border-[#E2E8F0] text-center ${className}`}>
+        <p className="text-xs font-mono font-semibold text-[#0F172A]">Pursuit Kinematic Series Unavailable</p>
+        <p className="text-[11px] text-[#475569] mt-1 font-normal font-sans max-w-sm">
           Eye horizontal displacement series was not returned by the pursuit tracking module.
         </p>
       </div>
@@ -38,21 +38,21 @@ export const SmoothPursuitChart: React.FC<SmoothPursuitChartProps> = ({
   }));
 
   return (
-    <div className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3 ${className}`}>
-      <div className="flex items-center justify-between">
+    <div className={`panel-ramp p-6 space-y-4 shadow-sm ${className}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
         <div>
-          <h4 className="text-sm font-semibold text-slate-900">Target vs. Eye Horizontal Trajectory</h4>
-          <p className="text-xs text-slate-500">
-            Harmonic target trajectory (cyan) vs. tracked gaze displacement (slate)
+          <h4 className="font-sans text-sm font-semibold text-[#0F172A]">Target vs. Eye Horizontal Trajectory</h4>
+          <p className="text-xs text-[#475569] font-sans font-normal">
+            Harmonic target trajectory (dashed) vs. tracked gaze displacement (solid)
           </p>
         </div>
-        <div className="flex items-center gap-3 text-xs">
-          <span className="flex items-center gap-1.5 text-cyan-600 font-medium">
-            <span className="w-3 h-0.5 bg-cyan-500 inline-block"></span>
+        <div className="flex items-center gap-4 text-xs font-mono">
+          <span className="flex items-center gap-1.5 text-[#475569] font-medium text-[11px]">
+            <span className="w-3 h-0.5 border-t border-dashed border-[#475569] inline-block" />
             Stimulus Target
           </span>
-          <span className="flex items-center gap-1.5 text-slate-700 font-medium">
-            <span className="w-3 h-0.5 bg-slate-800 inline-block"></span>
+          <span className="flex items-center gap-1.5 text-[#0F172A] font-medium text-[11px]">
+            <span className="w-3 h-0.5 bg-[#0F172A] inline-block" />
             Eye Gaze Position
           </span>
         </div>
@@ -61,73 +61,61 @@ export const SmoothPursuitChart: React.FC<SmoothPursuitChartProps> = ({
       <div className="w-full h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#ECEBE5" />
             <XAxis
               dataKey="timeSec"
               unit="s"
-              stroke="#94a3b8"
-              fontSize={11}
+              stroke="#64748B"
+              fontSize={10}
               tickLine={false}
+              fontFamily="monospace"
             />
             <YAxis
               unit="%"
-              stroke="#94a3b8"
-              fontSize={11}
+              stroke="#64748B"
+              fontSize={10}
               tickLine={false}
               domain={[0, 100]}
+              fontFamily="monospace"
             />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-slate-900 text-white p-2.5 rounded-lg text-xs shadow-lg space-y-1">
-                      <p className="font-mono text-slate-300">Time: {data.timeSec}s</p>
-                      <p className="text-cyan-400">
-                        Target X: {data.targetX !== null ? `${data.targetX}%` : 'Not available'}
-                      </p>
-                      <p className="text-slate-200">
-                        Eye Gaze X: {data.eyeX !== null ? `${data.eyeX}%` : 'Not available'}
-                      </p>
-                      {data.targetX !== null && data.eyeX !== null && (
-                        <p className="text-[10px] text-amber-300 pt-0.5 border-t border-slate-700">
-                          Tracking Error: {Math.abs(data.targetX - data.eyeX).toFixed(1)}%
-                        </p>
-                      )}
+                    <div className="bg-white border border-[#E2E8F0] text-[#0F172A] p-2.5 rounded-lg text-xs shadow-ramp-card space-y-1 font-mono">
+                      <p className="text-[#475569]">Time: {data.timeSec}s</p>
+                      <p className="text-[#475569]">Target: {data.targetX}%</p>
+                      <p className="font-semibold text-[#0F172A]">Gaze: {data.eyeX}%</p>
                     </div>
                   );
                 }
                 return null;
               }}
             />
-            {/* Target Trajectory Line */}
+            {/* Target Trajectory (dashed line) */}
             <Line
               type="monotone"
               dataKey="targetX"
-              stroke="#06b6d4"
-              strokeWidth={2}
+              stroke="#64748B"
+              strokeWidth={1.5}
               strokeDasharray="4 4"
               dot={false}
-              name="Stimulus Target"
+              isAnimationActive={false}
             />
-            {/* Eye Movement Track Line */}
+            {/* Eye Tracking (solid line) */}
             <Line
               type="monotone"
               dataKey="eyeX"
-              stroke="#0f172a"
-              strokeWidth={2.5}
+              stroke="#0F172A"
+              strokeWidth={2}
               dot={false}
-              activeDot={{ r: 5, fill: '#0f172a' }}
+              isAnimationActive={false}
               connectNulls={false}
-              name="Eye Position"
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
-
-      <p className="text-[11px] text-slate-400 italic">
-        Deviations between target and eye displacement reflect smooth pursuit latency, phase lag, or corrective catch-up saccades.
-      </p>
     </div>
   );
 };

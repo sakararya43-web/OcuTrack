@@ -7,31 +7,38 @@ describe('App Root and Navigation', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     global.fetch = vi.fn().mockRejectedValue(new Error('Backend offline'));
+    window.history.pushState({}, '', '/');
   });
 
-  it('renders the persistent non-diagnostic disclaimer banner', async () => {
+  it('renders the Awwwards-inspired landing page at root', async () => {
     render(<App />);
-    const disclaimer = await screen.findByText(NON_DIAGNOSTIC_DISCLAIMER);
-    expect(disclaimer).toBeInTheDocument();
+    expect(screen.getAllByText('OcuTrack')[0]).toBeInTheDocument();
+    expect(screen.getByText('ENTER RESEARCH CONSOLE')).toBeInTheDocument();
+    expect(screen.getAllByText(NON_DIAGNOSTIC_DISCLAIMER)[0]).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText('Backend Service Unavailable')).toBeInTheDocument();
+      expect(document.body).toBeInTheDocument();
     });
   });
 
-  it('renders navigation links and header brand', async () => {
+  it('renders the interactive chapters and exploration anchors on landing page', async () => {
     render(<App />);
-    expect(screen.getByText('OcuTrack')).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Patients')).toBeInTheDocument();
-    expect(screen.getByText('New Assessment')).toBeInTheDocument();
-    expect(screen.getByText('Limitations')).toBeInTheDocument();
+    expect(screen.getByText(/AUTONOMIC PUPILLARY LIGHT REFLEX/i)).toBeInTheDocument();
+    expect(screen.getByText(/SMOOTH PURSUIT OCULAR MOTOR CONTROL/i)).toBeInTheDocument();
+    expect(screen.getByText(/LONGITUDINAL TEMPORAL DRIFT/i)).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText('Backend Service Unavailable')).toBeInTheDocument();
+      expect(document.body).toBeInTheDocument();
     });
   });
 
-  it('handles unavailable backend without crashing and displays service unavailable alert', async () => {
+  it('renders the console dashboard and handles unavailable backend gracefully', async () => {
+    window.history.pushState({}, '', '/console');
     render(<App />);
+    
+    // Header navigation links in cockpit
+    expect(screen.getByText('CONSOLE')).toBeInTheDocument();
+    expect(screen.getByText('COHORTS')).toBeInTheDocument();
+    expect(screen.getByText('PROTOCOL')).toBeInTheDocument();
+
     await waitFor(() => {
       expect(screen.getByText('Backend Service Unavailable')).toBeInTheDocument();
     });

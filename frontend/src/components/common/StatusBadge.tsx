@@ -11,8 +11,8 @@ interface StatusBadgeProps {
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, status, className = '' }) => {
   if (status === null || status === undefined) {
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 ${className}`}>
-        Not available
+      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] ${className}`}>
+        Unavailable
       </span>
     );
   }
@@ -22,21 +22,24 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, status, classNam
     switch (status) {
       case 'acceptable':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-50 text-teal-800 border border-teal-200 ${className}`}>
-            Quality Acceptable
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0] ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
+            Acceptable
           </span>
         );
       case 'insufficient':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200 ${className}`}>
-            Quality Insufficient
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA] ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C]" />
+            Insufficient
           </span>
         );
       case 'pending':
       default:
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 ${className}`}>
-            Quality Pending
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#64748B]" />
+            Pending
           </span>
         );
     }
@@ -47,32 +50,37 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, status, classNam
     switch (status) {
       case 'complete':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800 border border-slate-300 ${className}`}>
-            Completed
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0] ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
+            Complete
           </span>
         );
       case 'processing':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-50 text-sky-800 border border-sky-200 animate-pulse ${className}`}>
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A] ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B45309] animate-pulse" />
             Processing
           </span>
         );
       case 'uploaded':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-800 border border-indigo-200 ${className}`}>
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#1D4ED8]" />
             Uploaded
           </span>
         );
       case 'failed':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-800 border border-rose-200 ${className}`}>
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA] ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C]" />
             Failed
           </span>
         );
       case 'created':
       default:
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 ${className}`}>
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#64748B]" />
             Created
           </span>
         );
@@ -83,36 +91,40 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, status, classNam
   if (type === 'consent') {
     if (status === 'granted') {
       return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 ${className}`}>
-          Consent Confirmed
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0] ${className}`}>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
+          Consent Verified
         </span>
       );
     }
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-800 border border-rose-200 ${className}`}>
-        Consent Pending
+      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA] ${className}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C]" />
+        Consent Denied
       </span>
     );
   }
 
-  // Change detected: boolean
+  // Feature Delta Change Status: boolean
   if (type === 'change') {
     if (status === true) {
       return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-900 border border-amber-300 ${className}`}>
-          Delta Flagged
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A] ${className}`}>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#B45309]" />
+          Delta Observed
         </span>
       );
     }
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200 ${className}`}>
-        No Notable Delta
+      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] ${className}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-[#64748B]" />
+        Stable (No Drift)
       </span>
     );
   }
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 ${className}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] ${className}`}>
       {formatStatusLabel(String(status))}
     </span>
   );

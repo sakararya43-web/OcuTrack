@@ -1,5 +1,5 @@
 export function formatDate(dateString: string | null | undefined): string {
-  if (!dateString) return '—';
+  if (!dateString) return '-';
   try {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
@@ -16,7 +16,7 @@ export function formatDate(dateString: string | null | undefined): string {
 }
 
 export function formatShortDate(dateString: string | null | undefined): string {
-  if (!dateString) return '—';
+  if (!dateString) return '-';
   try {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;

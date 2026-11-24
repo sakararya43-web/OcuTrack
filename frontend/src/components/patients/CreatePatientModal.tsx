@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { X, UserPlus, ShieldAlert, Check } from 'lucide-react';
+import { X, UserPlus, ShieldAlert } from 'lucide-react';
 import { createPatient } from '../../services/patientService';
 import { Patient, CreatePatientPayload } from '../../types/api';
 import { AGE_BANDS } from '../../lib/constants';
 import { ApiClientError } from '../../services/apiClient';
+import { soundFx } from '../../lib/soundFx';
 
 interface CreatePatientModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
 
     const cleanCode = pseudonymousCode.trim();
     if (!cleanCode) {
-      setError('Please provide a pseudonymous patient code.');
+      setError('Please provide a pseudonymous participant code.');
       return;
     }
 
@@ -56,15 +57,16 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
 
     try {
       const patient = await createPatient(payload);
+      soundFx.playSuccess();
       onSuccess(patient);
       onClose();
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof ApiClientError) {
         setError(err.message);
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Failed to create patient record.');
+        setError('Failed to register participant record.');
       }
     } finally {
       setIsSubmitting(false);
@@ -72,66 +74,64 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full border border-slate-200 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/50">
-          <div className="flex items-center gap-2 text-slate-800">
-            <UserPlus className="w-5 h-5 text-sky-600" />
-            <h3 className="font-semibold text-base">New Pseudonymous Patient</h3>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl max-w-lg w-full p-6 shadow-ramp-dropdown space-y-5 animate-fade-in text-[#0F172A]">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-md bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0]">
+              <UserPlus className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-sans text-base font-semibold text-[#0F172A]">Register Participant Record</h3>
+              <p className="text-xs text-[#64748B] font-mono">
+                De-identified pseudonymous cohort registration
+              </p>
+            </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-md transition-colors"
-            aria-label="Close dialog"
+            className="p-1 rounded-md text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {error && (
-            <div className="p-3 text-xs bg-rose-50 border border-rose-200 rounded-md text-rose-800 flex items-start gap-2">
-              <ShieldAlert className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <div className="bg-sky-50 border border-sky-100 rounded-lg p-3 text-xs text-sky-900 leading-relaxed">
-            <strong>Privacy Guarantee:</strong> Do not enter real names, emails, phone numbers, or dates of birth. Use pseudonymous identifiers only.
+        {error && (
+          <div className="p-3 bg-[#FEF2F2] border border-[#FECACA] rounded-lg text-xs text-[#B91C1C]">
+            {error}
           </div>
+        )}
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Pseudonymous Code */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
               Pseudonymous Code *
             </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                required
-                value={pseudonymousCode}
-                onChange={(e) => setPseudonymousCode(e.target.value)}
-                placeholder="e.g. OT-1001"
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
-              />
-              <button
-                type="button"
-                onClick={() => setPseudonymousCode(`OT-${Math.floor(1000 + Math.random() * 9000)}`)}
-                className="px-3 py-2 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md whitespace-nowrap"
-              >
-                Generate
-              </button>
-            </div>
-            <p className="mt-1 text-xs text-slate-500">De-identified participant reference identifier.</p>
+            <input
+              type="text"
+              required
+              value={pseudonymousCode}
+              onChange={(e) => setPseudonymousCode(e.target.value)}
+              placeholder="e.g. OT-1001"
+              className="w-full px-3 py-2 text-xs font-mono bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[#0F172A] focus:outline-none focus:border-[#0F172A] focus:bg-white"
+            />
+            <p className="text-[11px] text-[#64748B]">
+              Must not contain names, MRNs, dates of birth, or direct identifiers.
+            </p>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+          {/* Age Band */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
               Age Band *
             </label>
             <select
               value={ageBand}
               onChange={(e) => setAgeBand(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+              className="w-full px-3 py-2 text-xs font-mono bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[#0F172A] focus:outline-none focus:border-[#0F172A] focus:bg-white"
             >
               {AGE_BANDS.map((band) => (
                 <option key={band} value={band}>
@@ -141,55 +141,58 @@ export const CreatePatientModal: React.FC<CreatePatientModalProps> = ({
             </select>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Context Notes <span className="text-slate-400 font-normal lowercase">(optional)</span>
+          {/* Context Notes */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-mono text-[#475569] uppercase tracking-wider font-semibold">
+              Context Notes (Optional)
             </label>
             <textarea
               rows={2}
               value={contextNotes}
               onChange={(e) => setContextNotes(e.target.value)}
-              placeholder="e.g. Baseline screening session; room ambient light measured at 300 lux"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+              placeholder="Non-identifying research context (e.g. Baseline assessment prior to task protocol)..."
+              className="w-full px-3 py-2 text-xs font-sans bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[#0F172A] focus:outline-none focus:border-[#0F172A] focus:bg-white"
             />
           </div>
 
-          <div className="pt-2 border-t border-slate-100">
-            <label className="flex items-start gap-3 cursor-pointer">
+          {/* Consent Checkbox */}
+          <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-2">
+            <label className="flex items-start gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
+                required
                 checked={consentGranted}
                 onChange={(e) => setConsentGranted(e.target.checked)}
-                className="mt-1 w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500"
+                className="mt-0.5 accent-[#0F172A] rounded"
               />
-              <span className="text-xs text-slate-700 leading-normal">
-                <strong>Informed Consent Confirmed:</strong> Participant has been informed of test procedures, video capture parameters, and non-diagnostic research purpose, and has agreed to recording.
+              <span className="text-xs text-[#475569] leading-normal font-sans">
+                <strong className="text-[#0F172A] font-medium">Verify informed participant consent:</strong> The subject understands that video frames are processed ephemerally, only mathematical metrics are retained, and that this evaluation is non-diagnostic.
               </span>
             </label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          {/* Notice */}
+          <div className="p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex items-start gap-2 text-xs text-[#475569] leading-relaxed">
+            <ShieldAlert className="w-4 h-4 text-[#B45309] shrink-0 mt-0.5" />
+            <span>Investigational software. Strictly for research observation and non-diagnostic tracking.</span>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+              className="btn-ramp-secondary text-xs py-2 px-3.5"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-sky-700 hover:bg-sky-800 rounded-md shadow-sm transition-colors disabled:opacity-50"
+              disabled={isSubmitting || !consentGranted}
+              className="btn-ramp-primary text-xs py-2 px-4 disabled:opacity-50 shadow-sm"
             >
-              {isSubmitting ? (
-                'Creating Record...'
-              ) : (
-                <>
-                  <Check className="w-4 h-4" />
-                  Save Patient Record
-                </>
-              )}
+              {isSubmitting ? 'Registering...' : 'Register Participant'}
             </button>
           </div>
         </form>

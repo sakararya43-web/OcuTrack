@@ -31,9 +31,9 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
 }) => {
   if (!data || data.length < 2) {
     return (
-      <div className={`p-6 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs text-slate-500 ${className}`}>
-        <p className="font-semibold text-slate-700">Longitudinal History Building</p>
-        <p className="mt-1">
+      <div className={`p-8 bg-white rounded-xl border border-[#E2E8F0] text-center text-xs text-[#475569] ${className}`}>
+        <p className="font-semibold text-[#0F172A] font-mono text-sm">Longitudinal History Building</p>
+        <p className="mt-1 font-sans font-normal max-w-sm mx-auto">
           At least two accepted assessments are required to plot longitudinal change across visits.
         </p>
       </div>
@@ -45,92 +45,79 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
       key: 'latencyMs',
       title: 'Pupil Constriction Latency Trend',
       unit: 'ms',
-      color: '#0284c7',
+      color: '#0F172A',
       description: 'Time from light stimulus onset to start of pupil constriction',
     },
     velocity: {
       key: 'velocityMmS',
       title: 'Maximum Constriction Velocity Trend',
       unit: 'mm/s',
-      color: '#0d9488',
+      color: '#0F172A',
       description: 'Peak constriction rate during reflexive response',
     },
     gain: {
       key: 'trackingGain',
       title: 'Smooth Pursuit Tracking Gain Trend',
-      unit: '',
-      color: '#4f46e5',
-      description: 'Ratio of eye velocity to target velocity (unity = 1.0)',
+      unit: 'ratio',
+      color: '#0F172A',
+      description: 'Ratio of tracked ocular velocity to visual target velocity',
     },
   };
 
   const currentConfig = metricConfigs[metric];
 
   const chartData = data.map((d) => ({
-    displayDate: formatShortDate(d.assessmentDate),
-    value: (d as any)[currentConfig.key] ?? null,
-    isBaseline: Boolean(d.isBaseline),
+    dateStr: formatShortDate(d.assessmentDate),
+    val: d[currentConfig.key as keyof LongitudinalDataPoint] as number | null,
+    isBaseline: d.isBaseline,
   }));
 
-  const validDataPoints = chartData.filter(
-    (d) => d.value !== null && d.value !== undefined
-  );
-
-  if (validDataPoints.length < 2) {
-    return (
-      <div className={`p-6 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs text-slate-500 ${className}`}>
-        <p className="font-semibold text-slate-700">Longitudinal History Building</p>
-        <p className="mt-1">
-          At least two accepted assessments with measured biometrics are required to plot longitudinal trajectory across visits.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3 ${className}`}>
-      <div className="flex items-center justify-between">
+    <div className={`space-y-4 ${className}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E2E8F0] pb-3 gap-2">
         <div>
-          <h4 className="text-sm font-semibold text-slate-900">{currentConfig.title}</h4>
-          <p className="text-xs text-slate-500">{currentConfig.description}</p>
+          <h4 className="font-sans text-sm font-semibold text-[#0F172A]">{currentConfig.title}</h4>
+          <p className="text-xs text-[#475569] font-sans font-normal">{currentConfig.description}</p>
         </div>
-        <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-          Units: {currentConfig.unit || 'ratio'}
-        </span>
+        <div className="flex items-center gap-3 text-xs font-mono">
+          <span className="flex items-center gap-1.5 text-[#0F172A] font-medium text-[11px]">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#0F172A] inline-block" />
+            Measured Value ({currentConfig.unit})
+          </span>
+        </div>
       </div>
 
       <div className="w-full h-56">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#ECEBE5" />
             <XAxis
-              dataKey="displayDate"
-              stroke="#94a3b8"
-              fontSize={11}
+              dataKey="dateStr"
+              stroke="#64748B"
+              fontSize={10}
               tickLine={false}
+              fontFamily="monospace"
             />
             <YAxis
-              unit={currentConfig.unit}
-              stroke="#94a3b8"
-              fontSize={11}
+              unit={` ${currentConfig.unit}`}
+              stroke="#64748B"
+              fontSize={10}
               tickLine={false}
               domain={['auto', 'auto']}
+              fontFamily="monospace"
             />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
-                  const item = payload[0].payload;
+                  const pt = payload[0].payload;
                   return (
-                    <div className="bg-slate-900 text-white p-2.5 rounded-lg text-xs shadow-lg space-y-1">
-                      <p className="font-mono text-slate-300">Date: {item.displayDate}</p>
-                      <p className="font-semibold text-sky-400">
-                        {currentConfig.title}:{' '}
-                        {item.value !== null ? `${item.value} ${currentConfig.unit}` : 'Not available'}
+                    <div className="bg-white border border-[#E2E8F0] text-[#0F172A] p-2.5 rounded-lg text-xs shadow-ramp-card space-y-1 font-mono">
+                      <p className="text-[#475569]">Date: {pt.dateStr}</p>
+                      <p className="font-semibold text-[#0F172A]">
+                        {currentConfig.title}: {pt.val !== null ? `${pt.val} ${currentConfig.unit}` : 'Not available'}
                       </p>
-                      {item.isBaseline && (
-                        <p className="text-[10px] text-indigo-300 font-semibold">
-                          &bull; Selected Patient Baseline
-                        </p>
+                      {pt.isBaseline && (
+                        <p className="text-[10px] text-[#0F766E] font-semibold">Accepted Baseline Session</p>
                       )}
                     </div>
                   );
@@ -140,20 +127,28 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
             />
             <Line
               type="monotone"
-              dataKey="value"
-              stroke={currentConfig.color}
-              strokeWidth={2.5}
-              dot={{ r: 4, fill: currentConfig.color }}
-              activeDot={{ r: 6 }}
-              connectNulls={false}
+              dataKey="val"
+              stroke="#0F172A"
+              strokeWidth={2}
+              dot={(props: any) => {
+                const { cx, cy, payload } = props;
+                if (!cx || !cy) return null;
+                return (
+                  <circle
+                    key={`dot-${cx}-${cy}`}
+                    cx={cx}
+                    cy={cy}
+                    r={payload.isBaseline ? 5 : 3.5}
+                    fill={payload.isBaseline ? '#0F766E' : '#0F172A'}
+                    stroke="#FFFFFF"
+                    strokeWidth={1.5}
+                  />
+                );
+              }}
+              isAnimationActive={false}
             />
           </LineChart>
         </ResponsiveContainer>
-      </div>
-
-      <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
-        <span>Non-diagnostic longitudinal trend line</span>
-        <span>A stable trend does not establish absence of neurological change</span>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { User, Calendar, PlusCircle, ArrowLeft, ShieldAlert, History, Award, FileText } from 'lucide-react';
+import { User, Calendar, PlusCircle, ArrowLeft, ShieldAlert, History, Award, FileText, Activity } from 'lucide-react';
 import { getPatient, getPatientHistory } from '../services/patientService';
 import { Patient, AssessmentSummary } from '../types/api';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
@@ -10,6 +10,7 @@ import { StatusBadge } from '../components/common/StatusBadge';
 import { LongitudinalTrendChart, LongitudinalDataPoint } from '../components/charts/LongitudinalTrendChart';
 import { formatDate } from '../lib/formatters';
 import { ApiClientError } from '../services/apiClient';
+import { soundFx } from '../lib/soundFx';
 
 export const PatientDetailPage: React.FC = () => {
   const { patientId } = useParams<{ patientId: string }>();
@@ -50,7 +51,7 @@ export const PatientDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl p-12">
+      <div className="panel-ramp p-16">
         <LoadingSpinner label="Loading participant record..." />
       </div>
     );
@@ -61,10 +62,11 @@ export const PatientDetailPage: React.FC = () => {
       <div className="space-y-4">
         <Link
           to="/patients"
-          className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+          onClick={() => soundFx.playClick()}
+          className="link-editorial text-xs font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Registry
+          <span>Back to Registry</span>
         </Link>
         <ErrorAlert
           message={error?.message || 'Patient record could not be retrieved.'}
@@ -96,36 +98,39 @@ export const PatientDetailPage: React.FC = () => {
     }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 text-[#0F172A]">
       {/* Back button */}
       <div>
         <Link
           to="/patients"
-          className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+          onClick={() => soundFx.playClick()}
+          className="link-editorial text-xs font-semibold"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Patient Registry
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Patient Registry</span>
         </Link>
       </div>
 
-      {/* Patient Profile Card */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+      {/* Patient Profile Header Card (Ramp Style) */}
+      <div className="panel-ramp p-8 space-y-6 shadow-ramp-card">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-xl bg-slate-900 text-white flex items-center justify-center font-mono text-xl shadow-sm">
-              <User className="w-7 h-7 text-sky-400" />
+            <div className="w-12 h-12 rounded-lg bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center font-mono text-[#0F172A]">
+              <User className="w-6 h-6 text-[#475569]" />
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold font-mono text-slate-900">{patient.pseudonymous_code}</h1>
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl sm:text-3xl font-semibold text-[#0F172A] font-mono tracking-tight">
+                  {patient.pseudonymous_code}
+                </h1>
                 <StatusBadge type="consent" status={patient.consent_status} />
               </div>
-              <p className="text-sm text-slate-500">
-                Age Band: <span className="font-medium text-slate-800">{patient.age_band}</span> &bull; Enrolled:{' '}
+              <p className="text-xs font-mono text-[#475569]">
+                Age Band: <span className="font-semibold text-[#0F172A]">{patient.age_band}</span> &bull; Enrolled:{' '}
                 {formatDate(patient.created_at)}
               </p>
               {patient.context_notes && (
-                <div className="mt-2 text-xs bg-slate-50 text-slate-600 p-2.5 rounded-lg border border-slate-100 max-w-xl">
+                <div className="mt-2 text-xs bg-[#F8FAFC] text-[#475569] p-3 rounded-lg border border-[#E2E8F0] max-w-xl font-sans leading-relaxed">
                   {patient.context_notes}
                 </div>
               )}
@@ -135,74 +140,68 @@ export const PatientDetailPage: React.FC = () => {
           <div className="flex sm:flex-col items-center sm:items-end gap-3">
             <Link
               to={`/assessments/new?patientId=${patient.patient_id}`}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-colors"
+              onClick={() => soundFx.playClick()}
+              className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
             >
-              <PlusCircle className="w-4 h-4" />
-              New Assessment
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>New Assessment</span>
             </Link>
           </div>
         </div>
 
-        {/* Clinical Note Alert */}
-        <div className="mt-6 pt-6 border-t border-slate-100 bg-amber-50/60 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-4 sm:px-8 border-b rounded-b-2xl flex items-start gap-2.5 text-xs text-amber-900">
-          <ShieldAlert className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+        {/* Clinical Safety Note */}
+        <div className="p-3.5 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex items-start gap-2.5 text-xs text-[#475569] leading-relaxed font-sans">
+          <ShieldAlert className="w-4 h-4 shrink-0 text-[#B45309] mt-0.5" />
           <span>
-            <strong>Clinical Safety Disclaimer:</strong> Absence of observed longitudinal delta or stable measurements across visits does not establish that the participant is free of neurological impairment. Always rely on certified clinical diagnostic standards.
+            <strong className="font-medium text-[#0F172A]">Clinical Safety Scope:</strong> Absence of observed longitudinal delta or stable measurements across visits does not establish that the participant is free of neurological impairment. Always rely on certified clinical diagnostic standards.
           </span>
         </div>
       </div>
 
       {/* Longitudinal Trend Chart (if multiple visits) */}
       {sortedHistory.length >= 2 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Across-Visit Trajectory</h2>
-            <div className="flex items-center gap-2 text-xs">
-              <button
-                onClick={() => setTrendMetric('latency')}
-                className={`px-2.5 py-1 rounded font-medium ${
-                  trendMetric === 'latency'
-                    ? 'bg-sky-900 text-white'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                Latency
-              </button>
-              <button
-                onClick={() => setTrendMetric('velocity')}
-                className={`px-2.5 py-1 rounded font-medium ${
-                  trendMetric === 'velocity'
-                    ? 'bg-sky-900 text-white'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                Velocity
-              </button>
-              <button
-                onClick={() => setTrendMetric('gain')}
-                className={`px-2.5 py-1 rounded font-medium ${
-                  trendMetric === 'gain'
-                    ? 'bg-sky-900 text-white'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                Tracking Gain
-              </button>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+            <h2 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] flex items-center gap-2 font-semibold">
+              <Activity className="w-3.5 h-3.5 text-[#0F766E]" />
+              <span>Longitudinal Trajectory Across Visits</span>
+            </h2>
+            <div className="flex items-center gap-1 p-1 bg-[#F1F5F9] border border-[#E2E8F0] rounded-lg font-mono text-xs">
+              {(['latency', 'velocity', 'gain'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    soundFx.playHover();
+                    setTrendMetric(m);
+                  }}
+                  className={`px-3 py-1 rounded text-[11px] font-medium transition-colors ${trendMetric === m
+                    ? 'bg-white text-[#0F172A] shadow-sm font-semibold'
+                    : 'text-[#475569] hover:text-[#0F172A]'
+                    }`}
+                >
+                  {m === 'latency' ? 'Latency' : m === 'velocity' ? 'Velocity' : 'Tracking Gain'}
+                </button>
+              ))}
             </div>
           </div>
-          <LongitudinalTrendChart data={trendData} metric={trendMetric} />
+          <div className="panel-ramp p-6 shadow-ramp-card">
+            <LongitudinalTrendChart data={trendData} metric={trendMetric} />
+          </div>
         </div>
       )}
 
       {/* Assessment History Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
           <div className="flex items-center gap-2">
-            <History className="w-5 h-5 text-slate-600" />
-            <h2 className="text-lg font-semibold text-slate-900">Longitudinal Assessment History</h2>
+            <History className="w-3.5 h-3.5 text-[#475569]" />
+            <h2 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] font-semibold">
+              Longitudinal Assessment History
+            </h2>
           </div>
-          <span className="text-xs text-slate-500">
-            Total Visits: <strong className="text-slate-800">{history.length}</strong>
+          <span className="text-xs font-mono text-[#475569]">
+            Total Visits: <strong className="text-[#0F172A]">{history.length}</strong>
           </span>
         </div>
 
@@ -210,41 +209,42 @@ export const PatientDetailPage: React.FC = () => {
           <EmptyState
             title="No assessments recorded yet"
             description="Initiate the first assessment to record baseline pupil light reflex and smooth-pursuit measurements."
-            icon={<Calendar className="w-6 h-6" />}
+            icon={<Calendar className="w-5 h-5 text-[#475569]" />}
             action={
               <Link
                 to={`/assessments/new?patientId=${patient.patient_id}`}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-sm"
+                onClick={() => soundFx.playClick()}
+                className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
               >
-                <PlusCircle className="w-4 h-4" />
-                Capture Baseline Test
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Capture Baseline Test</span>
               </Link>
             }
           />
         ) : (
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="panel-ramp overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-sm">
+              <table className="w-full text-left border-collapse font-mono text-xs">
                 <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    <th className="px-6 py-3.5">Assessment Date</th>
-                    <th className="px-6 py-3.5">Protocol</th>
-                    <th className="px-6 py-3.5">Run Status</th>
-                    <th className="px-6 py-3.5">Quality</th>
-                    <th className="px-6 py-3.5">Role</th>
-                    <th className="px-6 py-3.5">Review Summary</th>
-                    <th className="px-6 py-3.5 text-right">Action</th>
+                  <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[10px] text-[#64748B] uppercase tracking-wider">
+                    <th className="px-6 py-3.5 font-semibold">Assessment Date</th>
+                    <th className="px-6 py-3.5 font-semibold">Protocol</th>
+                    <th className="px-6 py-3.5 font-semibold">Run Status</th>
+                    <th className="px-6 py-3.5 font-semibold">Quality</th>
+                    <th className="px-6 py-3.5 font-semibold">Role</th>
+                    <th className="px-6 py-3.5 font-semibold">Review Summary</th>
+                    <th className="px-6 py-3.5 text-right font-semibold">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#E2E8F0]">
                   {sortedHistory.map((item) => {
                     const isBaseline = baselineCandidate?.assessment_id === item.assessment_id;
                     return (
-                      <tr key={item.assessment_id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-900">
+                      <tr key={item.assessment_id} className="hover:bg-[#F8FAFC] transition-colors">
+                        <td className="px-6 py-4 font-semibold text-[#0F172A]">
                           {formatDate(item.assessment_at)}
                         </td>
-                        <td className="px-6 py-4 font-mono text-xs text-slate-600">
+                        <td className="px-6 py-4 text-xs text-[#475569]">
                           {item.protocol_version || 'standard'}
                         </td>
                         <td className="px-6 py-4">
@@ -255,24 +255,25 @@ export const PatientDetailPage: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           {isBaseline ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0] font-mono">
                               <Award className="w-3 h-3" />
                               Baseline
                             </span>
                           ) : (
-                            <span className="text-xs text-slate-500">Follow-up</span>
+                            <span className="text-xs text-[#475569]">Follow-up</span>
                           )}
                         </td>
-                        <td className="px-6 py-4 text-xs text-slate-600 max-w-xs truncate">
+                        <td className="px-6 py-4 text-xs text-[#475569] max-w-xs truncate font-sans">
                           {item.review_message || 'Analysis pending or not available'}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <Link
                             to={`/assessments/${item.assessment_id}/report`}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 hover:text-sky-900"
+                            onClick={() => soundFx.playClick()}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#0F172A] hover:underline transition-colors"
                           >
-                            <FileText className="w-3.5 h-3.5" />
-                            Report &rarr;
+                            <FileText className="w-3.5 h-3.5 text-[#475569]" />
+                            <span>Report →</span>
                           </Link>
                         </td>
                       </tr>

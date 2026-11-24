@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { formatDate, formatShortDate, formatStatusLabel } from '../lib/formatters';
 
 describe('formatters', () => {
-  it('formats null dates safely as an em-dash', () => {
-    expect(formatDate(null)).toBe('—');
-    expect(formatDate(undefined)).toBe('—');
-    expect(formatShortDate(null)).toBe('—');
+  it('formats null dates safely as an en-dash or hyphen', () => {
+    expect(formatDate(null)).toBe('-');
+    expect(formatDate(undefined)).toBe('-');
+    expect(formatShortDate(null)).toBe('-');
   });
 
   it('formats valid ISO dates', () => {

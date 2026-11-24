@@ -9,6 +9,7 @@ import {
   UploadCloud,
   Loader2,
   ArrowRight,
+  ShieldAlert,
 } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
@@ -26,6 +27,7 @@ import { uploadPursuitVideo, triggerAnalysis } from '../services/assessmentServi
 import { PROTOCOL_VERSION } from '../lib/constants';
 import { ErrorAlert } from '../components/common/ErrorAlert';
 import { ApiClientError } from '../services/apiClient';
+import { soundFx } from '../lib/soundFx';
 
 export const PursuitTestPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
@@ -49,6 +51,7 @@ export const PursuitTestPage: React.FC = () => {
   });
 
   const handleStartCountdown = () => {
+    soundFx.playClick();
     if (!camera.isCameraActive) {
       camera.startCamera().then((success) => {
         if (success) {
@@ -62,6 +65,7 @@ export const PursuitTestPage: React.FC = () => {
 
   const triggerCountdown = () => {
     setCountdown(3);
+    soundFx.playTick();
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
@@ -72,74 +76,31 @@ export const PursuitTestPage: React.FC = () => {
           }
           return null;
         }
+        soundFx.playTick();
         return prev - 1;
       });
     }, 1000);
   };
 
   const handleStopRecording = () => {
+    soundFx.playClick();
     setIsTargetActive(false);
     recorder.stopRecording();
   };
 
-  const handleTargetComplete = (trajectory: TargetTrajectoryMetadata) => {
-    setTrajectoryMetadata(trajectory);
-    recorder.stopRecording();
-    setIsTargetActive(false);
+  const handleTargetComplete = (meta: TargetTrajectoryMetadata) => {
+    setTrajectoryMetadata(meta);
   };
 
   const handleSampleSelected = (sampleVideo: RecordedVideo) => {
-    setIsFallbackMode(true);
+    soundFx.playClick();
     recorder.discardRecording();
+    setIsFallbackMode(true);
     (recorder as any).recordedVideo = sampleVideo;
-    camera.stopCamera();
-    setTrajectoryMetadata(generateFullTrajectory());
-  };
 
-  const handleUploadAndAnalyze = async () => {
-    if (!assessmentId || !recorder.recordedVideo) return;
-
-    setIsUploading(true);
-    setUploadError(null);
-
-    const activeTrajectory = trajectoryMetadata || generateFullTrajectory();
-
-    const metadata = {
-      protocol_version: PROTOCOL_VERSION,
-      test_type: 'smooth_pursuit',
-      captured_at: recorder.recordedVideo.recordedAt,
-      duration_ms: recorder.recordedVideo.durationMs,
-      mime_type: recorder.recordedVideo.mimeType,
-      is_fallback: isFallbackMode,
-      target_path: activeTrajectory,
-      device_metadata: {
-        user_agent: navigator.userAgent,
-        width: camera.observedSettings?.width || 1280,
-        height: camera.observedSettings?.height || 720,
-        frame_rate: camera.observedSettings?.frameRate || 30,
-      },
-    };
-
-    try {
-      // Step 1: Upload pursuit video and target coordinates to Parth's FastAPI backend
-      await uploadPursuitVideo(assessmentId, recorder.recordedVideo.blob, metadata);
-
-      // Step 2: Trigger analysis pipeline execution
-      await triggerAnalysis(assessmentId);
-
-      // Step 3: Transition to honest processing / polling page
-      navigate(`/assessments/${assessmentId}/processing`);
-    } catch (err: unknown) {
-      if (err instanceof ApiClientError) {
-        setUploadError({ message: err.message, isUnavailable: err.isUnavailable });
-      } else if (err instanceof Error) {
-        setUploadError({ message: err.message, isUnavailable: false });
-      } else {
-        setUploadError({ message: 'Failed to upload pursuit video or trigger analysis.', isUnavailable: true });
-      }
-    } finally {
-      setIsUploading(false);
-    }
+    // Use standardized reference trajectory for benchmark
+    const referenceTraj = generateFullTrajectory();
+    setTrajectoryMetadata(referenceTraj);
   };
 
   const recordedVideo = recorder.recordedVideo;
@@ -156,47 +117,91 @@ export const PursuitTestPage: React.FC = () => {
       : null
   );
 
+  const handleUploadAndAnalyze = async () => {
+    if (!assessmentId || !recordedVideo) return;
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const trajectoryPayload = trajectoryMetadata || generateFullTrajectory();
+
+      await uploadPursuitVideo(assessmentId, recordedVideo.blob, {
+        is_fallback_benchmark: isFallbackMode,
+        trajectory: trajectoryPayload,
+        protocol_version: PROTOCOL_VERSION,
+        source: isFallbackMode ? 'synthetic_benchmark' : 'webcam_live',
+      });
+
+      // Trigger asynchronous analysis
+      await triggerAnalysis(assessmentId);
+      soundFx.playSuccess();
+
+      // Navigate to processing screen
+      navigate(`/assessments/${assessmentId}/processing`);
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError) {
+        setUploadError({ message: err.message, isUnavailable: err.isUnavailable });
+      } else if (err instanceof Error) {
+        setUploadError({ message: err.message, isUnavailable: false });
+      } else {
+        setUploadError({ message: 'Pursuit recording upload could not be completed.', isUnavailable: true });
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-sky-700">Test 2 of 2</span>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <Crosshair className="w-6 h-6 text-sky-600" />
-            Smooth-Pursuit Eye Movement Test
+    <div className="max-w-4xl mx-auto space-y-8 text-[#0F172A]">
+      {/* Header Info */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#E2E8F0] pb-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E]" />
+              Protocol Test 02 · Smooth Pursuit Kinematics
+            </span>
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#0F172A] tracking-tight">
+            Smooth-Pursuit <span className="italic text-[#475569]">Kinematics Test</span>
           </h1>
+          <p className="text-sm text-[#475569] font-normal font-sans">
+            Calibrated 10-second harmonic target sweep across the horizontal visual arena.
+          </p>
         </div>
-        <div className="text-right">
-          <span className="text-xs font-mono text-slate-500">Session: {assessmentId?.slice(0, 8)}...</span>
-        </div>
-      </div>
 
-      {/* Protocol Instructions */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
-        <h3 className="text-sm font-semibold text-slate-900">Protocol Instructions</h3>
-        <p className="text-xs text-slate-600 leading-relaxed">
-          When the test starts, a high-contrast target will sweep horizontally across the screen for 10 seconds.
-          Follow the moving target smoothly with your eyes. <strong>Keep your head still</strong> and minimize blinking during the sweep.
-        </p>
-
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-700 flex items-start gap-2 font-mono">
-          <span className="text-sky-700 font-bold">&bull;</span>
-          <span>Target Trajectory ID: <strong className="text-slate-900">{PURSUIT_PATH_VERSION}</strong> &bull; Sweep Duration: <strong>10.0s</strong></span>
+        <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
+          <span className="text-[#64748B]">TARGET:</span>
+          <span className="px-2.5 py-1 bg-white border border-[#E2E8F0] rounded text-[#0F172A] font-semibold">
+            {TARGET_DURATION_S}s @ 30 FPS
+          </span>
         </div>
       </div>
 
-      {/* Review or Capture State */}
+      {/* Instructions Card */}
+      <div className="panel-ramp p-5 flex items-start gap-3.5 text-xs leading-relaxed font-sans shadow-sm">
+        <div className="p-2 rounded-md bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0] shrink-0">
+          <Crosshair className="w-4 h-4" />
+        </div>
+        <div className="space-y-0.5 text-[#475569]">
+          <strong className="text-[#0F172A] font-mono text-xs uppercase block font-semibold">Participant Instruction:</strong>
+          Keep your head steady. Follow the moving target dot across the screen with your eyes smoothly. Do not anticipate movement or make premature saccadic jumps.
+        </div>
+      </div>
+
+      {/* Capture Arena */}
       {recordedVideo ? (
-        /* Video Review State */
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        /* Video Review & Upload Phase */
+        <div className="panel-ramp p-8 space-y-6 shadow-ramp-card">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              <h3 className="font-semibold text-slate-900 text-base">Pursuit Recording &amp; Trajectory Synchronized</h3>
+              <Crosshair className="w-4 h-4 text-[#0F172A]" />
+              <h2 className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold">
+                Review Recorded Pursuit Sequence
+              </h2>
             </div>
             {isFallbackMode && (
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
+              <span className="px-2 py-0.5 text-[10px] font-semibold font-mono rounded bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]">
                 Fallback Benchmark Sample
               </span>
             )}
@@ -210,9 +215,9 @@ export const PursuitTestPage: React.FC = () => {
             />
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Video preview */}
-            <div className="bg-slate-950 rounded-xl overflow-hidden aspect-video border border-slate-800">
+            <div className="bg-[#0F1117] overflow-hidden aspect-video border border-[#27282D] rounded-lg shadow-sm">
               <video
                 src={recordedVideo.previewUrl}
                 controls
@@ -221,76 +226,76 @@ export const PursuitTestPage: React.FC = () => {
             </div>
 
             {/* Trajectory & recording metadata summary */}
-            <div className="space-y-4">
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-xs font-mono">
+            <div className="space-y-4 font-mono text-xs">
+              <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg p-4 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Video Duration:</span>
-                  <span className="font-semibold text-slate-900">{(recordedVideo.durationMs / 1000).toFixed(2)}s</span>
+                  <span className="text-[#64748B]">Video Duration:</span>
+                  <span className="font-semibold text-[#0F172A]">{(recordedVideo.durationMs / 1000).toFixed(2)}s</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Target Points Logged:</span>
-                  <span className="font-semibold text-sky-800">
-                    {trajectoryMetadata ? `${trajectoryMetadata.coordinates_normalized.length} coordinates` : 'Standard trajectory'}
+                  <span className="text-[#64748B]">Target Coordinates:</span>
+                  <span className="font-semibold text-[#0F172A]">
+                    {trajectoryMetadata ? `${trajectoryMetadata.coordinates_normalized.length} logged` : 'Standard sweep'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">MIME Container:</span>
-                  <span className="font-semibold text-slate-900">{recordedVideo.mimeType}</span>
+                  <span className="text-[#64748B]">Container:</span>
+                  <span className="font-semibold text-[#0F172A]">{recordedVideo.mimeType}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Target Path Version:</span>
-                  <span className="font-semibold text-slate-900">{PURSUIT_PATH_VERSION}</span>
+                  <span className="text-[#64748B]">Path Version:</span>
+                  <span className="font-semibold text-[#0F172A]">{PURSUIT_PATH_VERSION}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Protocol:</span>
-                  <span className="font-semibold text-slate-900">{PROTOCOL_VERSION}</span>
+                  <span className="text-[#64748B]">Protocol:</span>
+                  <span className="font-semibold text-[#0F172A]">{PROTOCOL_VERSION}</span>
                 </div>
               </div>
 
-              {/* Basic Capture Quality Feedback */}
+              {/* Quality Feedback */}
               {qualityFeedback && (
                 <div
-                  className={`p-3.5 rounded-xl border text-xs space-y-2 ${
+                  className={`p-3.5 rounded-lg border text-xs space-y-1.5 ${
                     qualityFeedback.isAcceptable
-                      ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
-                      : 'bg-rose-50 border-rose-200 text-rose-900'
+                      ? 'bg-[#F0FDF4] border-[#BBF7D0] text-[#0F172A]'
+                      : 'bg-[#FEF2F2] border-[#FECACA] text-[#0F172A]'
                   }`}
                 >
                   <div className="flex items-center justify-between font-semibold">
                     <span className="flex items-center gap-1.5">
                       {qualityFeedback.isAcceptable ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <CheckCircle2 className="w-4 h-4 text-[#0F766E]" />
                       ) : (
-                        <RotateCcw className="w-4 h-4 text-rose-600" />
+                        <ShieldAlert className="w-4 h-4 text-[#B91C1C]" />
                       )}
                       Capture Quality Assessment:
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                      className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                         qualityFeedback.isAcceptable
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
+                          ? 'bg-white text-[#0F766E] border border-[#BBF7D0]'
+                          : 'bg-white text-[#B91C1C] border border-[#FECACA]'
                       }`}
                     >
                       {qualityFeedback.reviewMessage}
                     </span>
                   </div>
                   {qualityFeedback.warnings.length > 0 && (
-                    <ul className="list-disc list-inside space-y-0.5 text-[11px] opacity-90">
+                    <ul className="list-disc list-inside space-y-0.5 text-[11px] text-[#475569] font-sans">
                       {qualityFeedback.warnings.map((w, idx) => (
                         <li key={idx}>{w}</li>
                       ))}
                     </ul>
                   )}
                   {!qualityFeedback.isAcceptable && (
-                    <p className="text-[11px] font-medium text-rose-700">
+                    <p className="text-[11px] font-semibold text-[#B91C1C]">
                       Quality check failed. Please discard and retake before sending for analysis.
                     </p>
                   )}
                 </div>
               )}
 
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs text-[#475569] leading-relaxed font-sans">
                 Both test recordings are now ready. Clicking <strong>Upload &amp; Trigger Analysis</strong> will transmit the video files and trajectory coordinates to the backend to begin computer vision extraction.
               </p>
 
@@ -298,34 +303,35 @@ export const PursuitTestPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    soundFx.playClick();
                     recorder.discardRecording();
                     setIsFallbackMode(false);
                     setTrajectoryMetadata(null);
                     setUploadError(null);
                   }}
                   disabled={isUploading}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                  className="btn-ramp-secondary py-2 px-3.5 text-xs"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  Discard &amp; Retake
+                  <span>Discard &amp; Retake</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleUploadAndAnalyze}
                   disabled={isUploading}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-colors ml-auto disabled:opacity-50"
+                  className="btn-ramp-primary py-2 px-4 ml-auto text-xs shadow-sm"
                 >
                   {isUploading ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Uploading &amp; Analyzing...
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Uploading &amp; Analyzing...</span>
                     </>
                   ) : (
                     <>
-                      <UploadCloud className="w-4 h-4" />
-                      Upload &amp; Trigger Analysis
-                      <ArrowRight className="w-4 h-4" />
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>Upload &amp; Trigger Analysis</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
                 </button>
@@ -336,49 +342,53 @@ export const PursuitTestPage: React.FC = () => {
       ) : (
         /* Capture Arena */
         <div className="space-y-6">
-          {/* Target Arena (displays when recording is active or previewing) */}
-          <SmoothPursuitTarget
-            isActive={isTargetActive}
-            onComplete={handleTargetComplete}
-          />
+          {/* Target Arena */}
+          <div className="rounded-xl overflow-hidden shadow-ramp-card">
+            <SmoothPursuitTarget
+              isActive={isTargetActive}
+              onComplete={handleTargetComplete}
+            />
+          </div>
 
           {/* Picture-in-Picture or camera preview below target */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-            <div>
-              <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div className="space-y-2">
+              <h4 className="text-xs font-mono uppercase tracking-wider text-[#64748B] font-semibold">
                 Participant Camera Preview
               </h4>
-              <CameraPreview
-                videoRef={camera.videoRef}
-                isCameraActive={camera.isCameraActive}
-                isLoading={camera.isLoading}
-                error={camera.error}
-                observedSettings={camera.observedSettings}
-                onStartCamera={camera.startCamera}
-                onStopCamera={camera.stopCamera}
-                isRecording={recorder.isRecording}
-                showOverlay={false}
-              />
+              <div className="rounded-xl overflow-hidden shadow-sm">
+                <CameraPreview
+                  videoRef={camera.videoRef}
+                  isCameraActive={camera.isCameraActive}
+                  isLoading={camera.isLoading}
+                  error={camera.error}
+                  observedSettings={camera.observedSettings}
+                  onStartCamera={camera.startCamera}
+                  onStopCamera={camera.stopCamera}
+                  isRecording={recorder.isRecording}
+                  showOverlay={false}
+                />
+              </div>
             </div>
 
-            <div className="space-y-4">
-              <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+            <div className="space-y-3">
+              <h4 className="text-xs font-mono uppercase tracking-wider text-[#64748B] font-semibold">
                 Session Controls
               </h4>
 
-              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
-                <div className="text-xs text-slate-600 leading-relaxed">
+              <div className="panel-ramp p-6 space-y-4">
+                <div className="text-xs text-[#475569] leading-relaxed font-sans">
                   Clicking <strong>Start Pursuit Recording</strong> will initialize camera capture and synchronize the 10-second target sweep.
                 </div>
 
                 {recorder.isRecording ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-rose-600 font-semibold flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                  <div className="space-y-3 font-mono">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#B91C1C] font-semibold flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#B91C1C] animate-pulse" />
                         SYNCHRONIZED RECORDING
                       </span>
-                      <span className="text-slate-800 font-bold">
+                      <span className="text-[#0F172A] font-semibold">
                         {(recorder.elapsedMs / 1000).toFixed(1)}s / {TARGET_DURATION_S}.0s
                       </span>
                     </div>
@@ -386,28 +396,28 @@ export const PursuitTestPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleStopRecording}
-                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition-colors"
+                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-xs font-medium text-white bg-[#B91C1C] hover:bg-[#991B1B] transition-colors shadow-sm"
                     >
-                      <Square className="w-4 h-4 fill-current" />
-                      Stop Pursuit Recording
+                      <Square className="w-3.5 h-3.5 fill-current" />
+                      <span>Stop Pursuit Recording</span>
                     </button>
                   </div>
                 ) : (
                   <button
                     type="button"
                     onClick={handleStartCountdown}
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-colors"
+                    className="btn-ramp-primary w-full justify-center text-xs py-2.5 shadow-sm"
                   >
-                    <Play className="w-4 h-4 fill-current" />
-                    Start Pursuit Recording (10s)
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>Start Pursuit Recording (10s)</span>
                   </button>
                 )}
               </div>
 
               {countdown !== null && (
-                <div className="p-4 bg-slate-900 text-white rounded-xl text-center space-y-1">
-                  <span className="text-3xl font-extrabold text-cyan-400">{countdown}</span>
-                  <p className="text-xs text-slate-300">Synchronizing target sweep...</p>
+                <div className="p-5 panel-ramp text-center space-y-1 font-mono shadow-sm">
+                  <span className="text-4xl font-sans font-bold text-[#0F172A]">{countdown}</span>
+                  <p className="text-xs text-[#64748B]">Synchronizing target sweep...</p>
                 </div>
               )}
             </div>
