@@ -44,8 +44,10 @@ export const AppLayout: React.FC = () => {
                 Clinical Navigation
               </span>
               <ul className="space-y-2 text-[#475569]">
+                <li><Link to="/clinic-overview" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Clinic Overview <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
                 <li><Link to="/console" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Clinical Console <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
                 <li><Link to="/patients" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Cohort Registry <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
+                <li><Link to="/login" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Staff Portal <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
                 <li><Link to="/assessments/new" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Initiate Screening <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
                 <li><Link to="/about" className="hover:text-[#0F172A] transition-colors flex items-center gap-1">Protocol Methodology <ArrowUpRight className="w-3 h-3 opacity-50" /></Link></li>
               </ul>

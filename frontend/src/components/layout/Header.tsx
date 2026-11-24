@@ -8,10 +8,15 @@ import {
   ArrowRight,
   RefreshCw,
   Command,
+  BookOpen,
+  User,
 } from 'lucide-react';
 import { checkBackendHealth } from '../../services/healthService';
 import { APP_NAME, PROTOCOL_VERSION } from '../../lib/constants';
 import { soundFx } from '../../lib/soundFx';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { useHelpDrawer } from '../../context/HelpDrawerContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface MegaMenuSection {
   title: string;
@@ -26,6 +31,8 @@ export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
+  const { openDrawer } = useHelpDrawer();
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     let isMounted = true;
@@ -269,11 +276,48 @@ export const Header: React.FC = () => {
               >
                 COHORTS
               </NavLink>
+
+              <NavLink
+                to="/clinic-overview"
+                onClick={() => soundFx.playClick()}
+                className={({ isActive }) => `py-5 transition-colors ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
+              >
+                OVERVIEW
+              </NavLink>
             </nav>
           </div>
 
-          {/* Right: Search, API Status & CTA */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          {/* Right: Search, Language, Guide, Auth, API Status & CTA */}
+          <div className="flex items-center gap-2 sm:gap-3">
+
+            {/* Language Switcher */}
+            <LanguageSwitcher className="hidden lg:inline-flex" />
+
+            {/* Protocol Help Guide Trigger (Non-LLM Assistant) */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                openDrawer();
+              }}
+              title="Open Clinical Protocol Guide (Shift+?)"
+              aria-label="Open Clinical Protocol Guide"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs font-mono"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#0F766E]" />
+              <span className="hidden sm:inline text-xs font-medium">Guide</span>
+              <kbd className="hidden md:inline-flex items-center px-1 text-[9px] bg-[#F1F5F9] border border-[#E2E8F0] rounded text-[#64748B]">?</kbd>
+            </button>
+
+            {/* Staff Authentication Portal */}
+            <Link
+              to="/login"
+              onClick={() => soundFx.playClick()}
+              title={isAuthenticated && user ? `Logged in as ${user.name}` : 'Staff Portal Login'}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs font-medium text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs"
+            >
+              <User className="w-3.5 h-3.5 text-[#64748B]" />
+              <span className="hidden sm:inline">{isAuthenticated && user ? user.name.split(' ')[0] : 'Staff'}</span>
+            </Link>
 
             {/* Quick Command Search Trigger */}
             <button
@@ -282,11 +326,11 @@ export const Header: React.FC = () => {
                 setSearchOpen(true);
               }}
               aria-label="Search patient records"
-              className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-sm"
+              className="hidden xl:flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs text-[#475569] hover:text-[#0F172A] transition-colors bg-white shadow-xs"
             >
               <Search className="w-3.5 h-3.5 text-[#64748B]" />
               <span className="font-sans text-xs">Search</span>
-              <kbd className="hidden md:inline-flex items-center gap-0.5 px-1 py-0.2 text-[10px] font-mono text-[#64748B] bg-[#F1F5F9] border border-[#E2E8F0] rounded">
+              <kbd className="hidden 2xl:inline-flex items-center gap-0.5 px-1 py-0.2 text-[10px] font-mono text-[#64748B] bg-[#F1F5F9] border border-[#E2E8F0] rounded">
                 <Command className="w-2.5 h-2.5" /> K
               </kbd>
             </button>
@@ -530,6 +574,20 @@ export const Header: React.FC = () => {
               Cohort Registry
             </Link>
             <Link
+              to="/clinic-overview"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-[#0F172A] hover:text-[#475569]"
+            >
+              Clinic Overview &amp; Tracker
+            </Link>
+            <Link
+              to="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-[#0F172A] hover:text-[#475569]"
+            >
+              Hospital Staff Portal
+            </Link>
+            <Link
               to="/assessments/new"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-[#0F172A] hover:text-[#475569]"
@@ -545,7 +603,20 @@ export const Header: React.FC = () => {
             </Link>
           </div>
 
-          <div className="pt-3 border-t border-[#E2E8F0] space-y-2">
+          <div className="pt-3 border-t border-[#E2E8F0] space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <LanguageSwitcher />
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  openDrawer();
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#0F766E] font-medium border border-[#E2E8F0] rounded-md bg-white"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Protocol Guide</span>
+              </button>
+            </div>
             <Link
               to="/assessments/new"
               onClick={() => setMobileMenuOpen(false)}

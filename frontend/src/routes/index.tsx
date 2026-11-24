@@ -1,4 +1,6 @@
 import React from 'react';
+import { LoginPage } from '../pages/LoginPage';
+import { ClinicOverviewPage } from '../pages/ClinicOverviewPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { PatientsPage } from '../pages/PatientsPage';
 import { PatientDetailPage } from '../pages/PatientDetailPage';
@@ -17,6 +19,9 @@ export interface AppRoute {
 }
 
 export const CONSOLE_ROUTES: AppRoute[] = [
+  { path: '/login', element: <LoginPage /> },
+  { path: '/clinic-overview', element: <ClinicOverviewPage /> },
+  { path: '/overview', element: <ClinicOverviewPage /> },
   { path: '/console', element: <DashboardPage /> },
   { path: '/dashboard', element: <DashboardPage /> },
   { path: '/patients', element: <PatientsPage /> },
