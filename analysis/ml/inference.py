@@ -7,11 +7,9 @@ to adityaImplementation.md Section 5 schema.
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import numpy as np
-import torch
 
 from analysis.contracts import ModelStatus, to_json_serializable
 from analysis.ml.preprocessing import PreprocessingConfig, TimeSeriesPreprocessor
-from analysis.ml.tcn import TemporalConvNet
 
 
 class TemporalModelRunner:
@@ -36,9 +34,12 @@ class TemporalModelRunner:
         self.is_experimental = is_experimental
         self.preprocessor = TimeSeriesPreprocessor()
 
-        self.model: Optional[TemporalConvNet] = None
+        self.model: Optional[Any] = None
         if self.weights_path and self.weights_path.exists():
             try:
+                import torch
+                from analysis.ml.tcn import TemporalConvNet
+
                 self.model = TemporalConvNet(
                     num_inputs=num_inputs,
                     num_channels=num_channels or [16, 32, 64],
@@ -71,6 +72,8 @@ class TemporalModelRunner:
 
         # 2. Experimental inference path
         try:
+            import torch
+
             # Prepare pupil sequence by default
             if pupil_series and len(pupil_series) >= 5:
                 seq_arr, _ = self.preprocessor.prepare_pupil_sequence(pupil_series)

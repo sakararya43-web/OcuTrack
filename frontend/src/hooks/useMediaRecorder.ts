@@ -12,6 +12,8 @@ export interface RecordedVideo {
 export interface UseMediaRecorderOptions {
   maxDurationSeconds?: number;
   maxSizeBytes?: number;
+  /** Target video encoding bitrate in bps (750 kbps default keeps uploads ~1-2 MB on rural clinics). */
+  videoBitsPerSecond?: number;
   onRecordingComplete?: (recorded: RecordedVideo) => void;
   onAutoStop?: () => void;
 }
@@ -52,7 +54,8 @@ export function getBestSupportedMimeType(): string | null {
 export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMediaRecorderReturn {
   const {
     maxDurationSeconds = 15,
-    maxSizeBytes = 100 * 1024 * 1024, // 100 MB
+    maxSizeBytes = 50 * 1024 * 1024, // 50 MB (matches backend limit)
+    videoBitsPerSecond = 750_000,
     onRecordingComplete,
     onAutoStop,
   } = options;
@@ -76,25 +79,29 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
     }
   }, []);
 
-  const discardRecording = useCallback(() => {
-    if (recordedVideo?.previewUrl) {
-      URL.revokeObjectURL(recordedVideo.previewUrl);
+  const safeRevokeUrl = useCallback((url?: string) => {
+    if (url && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+      URL.revokeObjectURL(url);
     }
+  }, []);
+
+  const discardRecording = useCallback(() => {
+    safeRevokeUrl(recordedVideo?.previewUrl);
     setRecordedVideo(null);
     setElapsedMs(0);
     setError(null);
-  }, [recordedVideo]);
+  }, [recordedVideo, safeRevokeUrl]);
 
   const setExternalRecording = useCallback(
     (video: RecordedVideo) => {
       if (recordedVideo?.previewUrl && recordedVideo.previewUrl !== video.previewUrl) {
-        URL.revokeObjectURL(recordedVideo.previewUrl);
+        safeRevokeUrl(recordedVideo.previewUrl);
       }
       setRecordedVideo(video);
       setElapsedMs(video.durationMs);
       setError(null);
     },
-    [recordedVideo]
+    [recordedVideo, safeRevokeUrl]
   );
 
   const stopRecording = useCallback(() => {
@@ -133,17 +140,24 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
       if (bestMime) {
         recorderOptions.mimeType = bestMime;
       }
+      if (videoBitsPerSecond > 0) {
+        recorderOptions.videoBitsPerSecond = videoBitsPerSecond;
+      }
 
       let recorder: MediaRecorder;
       try {
         recorder = new MediaRecorder(stream, recorderOptions);
       } catch (err: unknown) {
-        // Fallback without mimeType option
+        // Fallback without bitrate or mimeType options for older browsers/devices
         try {
-          recorder = new MediaRecorder(stream);
+          recorder = bestMime ? new MediaRecorder(stream, { mimeType: bestMime }) : new MediaRecorder(stream);
         } catch (innerErr: unknown) {
-          setError(innerErr instanceof Error ? innerErr.message : 'Failed to instantiate MediaRecorder.');
-          return false;
+          try {
+            recorder = new MediaRecorder(stream);
+          } catch (finalErr: unknown) {
+            setError(finalErr instanceof Error ? finalErr.message : 'Failed to instantiate MediaRecorder.');
+            return false;
+          }
         }
       }
 
@@ -214,17 +228,15 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
 
       return true;
     },
-    [discardRecording, maxDurationSeconds, maxSizeBytes, onRecordingComplete, onAutoStop, cleanupTimer, stopRecording]
+    [discardRecording, maxDurationSeconds, maxSizeBytes, videoBitsPerSecond, onRecordingComplete, onAutoStop, cleanupTimer, stopRecording]
   );
 
   useEffect(() => {
     return () => {
       cleanupTimer();
-      if (recordedVideo?.previewUrl) {
-        URL.revokeObjectURL(recordedVideo.previewUrl);
-      }
+      safeRevokeUrl(recordedVideo?.previewUrl);
     };
-  }, [cleanupTimer, recordedVideo]);
+  }, [cleanupTimer, recordedVideo, safeRevokeUrl]);
 
   return {
     isRecording,

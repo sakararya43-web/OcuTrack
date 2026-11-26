@@ -4,7 +4,7 @@ Handles missing, corrupt, truncated, unsupported, or low-frame-rate videos deter
 """
 
 from pathlib import Path
-from typing import Iterator, Optional, Tuple
+from typing import Iterator, List, Optional, Tuple
 import cv2
 import numpy as np
 
@@ -80,6 +80,8 @@ class VideoReader:
         self.config = config
         self._cap: Optional[cv2.VideoCapture] = None
         self._metadata: Optional[VideoMetadata] = None
+        self._prefetched_frames: List[Tuple[bool, Optional[np.ndarray], float]] = []
+        self._frames_consumed: bool = False
 
         is_valid, err_msg, self.file_size_bytes = validate_video_file(self.path, self.config)
         if not is_valid:
@@ -107,6 +109,8 @@ class VideoReader:
         if self._cap is not None:
             self._cap.release()
             self._cap = None
+        self._prefetched_frames.clear()
+        self._frames_consumed = False
 
     def probe_metadata(self) -> VideoMetadata:
         """Probes video stream properties including frame count, FPS, and dimensions."""
@@ -122,21 +126,27 @@ class VideoReader:
         height = int(self._cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fourcc = fourcc_to_string(self._cap.get(cv2.CAP_PROP_FOURCC))
 
-        # Handle zero or invalid FPS
-        fps = raw_fps if raw_fps > 0.0 else 0.0
-        frame_count = max(0, raw_frame_count)
+        # Handle zero, negative, or WebM 1ms-timebase bogus FPS (e.g., 1000.0)
+        fps = raw_fps if (0.0 < raw_fps <= 240.0) else 0.0
+        frame_count = max(0, raw_frame_count) if raw_frame_count < 1_000_000_000 else 0
 
-        # Check timestamp capability on the first frame
-        timestamp_source = "hardware"
-        ret, _ = self._cap.read()
-        if ret:
-            msec = self._cap.get(cv2.CAP_PROP_POS_MSEC)
-            if msec <= 0.0:
-                timestamp_source = "estimated"
-            # Rewind back to beginning
-            self._cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        else:
-            timestamp_source = "estimated"
+        # Check timestamp capability across the first two frames (frame 0 is often 0.0ms).
+        # Buffer these frames in memory so read_frames() never has to seek back to frame 0,
+        # which breaks unindexed browser MediaRecorder WebM streams in OpenCV/FFmpeg.
+        timestamp_source = "estimated"
+        self._prefetched_frames.clear()
+        ret1, frame1 = self._cap.read()
+        if ret1:
+            msec1 = float(self._cap.get(cv2.CAP_PROP_POS_MSEC) or 0.0)
+            self._prefetched_frames.append((ret1, frame1, msec1))
+            ret2, frame2 = self._cap.read()
+            if ret2:
+                msec2 = float(self._cap.get(cv2.CAP_PROP_POS_MSEC) or 0.0)
+                self._prefetched_frames.append((ret2, frame2, msec2))
+                if msec2 > msec1 and msec2 > 0.0:
+                    timestamp_source = "hardware"
+            elif msec1 > 0.0:
+                timestamp_source = "hardware"
 
         # Calculate estimated duration
         duration_seconds = (frame_count / fps) if (fps > 0 and frame_count > 0) else 0.0
@@ -159,25 +169,49 @@ class VideoReader:
 
         Yields SampledFrame with index, timestamp in ms, validity status, and optional reason.
         """
-        self.open()
-        assert self._cap is not None
-
         meta = self.probe_metadata()
+
+        if self._frames_consumed:
+            # Reopen cleanly rather than seeking (unindexed WebM lacks Cues)
+            if self._cap is not None:
+                self._cap.release()
+                self._cap = None
+            self._prefetched_frames.clear()
+            self.open()
+        else:
+            self.open()
+
+        assert self._cap is not None
+        self._frames_consumed = True
+
         fps = meta.fps if meta.fps > 0 else self.config.target_fps
         frame_time_step_ms = 1000.0 / fps
 
         frame_idx = 0
+        last_timestamp_ms = -1.0
+        prefetched = list(self._prefetched_frames)
+        self._prefetched_frames.clear()
+
         while frame_idx < self.config.max_frames:
-            ret, frame = self._cap.read()
+            if frame_idx < len(prefetched):
+                ret, frame, pos_msec = prefetched[frame_idx]
+            else:
+                ret, frame = self._cap.read()
+                if not ret:
+                    break
+                pos_msec = float(self._cap.get(cv2.CAP_PROP_POS_MSEC) or 0.0)
+
             if not ret:
                 break
 
             # Extract hardware pos_msec or fall back to frame_idx * dt
-            pos_msec = self._cap.get(cv2.CAP_PROP_POS_MSEC)
-            if pos_msec > 0.0 and meta.timestamp_source == "hardware":
+            if pos_msec > 0.0 and (meta.timestamp_source == "hardware" or meta.fps <= 0.0) and pos_msec > last_timestamp_ms:
                 timestamp_ms = float(pos_msec)
             else:
                 timestamp_ms = float(frame_idx * frame_time_step_ms)
+                if timestamp_ms <= last_timestamp_ms:
+                    timestamp_ms = last_timestamp_ms + frame_time_step_ms
+            last_timestamp_ms = timestamp_ms
 
             if frame is None or frame.size == 0:
                 yield SampledFrame(

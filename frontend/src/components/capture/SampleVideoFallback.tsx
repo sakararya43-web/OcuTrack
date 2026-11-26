@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Film, Upload } from 'lucide-react';
-import { RecordedVideo } from '../../hooks/useMediaRecorder';
+import { RecordedVideo, getBestSupportedMimeType } from '../../hooks/useMediaRecorder';
 import { soundFx } from '../../lib/soundFx';
 import { useTranslation } from '../../i18n';
 
@@ -38,7 +38,13 @@ export const SampleVideoFallback: React.FC<SampleVideoFallbackProps> = ({
       }
 
       const stream = canvas.captureStream(30);
-      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      const bestMime = getBestSupportedMimeType();
+      let recorder: MediaRecorder;
+      try {
+        recorder = bestMime ? new MediaRecorder(stream, { mimeType: bestMime }) : new MediaRecorder(stream);
+      } catch {
+        recorder = new MediaRecorder(stream);
+      }
       const chunks: Blob[] = [];
 
       recorder.ondataavailable = (e) => {
@@ -129,13 +135,14 @@ export const SampleVideoFallback: React.FC<SampleVideoFallbackProps> = ({
       }, 33);
 
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
+        const finalMime = recorder.mimeType || bestMime || 'video/webm';
+        const blob = new Blob(chunks, { type: finalMime });
         const previewUrl = URL.createObjectURL(blob);
         const recorded: RecordedVideo = {
           blob,
           previewUrl,
           durationMs,
-          mimeType: 'video/webm',
+          mimeType: finalMime,
           recordedAt: new Date().toISOString(),
           sizeBytes: blob.size,
         };

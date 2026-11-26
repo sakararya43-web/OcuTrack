@@ -10,7 +10,8 @@ import numpy as np
 from analysis.contracts import EyeSide, FaceLocalizationResult
 
 MIN_EYE_OPEN_RATIO = 0.15
-MIN_CROP_DIMENSION = 16
+MIN_CROP_DIMENSION = 10
+TARGET_MIN_CROP_DIMENSION = 16
 
 
 class EyeRegionExtractor:
@@ -83,6 +84,20 @@ class EyeRegionExtractor:
 
         if cw < MIN_CROP_DIMENSION or ch < MIN_CROP_DIMENSION:
             return None, (x1, y1, cw, ch), False, "eye_crop_too_small"
+
+        # Pad small crops from QVGA/low-res rural webcams symmetrically up to TARGET_MIN_CROP_DIMENSION
+        if cw < TARGET_MIN_CROP_DIMENSION and frame_w >= TARGET_MIN_CROP_DIMENSION:
+            pad = (TARGET_MIN_CROP_DIMENSION - cw + 1) // 2
+            x1 = max(0, x1 - pad)
+            x2 = min(frame_w, x1 + TARGET_MIN_CROP_DIMENSION)
+            x1 = max(0, x2 - TARGET_MIN_CROP_DIMENSION)
+            cw = x2 - x1
+        if ch < TARGET_MIN_CROP_DIMENSION and frame_h >= TARGET_MIN_CROP_DIMENSION:
+            pad = (TARGET_MIN_CROP_DIMENSION - ch + 1) // 2
+            y1 = max(0, y1 - pad)
+            y2 = min(frame_h, y1 + TARGET_MIN_CROP_DIMENSION)
+            y1 = max(0, y2 - TARGET_MIN_CROP_DIMENSION)
+            ch = y2 - y1
 
         crop = frame[y1:y2, x1:x2].copy()
 

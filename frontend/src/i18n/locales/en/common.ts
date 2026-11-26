@@ -89,7 +89,7 @@ export const enCommon = {
         col2Items: [
           { label: 'The 11.7 mm Iris Standard', href: '/about#iris-standard', desc: 'Anatomical biological ruler translating raw pixel measurements into true millimeters.' },
           { label: 'MediaPipe Landmark Geometry', href: '/about#landmarks', desc: '478 virtual topological facial coordinates with sub-pixel iris boundary mapping.' },
-          { label: 'Pre-flight Video Bouncer', href: '/about#quality', desc: 'Client-side verification of exposure, framerate stability (≥25 FPS), and duration.' },
+          { label: 'Pre-flight Video Bouncer', href: '/about#quality', desc: 'Rural-clinic adaptive check for resolution (≥320×240), framerate (≥8 FPS), and duration.' },
         ],
         featured: {
           tag: 'Investigational Monograph',
@@ -235,7 +235,7 @@ export const enCommon = {
     calibrationLabel: 'Calibration:',
     calibrationVal: '11.7 mm iris standard',
     frameFloorLabel: 'Frame Floor:',
-    frameFloorVal: '≥ 25 FPS validation',
+    frameFloorVal: '≥ 8 FPS adaptive',
     regulatoryScopeNotice: 'Regulatory Scope Notice',
     governanceLegal: 'Governance & Legal',
     governanceDesc:

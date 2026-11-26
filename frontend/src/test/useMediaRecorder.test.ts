@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getBestSupportedMimeType } from '../hooks/useMediaRecorder';
+import { renderHook, act } from '@testing-library/react';
+import { getBestSupportedMimeType, useMediaRecorder } from '../hooks/useMediaRecorder';
 import {
   calculateTargetPosition,
   generateFullTrajectory,
@@ -45,5 +46,24 @@ describe('useMediaRecorder & Pursuit Trajectory', () => {
 
     const lastPoint = trajectory.coordinates_normalized[trajectory.coordinates_normalized.length - 1];
     expect(lastPoint.t_ms).toBe(PURSUIT_DURATION_MS);
+  });
+
+  it('persists external fallback recordings in React state via setExternalRecording', () => {
+    const { result } = renderHook(() => useMediaRecorder());
+    const sample = {
+      blob: new Blob(['demo'], { type: 'video/webm' }),
+      previewUrl: 'blob:http://localhost/demo',
+      durationMs: 5000,
+      mimeType: 'video/webm',
+      recordedAt: new Date().toISOString(),
+      sizeBytes: 4,
+    };
+
+    act(() => {
+      result.current.setExternalRecording(sample);
+    });
+
+    expect(result.current.recordedVideo).toEqual(sample);
+    expect(result.current.elapsedMs).toBe(5000);
   });
 });

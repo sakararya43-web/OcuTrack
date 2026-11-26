@@ -221,3 +221,23 @@ def test_reupload_cleans_up_previous_file(client: TestClient, db_session: Sessio
 
     # Clean up second file after test
     Path(second_path).unlink(missing_ok=True)
+
+
+def test_upload_accepts_mime_type_with_codec_parameters(
+    client: TestClient,
+    db_session: Session,
+    consented_patient_id: str,
+):
+    create_res = client.post("/api/assessments", json={"patient_id": consented_patient_id})
+    assessment_id = create_res.json()["assessment_id"]
+
+    video_bytes = generate_test_video_bytes(duration_sec=1.0)
+    files = {"file": ("pupil_recording.webm", io.BytesIO(video_bytes), "video/webm;codecs=vp9")}
+
+    response = client.post(f"/api/assessments/{assessment_id}/pupil-video", files=files)
+    assert response.status_code == 200
+    assert response.json()["pupil"]["status"] == "complete"
+
+    asm = db_session.query(AssessmentModel).filter_by(id=assessment_id).first()
+    if asm and asm.pupil_video_path:
+        Path(asm.pupil_video_path).unlink(missing_ok=True)

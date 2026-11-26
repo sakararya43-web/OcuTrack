@@ -38,6 +38,8 @@ class PupilTracker:
         self.max_size_change_ratio = max_size_change_ratio
 
         self._last_valid: Optional[PupilMeasurement] = None
+        self._recent_valid_diams: List[float] = []
+        self._consecutive_temporal_rejects: int = 0
         self._history: List[PupilMeasurement] = []
 
     @property
@@ -47,6 +49,8 @@ class PupilTracker:
     def reset(self) -> None:
         """Resets tracker state between independent recordings."""
         self._last_valid = None
+        self._recent_valid_diams.clear()
+        self._consecutive_temporal_rejects = 0
         self._history.clear()
 
     def process_frame(
@@ -101,8 +105,28 @@ class PupilTracker:
             self._history.append(m)
             return m, face_res, bbox
 
-        # 3. Segment pupil boundary
-        crop_cx, crop_cy, diameter, conf, is_valid_seg, seg_err = self.segmenter.segment(crop)
+        # 3. Segment pupil boundary with temporal & anatomical iris priors
+        expected_diam: Optional[float] = None
+        if self._recent_valid_diams:
+            sorted_d = sorted(self._recent_valid_diams)
+            expected_diam = sorted_d[len(sorted_d) // 2]
+
+        iris_diam_px = (
+            face_res.right_iris_diameter_px
+            if eye_side == EyeSide.RIGHT.value
+            else face_res.left_iris_diameter_px
+        )
+        max_diam_override = (
+            iris_diam_px * 0.78
+            if iris_diam_px is not None and iris_diam_px > 6.0 and face_res.detector_backend == "mediapipe"
+            else None
+        )
+
+        crop_cx, crop_cy, diameter, conf, is_valid_seg, seg_err = self.segmenter.segment(
+            crop,
+            expected_diameter=expected_diam,
+            max_diameter_override=max_diam_override,
+        )
         if not is_valid_seg or crop_cx is None or crop_cy is None or diameter is None:
             m = PupilMeasurement(
                 frame_index=frame_index,
@@ -118,21 +142,36 @@ class PupilTracker:
         # 4. Map coordinates from crop to full-frame space
         frame_cx, frame_cy = EyeRegionExtractor.crop_to_frame_coordinates(crop_cx, crop_cy, bbox)
 
-        # 5. Temporal continuity check
+        # 5. Temporal continuity check (compare against running median to prevent single-frame lock-in)
         is_temporally_valid = True
         temp_err = None
 
         if self._last_valid is not None and self._last_valid.center_x is not None:
+            dt_ms = max(1.0, timestamp_ms - float(self._last_valid.t_ms))
+            dt_scale = max(1.0, min(2.5, dt_ms / 40.0))
+            scaled_max_jump = self.max_spatial_jump_px * max(1.0, frame.shape[1] / 640.0) * dt_scale
             dist = math.hypot(frame_cx - self._last_valid.center_x, frame_cy - self._last_valid.center_y)
-            if dist > self.max_spatial_jump_px:
+            if dist > scaled_max_jump:
                 is_temporally_valid = False
                 temp_err = f"spatial_jump_exceeded_{dist:.1f}px"
 
-            if self._last_valid.diameter is not None and self._last_valid.diameter > 0:
-                size_delta_ratio = abs(diameter - self._last_valid.diameter) / self._last_valid.diameter
+            ref_diam = expected_diam if expected_diam is not None else self._last_valid.diameter
+            if ref_diam is not None and ref_diam > 0:
+                size_delta_ratio = abs(diameter - ref_diam) / ref_diam
                 if size_delta_ratio > self.max_size_change_ratio:
                     is_temporally_valid = False
                     temp_err = f"diameter_change_implausible_{size_delta_ratio * 100:.1f}%"
+
+        if not is_temporally_valid:
+            self._consecutive_temporal_rejects += 1
+            # Recover if tracker latched onto a bad initial frame and 3+ consecutive frames disagree
+            if self._consecutive_temporal_rejects >= 3:
+                is_temporally_valid = True
+                temp_err = None
+                self._recent_valid_diams.clear()
+                self._consecutive_temporal_rejects = 0
+        else:
+            self._consecutive_temporal_rejects = 0
 
         measurement = PupilMeasurement(
             frame_index=frame_index,
@@ -150,6 +189,9 @@ class PupilTracker:
 
         if is_temporally_valid:
             self._last_valid = measurement
+            self._recent_valid_diams.append(diameter)
+            if len(self._recent_valid_diams) > 7:
+                self._recent_valid_diams.pop(0)
 
         self._history.append(measurement)
         return measurement, face_res, bbox
@@ -176,6 +218,33 @@ class PupilTracker:
             else:
                 m, _, _ = self.process_frame(sf.frame, sf.frame_index, sf.timestamp_ms)
                 results.append(m)
+
+        # Post-sequence outlier spike rejection:
+        # Reject isolated frames whose diameter jumps >35% away from surrounding valid neighbors.
+        valid_indices = [i for i, m in enumerate(results) if m.valid and m.diameter is not None]
+        if len(valid_indices) >= 5:
+            spike_indices: List[int] = []
+            for pos, idx in enumerate(valid_indices):
+                lo = max(0, pos - 3)
+                hi = min(len(valid_indices), pos + 4)
+                neighbor_diams = [
+                    results[valid_indices[p]].diameter
+                    for p in range(lo, hi)
+                    if p != pos and results[valid_indices[p]].diameter is not None
+                ]
+                if len(neighbor_diams) >= 2:
+                    neighbor_diams.sort()
+                    local_med = neighbor_diams[len(neighbor_diams) // 2]
+                    cur_diam = results[idx].diameter
+                    if local_med > 0 and cur_diam is not None:
+                        if abs(cur_diam - local_med) / local_med > 0.35:
+                            spike_indices.append(idx)
+
+            for idx in spike_indices:
+                bad = results[idx]
+                bad.valid = False
+                bad.error_reason = f"isolated_diameter_spike_{bad.diameter:.1f}px"
+                bad.confidence = (bad.confidence or 0.0) * 0.5
 
         return results
 

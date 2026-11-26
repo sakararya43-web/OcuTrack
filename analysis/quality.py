@@ -87,6 +87,13 @@ def assess_video_quality(
     # 5. Evaluate engineering bounds and assemble warnings
     critical_failure = False
 
+    # Compute effective FPS & duration (supports VFR WebM where container FPS header is 0 or 1000)
+    effective_fps = meta.fps
+    if (effective_fps <= 0.0 or effective_fps > 240.0) and len(sampled) >= 2:
+        ts_span_sec = (sampled[-1].timestamp_ms - sampled[0].timestamp_ms) / 1000.0
+        if ts_span_sec > 0.0 and total_read > 1:
+            effective_fps = (total_read - 1) / ts_span_sec
+
     # Frame count check
     if total_read < cfg.min_frames:
         warnings.append(
@@ -94,15 +101,27 @@ def assess_video_quality(
         )
         critical_failure = True
 
-    # FPS check
-    if meta.fps < cfg.min_fps:
+    # FPS check (rural clinic devices in dim light often drop to 8-14 FPS)
+    if effective_fps < cfg.min_fps:
         warnings.append(
-            f"Low frame rate ({meta.fps:.1f} FPS is below technical minimum of {cfg.min_fps:.1f} FPS)."
+            f"Low frame rate ({effective_fps:.1f} FPS is below technical minimum of {cfg.min_fps:.1f} FPS)."
         )
         critical_failure = True
+    elif effective_fps < cfg.recommended_fps:
+        frame_window_ms = 1000.0 / max(effective_fps, 1.0)
+        warnings.append(
+            f"Low-FPS clinic device detected ({effective_fps:.1f} FPS; standard is {cfg.recommended_fps:.1f} FPS). "
+            f"Accepted for rural-clinic screening; latency precision has a ~{frame_window_ms:.0f}ms frame window."
+        )
 
-    # Duration check (based on actual frames read and reported FPS)
-    actual_duration = (total_read / meta.fps) if meta.fps > 0 else 0.0
+    # Duration check (prefer hardware timestamp span when available, else frames / effective_fps)
+    if len(sampled) >= 2 and sampled[-1].timestamp_ms > sampled[0].timestamp_ms and (
+        meta.timestamp_source == "hardware" or meta.fps <= 0.0
+    ):
+        actual_duration = (sampled[-1].timestamp_ms - sampled[0].timestamp_ms) / 1000.0
+    else:
+        actual_duration = (total_read / effective_fps) if effective_fps > 0 else 0.0
+
     if actual_duration < cfg.min_duration_sec:
         warnings.append(
             f"Video duration ({actual_duration:.2f}s) is shorter than protocol minimum ({cfg.min_duration_sec:.1f}s)."
@@ -114,8 +133,12 @@ def assess_video_quality(
         )
         critical_failure = True
 
-    # Resolution check (non-critical warning)
-    if meta.width < cfg.min_width or meta.height < cfg.min_height:
+    # Resolution check (orientation-agnostic non-critical warning for portrait mobile & QVGA webcams)
+    short_side = min(meta.width, meta.height)
+    long_side = max(meta.width, meta.height)
+    min_short = min(cfg.min_width, cfg.min_height)
+    min_long = max(cfg.min_width, cfg.min_height)
+    if meta.width > 0 and meta.height > 0 and (short_side < min_short or long_side < min_long):
         warnings.append(
             f"Video resolution ({meta.width}x{meta.height}) is lower than recommended minimum ({cfg.min_width}x{cfg.min_height})."
         )
@@ -129,6 +152,11 @@ def assess_video_quality(
             f"Usable frame ratio ({usable_ratio * 100:.1f}%) is below minimum threshold ({cfg.min_usable_frame_ratio * 100:.1f}%)."
         )
         critical_failure = True
+    elif usable_ratio < cfg.recommended_usable_frame_ratio:
+        warnings.append(
+            f"Moderate frame drop detected ({usable_ratio * 100:.1f}% usable; ideal >= {cfg.recommended_usable_frame_ratio * 100:.0f}%). "
+            "Accepted under low-resource clinic tolerance."
+        )
 
     # Timestamp source info
     if meta.timestamp_source == "estimated":
@@ -145,7 +173,7 @@ def assess_video_quality(
         "duration_seconds": round(actual_duration, 3),
         "frame_count": total_read,
         "sampled_count": len(sampled),
-        "fps": round(meta.fps, 2),
+        "fps": round(effective_fps, 2),
         "width": meta.width,
         "height": meta.height,
         "codec": meta.codec,

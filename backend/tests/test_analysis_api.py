@@ -52,10 +52,16 @@ def uploaded_assessment(client: TestClient) -> dict:
     return {"patient_id": patient_id, "assessment_id": assessment_id}
 
 
-def test_analyze_when_engine_unavailable_returns_503(client: TestClient, uploaded_assessment: dict, monkeypatch):
-    # Ensure no engine injected and default engine is marked unavailable
+def test_analyze_when_engine_unavailable_returns_503(
+    client: TestClient,
+    uploaded_assessment: dict,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from app.services import analysis_orchestrator
+
+    # Ensure no engine injected and simulate unavailable analysis package
     reset_analysis_engine()
-    monkeypatch.setattr("app.services.analysis_orchestrator.ANALYSIS_ENGINE_AVAILABLE", False)
+    monkeypatch.setattr(analysis_orchestrator, "ANALYSIS_ENGINE_AVAILABLE", False)
 
     asm_id = uploaded_assessment["assessment_id"]
     response = client.post(f"/api/assessments/{asm_id}/analyze")
@@ -302,16 +308,16 @@ def test_list_assessments_and_aditya_series_persistence(
     detail = res.json()
     assert detail["pseudonymous_code"] == "OT-ANALYSIS-01"
     assert len(detail["pupil"]["series"]) == 2
-    assert detail["pupil"]["series"][0]["value"] == 28.4
+    assert detail["pupil"]["series"][0]["value"] == pytest.approx(28.4)
     assert len(detail["pursuit"]["series"]) == 2
-    assert detail["pursuit"]["series"][1]["eye_x"] == 0.68
+    assert detail["pursuit"]["series"][1]["eye_x"] == pytest.approx(0.68)
 
     # Verify persisted GET /api/assessments/{id}
     get_res = client.get(f"/api/assessments/{asm_id}")
     assert get_res.status_code == 200
     fetched = get_res.json()
-    assert fetched["pupil"]["series"][0]["value"] == 28.4
-    assert fetched["pursuit"]["series"][0]["target_x"] == 0.5
+    assert fetched["pupil"]["series"][0]["value"] == pytest.approx(28.4)
+    assert fetched["pursuit"]["series"][0]["target_x"] == pytest.approx(0.5)
 
     # Verify global reports listing
     list_res = client.get("/api/assessments")

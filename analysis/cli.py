@@ -20,7 +20,12 @@ from analysis.pupil_tracking import PupilTracker
 from analysis.pursuit_tracking import PursuitTracker
 from analysis.quality import assess_video_quality
 from analysis.video_io import VideoReader
-from analysis.visualization import plot_pupil_response, plot_pursuit_tracking
+
+try:
+    from analysis.visualization import plot_pupil_response, plot_pursuit_tracking
+except ImportError:  # pragma: no cover - optional matplotlib dependency
+    plot_pupil_response = None  # type: ignore[assignment]
+    plot_pursuit_tracking = None  # type: ignore[assignment]
 
 
 def _load_metadata(raw_arg: Optional[str]) -> Optional[Dict[str, Any]]:
@@ -187,24 +192,30 @@ def main() -> int:
             print("==================================================")
 
         if args.save_plots:
-            plot_dir = Path(args.save_plots)
-            plot_dir.mkdir(parents=True, exist_ok=True)
-            if result.get("pupil", {}).get("series"):
-                p_path = plot_pupil_response(
-                    result["pupil"]["series"],
-                    result["pupil"].get("features"),
-                    output_path=plot_dir / "pupil_response_plot.png",
+            if plot_pupil_response is None or plot_pursuit_tracking is None:
+                print(
+                    "Warning: matplotlib is not installed; skipping --save-plots generation.",
+                    file=sys.stderr,
                 )
-                if not args.json:
-                    print(f"Pupil plot saved to   : {p_path}")
-            if result.get("pursuit", {}).get("series"):
-                pu_path = plot_pursuit_tracking(
-                    result["pursuit"]["series"],
-                    result["pursuit"].get("features"),
-                    output_path=plot_dir / "pursuit_tracking_plot.png",
-                )
-                if not args.json:
-                    print(f"Pursuit plot saved to : {pu_path}")
+            else:
+                plot_dir = Path(args.save_plots)
+                plot_dir.mkdir(parents=True, exist_ok=True)
+                if result.get("pupil", {}).get("series"):
+                    p_path = plot_pupil_response(
+                        result["pupil"]["series"],
+                        result["pupil"].get("features"),
+                        output_path=plot_dir / "pupil_response_plot.png",
+                    )
+                    if not args.json:
+                        print(f"Pupil plot saved to   : {p_path}")
+                if result.get("pursuit", {}).get("series"):
+                    pu_path = plot_pursuit_tracking(
+                        result["pursuit"]["series"],
+                        result["pursuit"].get("features"),
+                        output_path=plot_dir / "pursuit_tracking_plot.png",
+                    )
+                    if not args.json:
+                        print(f"Pursuit plot saved to : {pu_path}")
 
         return 0 if result["quality"]["status"] == QualityStatus.ACCEPTABLE.value else 1
 

@@ -49,6 +49,10 @@ class FaceLocalizationResult:
     right_eye_bbox: Optional[tuple[int, int, int, int]] = None
     left_eye_open_ratio: Optional[float] = None
     right_eye_open_ratio: Optional[float] = None
+    left_iris_center: Optional[tuple[float, float]] = None
+    right_iris_center: Optional[tuple[float, float]] = None
+    left_iris_diameter_px: Optional[float] = None
+    right_iris_diameter_px: Optional[float] = None
     head_yaw: Optional[float] = None
     head_pitch: Optional[float] = None
     landmarks_count: int = 0

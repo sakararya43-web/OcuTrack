@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -31,6 +31,11 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
   className = '',
 }) => {
   const { t } = useTranslation();
+  const [activeMetric, setActiveMetric] = useState<'latency' | 'velocity' | 'gain'>(metric);
+
+  useEffect(() => {
+    setActiveMetric(metric);
+  }, [metric]);
 
   if (!data || data.length < 2) {
     return (
@@ -67,7 +72,7 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
     },
   };
 
-  const currentConfig = metricConfigs[metric];
+  const currentConfig = metricConfigs[activeMetric];
 
   const chartData = data.map((d) => ({
     dateStr: formatShortDate(d.assessmentDate),
@@ -82,11 +87,21 @@ export const LongitudinalTrendChart: React.FC<LongitudinalTrendChartProps> = ({
           <h4 className="font-sans text-sm font-semibold text-[#0F172A]">{currentConfig.title}</h4>
           <p className="text-xs text-[#475569] font-sans font-normal">{currentConfig.description}</p>
         </div>
-        <div className="flex items-center gap-3 text-xs font-mono">
-          <span className="flex items-center gap-1.5 text-[#0F172A] font-medium text-[11px]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#0F172A] inline-block" />
-            {t('charts.longitudinal.measuredValue', { unit: currentConfig.unit })}
-          </span>
+        <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
+          {(['latency', 'velocity', 'gain'] as const).map((mKey) => (
+            <button
+              key={mKey}
+              type="button"
+              onClick={() => setActiveMetric(mKey)}
+              className={`px-2 py-1 rounded border text-[10px] transition-colors ${
+                activeMetric === mKey
+                  ? 'bg-[#0F172A] text-white border-[#0F172A] font-semibold'
+                  : 'bg-[#F8FAFC] text-[#475569] border-[#E2E8F0] hover:border-[#94A3B8]'
+              }`}
+            >
+              {mKey === 'latency' ? 'Reaction Speed' : mKey === 'velocity' ? 'Narrowing Speed' : 'Eye Following'}
+            </button>
+          ))}
         </div>
       </div>
 

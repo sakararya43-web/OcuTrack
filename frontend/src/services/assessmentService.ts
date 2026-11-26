@@ -31,13 +31,21 @@ export async function getAssessment(assessmentId: string): Promise<AssessmentDet
   });
 }
 
+function getExtensionFromBlob(blob: Blob): string {
+  const mime = (blob.type || '').toLowerCase();
+  if (mime.includes('mp4')) return '.mp4';
+  if (mime.includes('quicktime')) return '.mov';
+  if (mime.includes('matroska')) return '.mkv';
+  return '.webm';
+}
+
 export async function uploadPupilVideo(
   assessmentId: string,
   videoBlob: Blob,
   metadata: Record<string, unknown>
 ): Promise<AssessmentDetail> {
   const formData = new FormData();
-  formData.append('file', videoBlob, 'pupil_recording.webm');
+  formData.append('file', videoBlob, `pupil_recording${getExtensionFromBlob(videoBlob)}`);
   formData.append('metadata_json', JSON.stringify(metadata));
 
   return apiRequest<AssessmentDetail>(
@@ -56,7 +64,7 @@ export async function uploadPursuitVideo(
   metadata: Record<string, unknown>
 ): Promise<AssessmentDetail> {
   const formData = new FormData();
-  formData.append('file', videoBlob, 'pursuit_recording.webm');
+  formData.append('file', videoBlob, `pursuit_recording${getExtensionFromBlob(videoBlob)}`);
   formData.append('metadata_json', JSON.stringify(metadata));
 
   return apiRequest<AssessmentDetail>(

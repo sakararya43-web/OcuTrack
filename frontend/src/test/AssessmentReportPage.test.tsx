@@ -86,6 +86,11 @@ describe('AssessmentReportPage', () => {
       expect(screen.getByText('Ocular Measurement & Biomarker Report')).toBeInTheDocument();
     });
 
+    // Verify plain-language patient summary and next steps
+    expect(screen.getByText('Plain-Language Patient Summary')).toBeInTheDocument();
+    expect(screen.getByText('Suggested Next Steps for Patient')).toBeInTheDocument();
+    expect(screen.getByText('Clinician Review Advised')).toBeInTheDocument();
+
     // Verify patient ID & review finding
     expect(screen.getByText('OT-4091')).toBeInTheDocument();
     expect(screen.getByText(/Change detected: consider repeat measurement and clinical review/i)).toBeInTheDocument();
