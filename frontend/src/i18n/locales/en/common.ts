@@ -36,6 +36,7 @@ export const enCommon = {
     globe3D: '3D GLOBE',
     console: 'CONSOLE',
     cohorts: 'COHORTS',
+    reports: 'REPORTS',
     overview: 'OVERVIEW',
     search: 'Search',
     guide: 'Guide',
@@ -45,6 +46,7 @@ export const enCommon = {
     overviewExperience: 'Overview & Experience',
     clinicalConsole: 'Clinical Console',
     cohortRegistry: 'Cohort Registry',
+    reportsDirectory: 'Patient Reports',
     clinicOverviewTracker: 'Clinic Overview & Tracker',
     staffPortal: 'Hospital Staff Portal',
     initiateNewTrial: 'Initiate New Trial',
@@ -284,6 +286,7 @@ export const enCommon = {
     chwTitle: 'Community Screener',
     chwSub: 'Aarav Sharma (FIELD-12)',
     protocolBadge: 'Protocol v0.1-CLINICAL',
+    loginRequiredNotice: 'Staff authentication is required before entering the clinical console.',
   },
   help: {
     guideButton: 'Protocol Guide',

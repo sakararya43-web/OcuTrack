@@ -1,5 +1,6 @@
+import sys
 from pathlib import Path
-from typing import Optional, Dict, Any, Callable
+from typing import Optional, Dict, Any, Callable, List
 from fastapi import status
 from sqlalchemy.orm import Session
 
@@ -8,6 +9,11 @@ from app.db.models import AssessmentModel, MeasurementModel, ModelRunModel, utc_
 from app.schemas.common import AssessmentStatus, QualityStatus, ModelStatus
 from app.services.upload_service import cleanup_file
 from app.longitudinal.comparison import evaluate_longitudinal_comparison
+
+# Ensure repository root is importable so the sibling `analysis` package resolves from any CWD
+_REPO_ROOT = str(Path(__file__).resolve().parents[3])
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 # Check for Aditya's analysis package
 try:
@@ -97,11 +103,32 @@ def orchestrate_analysis(
     paths_to_cleanup = [assessment.pupil_video_path, assessment.pursuit_video_path]
 
     try:
+        pupil_meta_for_engine = dict(assessment.pupil_metadata or {})
+        if (
+            "stimulus_onset_ms" not in pupil_meta_for_engine
+            and pupil_meta_for_engine.get("stimulus_onset_seconds") is not None
+        ):
+            try:
+                pupil_meta_for_engine["stimulus_onset_ms"] = (
+                    float(pupil_meta_for_engine["stimulus_onset_seconds"]) * 1000.0
+                )
+            except (TypeError, ValueError):
+                pass
+
+        pursuit_meta_for_engine = dict(assessment.pursuit_metadata or {})
+        raw_traj = pursuit_meta_for_engine.get("trajectory")
+        if isinstance(raw_traj, dict) and isinstance(raw_traj.get("coordinates_normalized"), list):
+            pursuit_meta_for_engine["trajectory"] = raw_traj["coordinates_normalized"]
+        elif not raw_traj and isinstance(pursuit_meta_for_engine.get("target_path"), dict):
+            coords = pursuit_meta_for_engine["target_path"].get("coordinates_normalized")
+            if isinstance(coords, list):
+                pursuit_meta_for_engine["trajectory"] = coords
+
         raw_output = engine(
             pupil_video_path=pupil_path,
             pursuit_video_path=pursuit_path,
-            pupil_metadata=assessment.pupil_metadata,
-            pursuit_metadata=assessment.pursuit_metadata,
+            pupil_metadata=pupil_meta_for_engine,
+            pursuit_metadata=pursuit_meta_for_engine,
             model_config=None,
         )
 
@@ -121,10 +148,25 @@ def orchestrate_analysis(
         # 2. Clear old measurements and persist new
         db.query(MeasurementModel).filter(MeasurementModel.assessment_id == assessment.id).delete()
 
-        # Persist pupil features
+        # Persist pupil features (normalize `diameter` -> `value` for chart compatibility)
         pupil_data = validated.get("pupil", {})
-        pupil_features = pupil_data.get("features", {})
-        pupil_series = pupil_data.get("series", [])
+        pupil_features = pupil_data.get("features") or {}
+        raw_pupil_series = pupil_data.get("series") or []
+        pupil_series: List[Dict[str, Any]] = []
+        for pt in raw_pupil_series:
+            if isinstance(pt, dict):
+                val = pt.get("value") if pt.get("value") is not None else pt.get("diameter")
+                pupil_series.append({
+                    "t_ms": int(pt.get("t_ms", 0)),
+                    "value": val,
+                    "valid": bool(pt.get("valid", True)),
+                })
+
+        pupil_series_anchor = (
+            "baseline_diameter"
+            if "baseline_diameter" in pupil_features
+            else next(iter(pupil_features), None)
+        )
         for feat_name, feat_obj in pupil_features.items():
             if isinstance(feat_obj, dict):
                 measurement = MeasurementModel(
@@ -133,15 +175,24 @@ def orchestrate_analysis(
                     feature_name=feat_name,
                     feature_value=feat_obj.get("value"),
                     unit=feat_obj.get("unit", "a.u."),
-                    series_data=pupil_series if feat_name == "baseline_diameter" else None,
+                    series_data=pupil_series if feat_name == pupil_series_anchor else None,
                     created_at=utc_now(),
                 )
                 db.add(measurement)
 
-        # Persist pursuit features
+        # Persist pursuit features (attach series to tracking_gain, mean_tracking_error, or first feature)
         pursuit_data = validated.get("pursuit", {})
-        pursuit_features = pursuit_data.get("features", {})
-        pursuit_series = pursuit_data.get("series", [])
+        pursuit_features = pursuit_data.get("features") or {}
+        pursuit_series = pursuit_data.get("series") or []
+        pursuit_series_anchor = (
+            "tracking_gain"
+            if "tracking_gain" in pursuit_features
+            else (
+                "mean_tracking_error"
+                if "mean_tracking_error" in pursuit_features
+                else next(iter(pursuit_features), None)
+            )
+        )
         for feat_name, feat_obj in pursuit_features.items():
             if isinstance(feat_obj, dict):
                 measurement = MeasurementModel(
@@ -150,7 +201,7 @@ def orchestrate_analysis(
                     feature_name=feat_name,
                     feature_value=feat_obj.get("value"),
                     unit=feat_obj.get("unit", "a.u."),
-                    series_data=pursuit_series if feat_name == "tracking_gain" else None,
+                    series_data=pursuit_series if feat_name == pursuit_series_anchor else None,
                     created_at=utc_now(),
                 )
                 db.add(measurement)

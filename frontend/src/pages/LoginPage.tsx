@@ -27,7 +27,12 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
+  const fromLocation = (location.state as { from?: { pathname: string; search?: string } })?.from;
+  const from =
+    fromLocation?.pathname && fromLocation.pathname !== '/login' && fromLocation.pathname !== '/'
+      ? `${fromLocation.pathname}${fromLocation.search || ''}`
+      : '/console';
+  const wasRedirected = Boolean(fromLocation?.pathname && fromLocation.pathname !== '/login');
 
   const [role, setRole] = useState<StaffRole>('supervising_clinician');
   const [email, setEmail] = useState<string>('elena.vance@neuro-clinic.org');
@@ -179,6 +184,13 @@ export const LoginPage: React.FC = () => {
               {t('auth.loginSubtitle')}
             </p>
           </div>
+
+              {!isAuthenticated && wasRedirected && (
+                <div className="p-3 text-xs bg-sky-50 border border-sky-200 text-sky-900 rounded flex items-center gap-2 font-mono">
+                  <Lock className="w-3.5 h-3.5 text-sky-700 shrink-0" aria-hidden="true" />
+                  <span>{t('auth.loginRequiredNotice')}</span>
+                </div>
+              )}
 
               {errorMessage && (
                 <div className="p-3 text-xs bg-rose-50 border border-rose-200 text-rose-800 rounded">

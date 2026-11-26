@@ -1,6 +1,11 @@
+from pathlib import Path
 from typing import List, Union
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+DEFAULT_DB_PATH = (BACKEND_DIR / "ocutrack.db").as_posix()
+DEFAULT_UPLOAD_DIR = str(BACKEND_DIR / "tmp" / "ocutrack")
 
 
 class Settings(BaseSettings):
@@ -17,15 +22,15 @@ class Settings(BaseSettings):
     ]
 
     # Database
-    # Default to local SQLite database when DATABASE_URL is not set
-    DATABASE_URL: str = "sqlite:///./ocutrack.db"
+    # Default to canonical backend SQLite database regardless of working directory
+    DATABASE_URL: str = f"sqlite:///{DEFAULT_DB_PATH}"
     SUPABASE_URL: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
 
     # Uploads & Retention
     MAX_UPLOAD_MB: int = 50
     MAX_VIDEO_SECONDS: int = 30
-    TEMP_UPLOAD_DIR: str = "./tmp/ocutrack"
+    TEMP_UPLOAD_DIR: str = DEFAULT_UPLOAD_DIR
 
     # Analysis / Model
     MODEL_CONFIG_PATH: str = ""

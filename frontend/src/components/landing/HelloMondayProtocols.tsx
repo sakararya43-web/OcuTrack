@@ -80,9 +80,7 @@ export const HelloMondayProtocols: React.FC = () => {
                   <span className={isSelected ? 'text-[#0F766E]' : 'text-[#64748B]'}>
                     {p.number}
                   </span>
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded ${
-                    isSelected ? 'bg-white/10 text-white' : 'bg-[#F1F5F9] text-[#475569]'
-                  }`}>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded ${isSelected ? 'bg-white/10 text-white' : 'bg-[#F1F5F9] text-[#475569]'}`}>
                     {p.badge}
                   </span>
                 </div>
@@ -183,8 +181,8 @@ export const HelloMondayProtocols: React.FC = () => {
                             {i === 0
                               ? t('protocolsSection.stimulusIn')
                               : i === current.pathway.length - 1
-                              ? t('protocolsSection.motorOut')
-                              : t('protocolsSection.relay')}
+                                ? t('protocolsSection.motorOut')
+                                : t('protocolsSection.relay')}
                           </span>
                         </div>
                       </div>

@@ -8,25 +8,34 @@ from app.longitudinal.comparability import check_comparability
 # Human-readable labels for report review messages
 FEATURE_LABELS = {
     "baseline_diameter": "baseline pupil diameter",
+    "minimum_diameter": "minimum pupil diameter",
     "constriction_latency": "constriction latency",
+    "response_latency_seconds": "pupil response latency",
     "constriction_velocity": "constriction velocity",
     "constriction_amplitude": "constriction amplitude",
     "dilation_velocity": "dilation velocity",
     "tracking_gain": "smooth pursuit gain",
     "rmse_error": "gaze tracking RMSE",
     "saccadic_intrusions": "catch-up saccades",
+    "mean_tracking_error": "mean tracking error",
+    "tracking_continuity": "tracking continuity",
+    "corrective_movement_count": "corrective movement candidates",
 }
 
 # Configurable prototype thresholds for technical change highlighting
 FEATURE_CHANGE_THRESHOLDS = {
     "constriction_latency": 15.0,    # ms
     "latency_ms": 15.0,             # ms
+    "response_latency_seconds": 0.03,  # s
     "constriction_velocity": 0.30,  # mm/s
     "constriction_amplitude": 4.0,   # %
     "dilation_velocity": 0.25,      # mm/s
     "tracking_gain": 0.05,          # ratio
     "rmse_error": 0.02,             # norm
     "saccadic_intrusions": 1.0,     # count
+    "mean_tracking_error": 0.05,    # normalized_screen_units
+    "tracking_continuity": 0.10,    # ratio
+    "corrective_movement_count": 1.0,  # count
 }
 
 

@@ -40,11 +40,14 @@ export const PupilCurveChart: React.FC<PupilCurveChartProps> = ({
   }
 
   // Format data for Recharts, converting ms to seconds for clean X-axis readability
-  const chartData = series.map((pt) => ({
-    timeSec: Number((pt.t_ms / 1000).toFixed(2)),
-    diameter: pt.value !== null ? Number(pt.value.toFixed(2)) : null,
-    valid: pt.valid,
-  }));
+  const chartData = series.map((pt) => {
+    const rawVal = pt.value ?? (pt as { diameter?: number | null }).diameter ?? null;
+    return {
+      timeSec: Number((pt.t_ms / 1000).toFixed(2)),
+      diameter: rawVal !== null && rawVal !== undefined ? Number(rawVal.toFixed(2)) : null,
+      valid: pt.valid,
+    };
+  });
 
   const stimulusStartSec = Number((stimulusOnsetMs / 1000).toFixed(2));
   const stimulusEndSec = Number(((stimulusOnsetMs + stimulusDurationMs) / 1000).toFixed(2));

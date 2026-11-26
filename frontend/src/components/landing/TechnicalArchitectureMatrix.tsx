@@ -106,11 +106,10 @@ export const TechnicalArchitectureMatrix: React.FC = () => {
                   setActiveLayerId(l.id);
                   soundFx.playClick();
                 }}
-                className={`text-left p-4 rounded-xl border transition-all relative ${
-                  isActive
-                    ? 'bg-white border-[#0F172A] shadow-md ring-1 ring-[#0F172A]'
-                    : 'bg-[#EAE9E2]/70 border-[#E2E8F0] hover:bg-white hover:border-[#CBD5E1]'
-                }`}
+                className={`text-left p-4 rounded-xl border transition-all relative ${isActive
+                  ? 'bg-white border-[#0F172A] shadow-md ring-1 ring-[#0F172A]'
+                  : 'bg-[#EAE9E2]/70 border-[#E2E8F0] hover:bg-white hover:border-[#CBD5E1]'
+                  }`}
               >
                 <span className="font-mono text-[10px] text-[#64748B] block mb-1">
                   {t('techArch.tierPrefix', { num: l.number })}

@@ -300,6 +300,71 @@ export const enPages = {
       'Temporal sequence features analyzed for experimental trajectory consistency. This model is under research validation and must not be used as clinical diagnostic evidence.',
     regulatoryNoticeTitle: 'Notice of Regulatory & Clinical Status',
     fetchError: 'Failed to retrieve assessment report from backend.',
+    patientNextSteps: {
+      sectionLabel: 'Patient Action Plan',
+      repeatQuality: {
+        badge: 'Action Required · Repeat Capture',
+        title: 'Repeat Ocular Recording Under Calibrated Lighting',
+        summary:
+          'Because this recording did not meet clinical usability thresholds, the metrics above are unvalidated. Please retake the assessment before clinical review.',
+        steps: [
+          'Sit 45–60 cm directly in front of the camera at eye level with your face centered in the guide reticle.',
+          'Move to uniform, indirect room lighting (300–500 lux) and eliminate glare or backlighting from windows and lamps.',
+          'Keep your head still, avoid talking, and minimize blinking during the 15-second and 10-second capture windows.',
+        ],
+        ctaLabel: 'Start Repeat Assessment',
+      },
+      clinicalReview: {
+        badge: 'Priority Action · Clinician Review',
+        title: 'Schedule Follow-Up Verification & Licensed Clinician Review',
+        summary:
+          'A measurable shift from your prior personal baseline was observed in this session. Share this report with a licensed healthcare professional and confirm repeatability.',
+        steps: [
+          'Complete a repeat confirmation scan under identical lighting and seating conditions to rule out transient fatigue or glare.',
+          'Bring or share this assessment report with your supervising clinician or neurologist for formal clinical evaluation.',
+          'Note any recent visual symptoms, headaches, sleep changes, or medication adjustments ahead of your medical visit.',
+        ],
+        ctaLabel: 'Schedule Repeat Verification',
+        secondaryCtaLabel: 'View Patient Record',
+      },
+      standardizeRetest: {
+        badge: 'Standardize Conditions · Retest',
+        title: 'Match Baseline Capture Conditions for Longitudinal Tracking',
+        summary:
+          'This recording passed quality checks, but differences in lighting, device setup, or protocol prevented direct comparison with your prior baseline.',
+        steps: [
+          'Use the same screening room, camera setup, and indirect lighting (300–500 lux) as your baseline assessment.',
+          'Rest in the room for 2 minutes before starting so pupil adaptation stabilizes, and keep a 45–60 cm distance.',
+          'Consult a licensed clinician if you are experiencing any new visual or neurological symptoms.',
+        ],
+        ctaLabel: 'Retest Under Standard Setup',
+        secondaryCtaLabel: 'View Patient Record',
+      },
+      baselineEstablished: {
+        badge: 'Baseline Recorded · Follow-Up',
+        title: 'Personal Baseline Saved — Plan Scheduled Follow-Up Visits',
+        summary:
+          'Your calibrated ocular profile from this session has been established as your personal reference baseline for future visit comparisons.',
+        steps: [
+          'Return for your next scheduled follow-up scan at the interval recommended by your supervising care team.',
+          'Keep room lighting and 45–60 cm seating distance consistent across visits for accurate longitudinal comparison.',
+          'Maintain routine healthcare check-ups and seek medical care promptly if new symptoms develop.',
+        ],
+        ctaLabel: 'View Patient Record',
+      },
+      routineMonitoring: {
+        badge: 'Stable Trend · Routine Care',
+        title: 'Maintain Routine Longitudinal Monitoring & Standard Care',
+        summary:
+          'Measured features remained consistent with your personal baseline. Continue scheduled monitoring alongside routine clinical care.',
+        steps: [
+          'Complete your next periodic OcuTrack scan as scheduled under steady, indirect room lighting.',
+          'Take regular breaks from prolonged screen use and keep posture steady during future assessments.',
+          'Consult a licensed healthcare professional if any new visual or neurological symptoms arise, as stable prototype metrics do not rule out medical conditions.',
+        ],
+        ctaLabel: 'View Patient Record',
+      },
+    },
   },
   aboutPage: {
     badge: 'Regulatory & Methodological Scope',

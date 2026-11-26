@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { User, Calendar, PlusCircle, ArrowLeft, ShieldAlert, History, Award, FileText, Activity } from 'lucide-react';
+import { User, Calendar, PlusCircle, ArrowLeft, ShieldAlert, History, Award, FileText, Activity, Video } from 'lucide-react';
 import { getPatient, getPatientHistory } from '../services/patientService';
 import { Patient, AssessmentSummary } from '../types/api';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
@@ -272,7 +272,21 @@ export const PatientDetailPage: React.FC = () => {
                         <td className="px-6 py-4 text-xs text-[#475569] max-w-xs truncate font-sans">
                           {item.review_message || t('patientDetailPage.analysisPending')}
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-4 text-right whitespace-nowrap space-x-3">
+                          {item.status === 'created' && (
+                            <Link
+                              to={
+                                item.test_type === 'smooth_pursuit'
+                                  ? `/assessments/${item.assessment_id}/pursuit-test`
+                                  : `/assessments/${item.assessment_id}/pupil-test`
+                              }
+                              onClick={() => soundFx.playClick()}
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-[#0F766E] hover:underline transition-colors"
+                            >
+                              <Video className="w-3.5 h-3.5" />
+                              <span>Capture</span>
+                            </Link>
+                          )}
                           <Link
                             to={`/assessments/${item.assessment_id}/report`}
                             onClick={() => soundFx.playClick()}

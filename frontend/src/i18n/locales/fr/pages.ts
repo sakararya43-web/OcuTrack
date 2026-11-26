@@ -300,6 +300,71 @@ export const frPages = {
       'Caractéristiques temporelles analysées pour la cohérence expérimentale de trajectoire. Modèle en cours de validation, non utilisable comme preuve diagnostique.',
     regulatoryNoticeTitle: 'Avis de Statut Réglementaire et Clinique',
     fetchError: 'Échec de récupération du rapport depuis le serveur.',
+    patientNextSteps: {
+      sectionLabel: "Plan d'Action Patient",
+      repeatQuality: {
+        badge: 'Action Requise · Répéter la Capture',
+        title: "Répéter l'Enregistrement Oculaire sous Éclairage Calibré",
+        summary:
+          "Cet enregistrement n'ayant pas atteint les seuils d'utilisabilité clinique, les mesures ci-dessus ne sont pas validées. Veuillez refaire le test avant toute analyse.",
+        steps: [
+          'Asseyez-vous à 45–60 cm face à la caméra à hauteur des yeux, le visage centré dans le réticule.',
+          "Placez-vous sous un éclairage indirect uniforme (300–500 lux) sans reflets ni contre-jour.",
+          'Gardez la tête immobile, évitez de parler et limitez les clignements pendant les captures de 15 s et 10 s.',
+        ],
+        ctaLabel: 'Lancer un Nouvel Examen',
+      },
+      clinicalReview: {
+        badge: 'Action Prioritaire · Avis Clinique',
+        title: 'Planifier une Vérification et une Évaluation Médicale',
+        summary:
+          'Une variation mesurable par rapport à votre référence personnelle précédente a été observée. Partagez ce rapport avec un professionnel de santé agréé.',
+        steps: [
+          'Effectuez un nouveau test de confirmation dans des conditions identiques pour écarter une fatigue passagère ou un reflet.',
+          'Transmettez ce rapport à votre médecin référent ou neurologue pour un examen clinique formel.',
+          'Notez tout symptôme visuel récent, céphalée, trouble du sommeil ou changement de traitement avant votre rendez-vous.',
+        ],
+        ctaLabel: 'Planifier une Vérification',
+        secondaryCtaLabel: 'Voir le Dossier Patient',
+      },
+      standardizeRetest: {
+        badge: 'Standardiser les Conditions · Retester',
+        title: 'Aligner les Conditions de Capture sur la Ligne de Base',
+        summary:
+          "Cet enregistrement a passé les contrôles qualité, mais des différences d'éclairage, de matériel ou de protocole empêchent la comparaison directe.",
+        steps: [
+          "Utilisez la même pièce, le même capteur et un éclairage indirect uniforme (300–500 lux) que lors de la mesure de référence.",
+          "Patientez 2 minutes dans la pièce avant le test pour stabiliser l'adaptation pupillaire à 45–60 cm.",
+          'Consultez un professionnel de santé si vous ressentez de nouveaux symptômes visuels ou neurologiques.',
+        ],
+        ctaLabel: 'Retester en Configuration Standard',
+        secondaryCtaLabel: 'Voir le Dossier Patient',
+      },
+      baselineEstablished: {
+        badge: 'Référence Enregistrée · Suivi',
+        title: 'Référence Personnelle Enregistrée — Prévoir les Visites de Suivi',
+        summary:
+          'Votre profil oculaire calibré de cette session est enregistré comme référence personnelle pour les futures comparaisons.',
+        steps: [
+          'Revenez pour votre prochain contrôle selon le calendrier recommandé par votre équipe clinique.',
+          'Conservez un éclairage identique et une distance de 45–60 cm lors des prochaines visites.',
+          'Poursuivez votre suivi médical habituel et consultez rapidement en cas de nouveaux symptômes.',
+        ],
+        ctaLabel: 'Voir le Dossier Patient',
+      },
+      routineMonitoring: {
+        badge: 'Tendance Stable · Suivi Habituel',
+        title: 'Maintenir le Suivi Longitudinal et les Soins Courants',
+        summary:
+          'Les mesures sont restées cohérentes avec votre référence personnelle. Poursuivez le suivi planifié et les contrôles médicaux habituels.',
+        steps: [
+          'Effectuez votre prochain contrôle périodique OcuTrack selon le calendrier prévu sous éclairage indirect stable.',
+          'Reposez régulièrement vos yeux des écrans et gardez une posture stable lors des prochains tests.',
+          'Consultez un professionnel de santé agréé si de nouveaux symptômes visuels ou neurologiques apparaissent.',
+        ],
+        ctaLabel: 'Voir le Dossier Patient',
+      },
+    },
   },
   aboutPage: {
     badge: 'Portée Réglementaire & Méthodologique',

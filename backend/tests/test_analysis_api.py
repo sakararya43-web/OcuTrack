@@ -52,9 +52,10 @@ def uploaded_assessment(client: TestClient) -> dict:
     return {"patient_id": patient_id, "assessment_id": assessment_id}
 
 
-def test_analyze_when_engine_unavailable_returns_503(client: TestClient, uploaded_assessment: dict):
-    # Ensure no engine injected
+def test_analyze_when_engine_unavailable_returns_503(client: TestClient, uploaded_assessment: dict, monkeypatch):
+    # Ensure no engine injected and default engine is marked unavailable
     reset_analysis_engine()
+    monkeypatch.setattr("app.services.analysis_orchestrator.ANALYSIS_ENGINE_AVAILABLE", False)
 
     asm_id = uploaded_assessment["assessment_id"]
     response = client.post(f"/api/assessments/{asm_id}/analyze")
@@ -245,3 +246,83 @@ def test_aditya_real_analysis_engine_integration(client: TestClient, uploaded_as
     data = response.json()
     assert data["assessment_id"] == asm_id
     assert data["status"] in ["complete", "failed"]
+
+
+def test_list_assessments_and_aditya_series_persistence(
+    client: TestClient,
+    uploaded_assessment: dict,
+):
+    """
+    Verifies:
+    1) Analysis output using Aditya's feature names (response_latency_seconds, mean_tracking_error,
+       tracking_continuity, corrective_movement_count) and pupil series with `diameter` key
+       persists BOTH pupil.series (normalized to `value`) and pursuit.series.
+    2) GET /api/assessments and GET /api/patients expose report metadata for any patient anytime.
+    """
+    asm_id = uploaded_assessment["assessment_id"]
+    patient_id = uploaded_assessment["patient_id"]
+
+    def aditya_shaped_engine(pupil_video_path, pursuit_video_path, pupil_metadata, pursuit_metadata, model_config):
+        return {
+            "quality": {"status": "acceptable", "usable_frame_ratio": 0.95, "warnings": []},
+            "pupil": {
+                "status": "complete",
+                "features": {
+                    "baseline_diameter": {"value": 28.4, "unit": "px_or_normalized", "label": "Baseline pupil size"},
+                    "minimum_diameter": {"value": 17.2, "unit": "px_or_normalized", "label": "Minimum pupil size"},
+                    "constriction_amplitude": {"value": 11.2, "unit": "px_or_normalized", "label": "Constriction amplitude"},
+                    "response_latency_seconds": {"value": 0.24, "unit": "s", "label": "Pupil response latency"},
+                    "constriction_velocity": {"value": 18.5, "unit": "px_or_normalized per second", "label": "Constriction velocity"},
+                },
+                "series": [
+                    {"t_ms": 0, "diameter": 28.4, "valid": True},
+                    {"t_ms": 500, "diameter": 28.1, "valid": True},
+                ],
+            },
+            "pursuit": {
+                "status": "complete",
+                "features": {
+                    "mean_tracking_error": {"value": 0.041, "unit": "normalized_screen_units", "label": "Mean tracking error"},
+                    "tracking_continuity": {"value": 0.96, "unit": "ratio", "label": "Tracking continuity"},
+                    "corrective_movement_count": {"value": 1, "unit": "count", "label": "Corrective movement candidates"},
+                },
+                "series": [
+                    {"t_ms": 0, "target_x": 0.5, "eye_x": 0.49, "valid": True},
+                    {"t_ms": 500, "target_x": 0.7, "eye_x": 0.68, "valid": True},
+                ],
+            },
+            "temporal_model": {"status": "not_configured", "model_name": "ocutrack-tcn-experimental"},
+            "warnings": [],
+        }
+
+    set_analysis_engine(aditya_shaped_engine)
+
+    res = client.post(f"/api/assessments/{asm_id}/analyze")
+    assert res.status_code == 200
+    detail = res.json()
+    assert detail["pseudonymous_code"] == "OT-ANALYSIS-01"
+    assert len(detail["pupil"]["series"]) == 2
+    assert detail["pupil"]["series"][0]["value"] == 28.4
+    assert len(detail["pursuit"]["series"]) == 2
+    assert detail["pursuit"]["series"][1]["eye_x"] == 0.68
+
+    # Verify persisted GET /api/assessments/{id}
+    get_res = client.get(f"/api/assessments/{asm_id}")
+    assert get_res.status_code == 200
+    fetched = get_res.json()
+    assert fetched["pupil"]["series"][0]["value"] == 28.4
+    assert fetched["pursuit"]["series"][0]["target_x"] == 0.5
+
+    # Verify global reports listing
+    list_res = client.get("/api/assessments")
+    assert list_res.status_code == 200
+    items = list_res.json()
+    assert any(item["assessment_id"] == asm_id and item["pseudonymous_code"] == "OT-ANALYSIS-01" for item in items)
+
+    # Verify PatientResponse links latest completed report
+    patient_res = client.get(f"/api/patients/{patient_id}")
+    assert patient_res.status_code == 200
+    p_data = patient_res.json()
+    assert p_data["latest_assessment_id"] == asm_id
+    assert p_data["latest_completed_assessment_id"] == asm_id
+    assert p_data["latest_assessment_status"] == "complete"

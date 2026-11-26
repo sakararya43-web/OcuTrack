@@ -156,16 +156,14 @@ export const HelloMondayPupilScrubber: React.FC = () => {
             {/* Top Bar with Phase Badge and Controls */}
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E2E8F0] pb-4">
               <div className="flex items-center gap-3">
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-medium ${
-                  phaseStatus === 'latency'
-                    ? 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]'
-                    : phaseStatus === 'constriction'
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-medium ${phaseStatus === 'latency'
+                  ? 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]'
+                  : phaseStatus === 'constriction'
                     ? 'bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]'
                     : 'bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]'
-                }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${
-                    phaseStatus === 'latency' ? 'bg-[#B45309]' : phaseStatus === 'constriction' ? 'bg-[#B91C1C]' : 'bg-[#0F766E]'
-                  }`} />
+                  }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${phaseStatus === 'latency' ? 'bg-[#B45309]' : phaseStatus === 'constriction' ? 'bg-[#B91C1C]' : 'bg-[#0F766E]'
+                    }`} />
                   {phaseLabel}
                 </span>
               </div>

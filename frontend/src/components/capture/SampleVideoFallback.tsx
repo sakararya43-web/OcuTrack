@@ -50,64 +50,75 @@ export const SampleVideoFallback: React.FC<SampleVideoFallbackProps> = ({
 
       recorder.start();
 
-      // Render frames
-      let frame = 0;
+      // Render synthetic face frames compatible with OcuTrack's computer-vision localizer
       const interval = setInterval(() => {
-        frame++;
         const elapsed = Date.now() - startTime;
+        const t = elapsed / 1000;
 
-        // Background
-        ctx.fillStyle = '#0F1117';
+        // Light studio background for clean foreground face segmentation
+        ctx.fillStyle = '#F0F0F0';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Reticle
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-        ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+        const fx = Math.round(canvas.width * 0.2);
+        const fy = Math.round(canvas.height * 0.15);
+        const fw = Math.round(canvas.width * 0.6);
+        const fh = Math.round(canvas.height * 0.7);
+
+        // Synthetic face oval
+        ctx.fillStyle = '#C8B4A0';
+        ctx.beginPath();
+        ctx.ellipse(fx + fw / 2, fy + fh / 2, fw / 2, fh / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const eyeW = 86;
+        const eyeH = 54;
+        const leftEyeX = fx + Math.round(fw * 0.16);
+        const rightEyeX = fx + Math.round(fw * 0.58);
+        const eyeY = fy + Math.round(fh * 0.28);
+
+        // Sclera regions for both eyes
+        ctx.fillStyle = '#DCDCDC';
+        ctx.fillRect(leftEyeX, eyeY, eyeW, eyeH);
+        ctx.fillRect(rightEyeX, eyeY, eyeW, eyeH);
 
         if (testType === 'pupil_reflex') {
-          // Flash at 2.0s
-          const isFlash = elapsed >= 2000 && elapsed <= 2500;
-          if (isFlash) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          // Diffuse flash stimulus at 2.0s - 2.5s
+          if (elapsed >= 2000 && elapsed <= 2500) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
           }
 
-          // Pupil diameter dynamic
-          let r = 35;
-          if (elapsed > 2200) {
-            r = 18;
+          // Smooth physiological constriction after 2.2s, gradual redilation after 3.5s
+          let pupilRadius = 15;
+          if (elapsed > 2200 && elapsed <= 3500) {
+            const frac = Math.min(1, (elapsed - 2200) / 500);
+            pupilRadius = 15 - frac * 6.5;
+          } else if (elapsed > 3500) {
+            const frac = Math.min(1, (elapsed - 3500) / 1500);
+            pupilRadius = 8.5 + frac * 4.5;
           }
 
-          // Render simulated iris and pupil
-          ctx.fillStyle = '#222734';
+          ctx.fillStyle = '#141414';
           ctx.beginPath();
-          ctx.arc(320, 240, 65, 0, Math.PI * 2);
+          ctx.arc(leftEyeX + eyeW / 2, eyeY + eyeH / 2, pupilRadius, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = '#090A0D';
           ctx.beginPath();
-          ctx.arc(320, 240, r, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = 'white';
-          ctx.beginPath();
-          ctx.arc(310, 230, 4, 0, Math.PI * 2);
+          ctx.arc(rightEyeX + eyeW / 2, eyeY + eyeH / 2, pupilRadius, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          // Smooth pursuit target
-          const t = elapsed / 1000;
-          const x = 320 + Math.sin(t * 2) * 200;
-          const y = 240;
+          // Smooth pursuit horizontal oscillation synchronized with 10s sweep
+          const normOffset = 0.5 + 0.3 * Math.sin(t * 2.0);
+          const pupilXLeft = leftEyeX + Math.round(eyeW * (0.2 + 0.6 * normOffset));
+          const pupilXRight = rightEyeX + Math.round(eyeW * (0.2 + 0.6 * normOffset));
 
-          // Eye following
-          ctx.fillStyle = '#222734';
+          ctx.fillStyle = '#141414';
           ctx.beginPath();
-          ctx.arc(x, y, 50, 0, Math.PI * 2);
+          ctx.arc(pupilXLeft, eyeY + eyeH / 2, 12, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = '#090A0D';
           ctx.beginPath();
-          ctx.arc(x, y, 22, 0, Math.PI * 2);
+          ctx.arc(pupilXRight, eyeY + eyeH / 2, 12, 0, Math.PI * 2);
           ctx.fill();
         }
 

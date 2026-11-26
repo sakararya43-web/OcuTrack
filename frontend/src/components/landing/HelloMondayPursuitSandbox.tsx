@@ -275,11 +275,10 @@ export const HelloMondayPursuitSandbox: React.FC = () => {
                     key={traj}
                     type="button"
                     onClick={() => handleTrajectoryChange(traj)}
-                    className={`px-3 py-1 rounded font-medium capitalize transition-colors ${
-                      trajectory === traj
-                        ? 'bg-white text-[#0F172A] shadow-sm font-semibold'
-                        : 'text-[#475569] hover:text-[#0F172A]'
-                    }`}
+                    className={`px-3 py-1 rounded font-medium capitalize transition-colors ${trajectory === traj
+                      ? 'bg-white text-[#0F172A] shadow-sm font-semibold'
+                      : 'text-[#475569] hover:text-[#0F172A]'
+                      }`}
                   >
                     {dict.pursuitSandbox.trajectories[traj]}
                   </button>

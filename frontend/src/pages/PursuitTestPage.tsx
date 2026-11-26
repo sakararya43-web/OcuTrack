@@ -96,9 +96,8 @@ export const PursuitTestPage: React.FC = () => {
 
   const handleSampleSelected = (sampleVideo: RecordedVideo) => {
     soundFx.playClick();
-    recorder.discardRecording();
     setIsFallbackMode(true);
-    (recorder as any).recordedVideo = sampleVideo;
+    recorder.setExternalRecording(sampleVideo);
 
     // Use standardized reference trajectory for benchmark
     const referenceTraj = generateFullTrajectory();
@@ -129,7 +128,8 @@ export const PursuitTestPage: React.FC = () => {
 
       await uploadPursuitVideo(assessmentId, recordedVideo.blob, {
         is_fallback_benchmark: isFallbackMode,
-        trajectory: trajectoryPayload,
+        trajectory: trajectoryPayload.coordinates_normalized,
+        target_path: trajectoryPayload,
         protocol_version: PROTOCOL_VERSION,
         source: isFallbackMode ? 'synthetic_benchmark' : 'webcam_live',
       });

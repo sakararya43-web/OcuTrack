@@ -25,6 +25,7 @@ export interface UseMediaRecorderReturn {
   startRecording: (stream: MediaStream) => boolean;
   stopRecording: () => void;
   discardRecording: () => void;
+  setExternalRecording: (video: RecordedVideo) => void;
   supportedMimeType: string | null;
 }
 
@@ -83,6 +84,18 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
     setElapsedMs(0);
     setError(null);
   }, [recordedVideo]);
+
+  const setExternalRecording = useCallback(
+    (video: RecordedVideo) => {
+      if (recordedVideo?.previewUrl && recordedVideo.previewUrl !== video.previewUrl) {
+        URL.revokeObjectURL(recordedVideo.previewUrl);
+      }
+      setRecordedVideo(video);
+      setElapsedMs(video.durationMs);
+      setError(null);
+    },
+    [recordedVideo]
+  );
 
   const stopRecording = useCallback(() => {
     cleanupTimer();
@@ -222,6 +235,7 @@ export function useMediaRecorder(options: UseMediaRecorderOptions = {}): UseMedi
     startRecording,
     stopRecording,
     discardRecording,
+    setExternalRecording,
     supportedMimeType: chosenMimeTypeRef.current || getBestSupportedMimeType(),
   };
 }

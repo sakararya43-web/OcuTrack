@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, PlusCircle } from 'lucide-react';
 import { getPatients } from '../services/patientService';
 import { Patient } from '../types/api';
@@ -13,12 +14,21 @@ import { useTranslation } from '../i18n';
 
 export const PatientsPage: React.FC = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [selectedAgeBand, setSelectedAgeBand] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q !== null) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
 
   const fetchPatients = async () => {
     setLoading(true);

@@ -5,6 +5,19 @@ import {
   AssessmentSummary,
 } from '../types/api';
 
+export async function listAssessments(params?: {
+  patient_id?: string;
+  status?: string;
+}): Promise<AssessmentSummary[]> {
+  const query = new URLSearchParams();
+  if (params?.patient_id) query.set('patient_id', params.patient_id);
+  if (params?.status) query.set('status', params.status);
+  const qs = query.toString();
+  return apiRequest<AssessmentSummary[]>(`/api/assessments${qs ? `?${qs}` : ''}`, {
+    method: 'GET',
+  });
+}
+
 export async function createAssessment(payload: CreateAssessmentPayload): Promise<AssessmentSummary> {
   return apiRequest<AssessmentSummary>('/api/assessments', {
     method: 'POST',

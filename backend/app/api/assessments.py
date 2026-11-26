@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, Form, status
+from fastapi import APIRouter, Depends, UploadFile, File, Form, Query, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
@@ -23,6 +23,7 @@ from app.schemas.assessments import (
     FeatureValue,
     FeatureDelta,
 )
+from app.schemas.patients import AssessmentSummary
 from app.core.errors import NotFoundError, ValidationError
 from app.services.upload_service import (
     save_and_validate_video,
@@ -30,10 +31,28 @@ from app.services.upload_service import (
     cleanup_file,
 )
 from app.services.analysis_orchestrator import orchestrate_analysis
-from app.services.report_service import build_assessment_detail
+from app.services.report_service import build_assessment_detail, build_patient_history_summary
 from app.longitudinal.comparison import evaluate_longitudinal_comparison
 
 router = APIRouter(prefix="/assessments", tags=["Assessments"])
+
+
+@router.get("", response_model=List[AssessmentSummary], summary="List all assessments and reports")
+def list_assessments(
+    patient_id: Optional[str] = Query(None, description="Filter by patient ID"),
+    status_filter: Optional[str] = Query(None, alias="status", description="Filter by assessment status"),
+    db: Session = Depends(get_db),
+):
+    """
+    Retrieves all assessments across patients ordered by assessment timestamp descending.
+    """
+    query = db.query(AssessmentModel)
+    if patient_id:
+        query = query.filter(AssessmentModel.patient_id == patient_id)
+    if status_filter:
+        query = query.filter(AssessmentModel.status == status_filter)
+    assessments = query.order_by(AssessmentModel.assessment_at.desc()).all()
+    return [build_patient_history_summary(a) for a in assessments]
 
 
 

@@ -62,6 +62,9 @@ class PatientResponse(BaseModel):
     last_quality_status: Optional[str] = None
     feature_change_recorded: Optional[bool] = None
     assessment_count: int = 0
+    latest_assessment_id: Optional[str] = None
+    latest_assessment_status: Optional[str] = None
+    latest_completed_assessment_id: Optional[str] = None
 
     model_config = {
         "from_attributes": True
@@ -71,6 +74,9 @@ class PatientResponse(BaseModel):
 class AssessmentSummary(BaseModel):
     assessment_id: str
     patient_id: str
+    pseudonymous_code: Optional[str] = None
+    test_type: Optional[str] = None
+    is_baseline: bool = False
     status: AssessmentStatus
     quality_status: QualityStatus
     assessment_at: datetime

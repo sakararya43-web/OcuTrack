@@ -236,6 +236,14 @@ export const Header: React.FC = () => {
               </NavLink>
 
               <NavLink
+                to="/reports"
+                onClick={() => soundFx.playClick()}
+                className={({ isActive }) => `py-5 transition-colors shrink-0 ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
+              >
+                {t('nav.reports', 'REPORTS')}
+              </NavLink>
+
+              <NavLink
                 to="/clinic-overview"
                 onClick={() => soundFx.playClick()}
                 className={({ isActive }) => `py-5 transition-colors shrink-0 ${isActive ? 'text-[#0F172A] font-semibold border-b-2 border-[#0F172A]' : 'hover:text-[#0F172A]'}`}
@@ -535,6 +543,13 @@ export const Header: React.FC = () => {
               className="block text-[#0F172A] hover:text-[#475569]"
             >
               {t('nav.cohortRegistry')}
+            </Link>
+            <Link
+              to="/reports"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-[#0F172A] hover:text-[#475569]"
+            >
+              {t('nav.reportsDirectory')}
             </Link>
             <Link
               to="/clinic-overview"

@@ -36,6 +36,7 @@ export const hiCommon = {
     globe3D: '3D ग्लोब',
     console: 'कंसोल',
     cohorts: 'मरीज़',
+    reports: 'रिपोर्ट',
     overview: 'अवलोकन',
     search: 'खोजें',
     guide: 'गाइड',
@@ -45,6 +46,7 @@ export const hiCommon = {
     overviewExperience: 'अवलोकन और अनुभव',
     clinicalConsole: 'नैदानिक कंसोल',
     cohortRegistry: 'समूह रजिस्ट्री',
+    reportsDirectory: 'मरीज़ रिपोर्ट',
     clinicOverviewTracker: 'क्लिनिक अवलोकन और ट्रैकर',
     staffPortal: 'अस्पताल स्टाफ़ पोर्टल',
     initiateNewTrial: 'नया परीक्षण शुरू करें',
@@ -284,6 +286,7 @@ export const hiCommon = {
     chwTitle: 'सामुदायिक स्क्रीनर',
     chwSub: 'आरव शर्मा (FIELD-12)',
     protocolBadge: 'प्रोटोकॉल v0.1-CLINICAL',
+    loginRequiredNotice: 'नैदानिक कंसोल में प्रवेश करने से पहले स्टाफ़ प्रमाणीकरण आवश्यक है।',
   },
   help: {
     guideButton: 'प्रोटोकॉल गाइड',

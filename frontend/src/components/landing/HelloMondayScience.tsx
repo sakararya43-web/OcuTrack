@@ -256,8 +256,8 @@ export const HelloMondayScience: React.FC = () => {
                     {isPurging
                       ? t('science.step3Purging')
                       : purgeCompleted
-                      ? t('science.step3Destroyed')
-                      : t('science.step3Pending')}
+                        ? t('science.step3Destroyed')
+                        : t('science.step3Pending')}
                   </span>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, ChevronRight, PlusCircle } from 'lucide-react';
+import { Calendar, ChevronRight, PlusCircle, FileText } from 'lucide-react';
 import { Patient } from '../../types/api';
 import { StatusBadge } from '../common/StatusBadge';
 import { formatShortDate } from '../../lib/formatters';
@@ -60,7 +60,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient }) => {
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-4 mt-5 border-t border-[#E2E8F0] font-mono text-xs">
+      <div className="flex items-center justify-between pt-4 mt-5 border-t border-[#E2E8F0] font-mono text-xs gap-2">
         <Link
           to={`/assessments/new?patientId=${patient.patient_id}`}
           onClick={() => soundFx.playClick()}
@@ -69,14 +69,26 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient }) => {
           <PlusCircle className="w-3.5 h-3.5" />
           <span>{t('patientsPage.newTrial')}</span>
         </Link>
-        <Link
-          to={`/patients/${patient.patient_id}`}
-          onClick={() => soundFx.playClick()}
-          className="inline-flex items-center gap-1 text-[#475569] hover:text-[#0F172A] font-medium transition-colors group/link"
-        >
-          <span>{t('patientsPage.trajectory')}</span>
-          <ChevronRight className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" />
-        </Link>
+        <div className="flex items-center gap-3">
+          {(patient.latest_completed_assessment_id || patient.latest_assessment_id) && (
+            <Link
+              to={`/assessments/${patient.latest_completed_assessment_id || patient.latest_assessment_id}/report`}
+              onClick={() => soundFx.playClick()}
+              className="inline-flex items-center gap-1 text-[#0F766E] hover:underline font-semibold transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>REPORT</span>
+            </Link>
+          )}
+          <Link
+            to={`/patients/${patient.patient_id}`}
+            onClick={() => soundFx.playClick()}
+            className="inline-flex items-center gap-1 text-[#475569] hover:text-[#0F172A] font-medium transition-colors group/link"
+          >
+            <span>{t('patientsPage.trajectory')}</span>
+            <ChevronRight className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" />
+          </Link>
+        </div>
       </div>
     </div>
   );

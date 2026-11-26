@@ -243,33 +243,30 @@ export const ProtocolHelpDrawer: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('all')}
-                  className={`px-2.5 py-1 rounded-sm border transition-colors ${
-                    activeTab === 'all'
-                      ? 'border-slate-900 bg-slate-900 text-white font-semibold'
-                      : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
+                  className={`px-2.5 py-1 rounded-sm border transition-colors ${activeTab === 'all'
+                    ? 'border-slate-900 bg-slate-900 text-white font-semibold'
+                    : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
                 >
                   {t('help.filterAll')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('protocols')}
-                  className={`px-2.5 py-1 rounded-sm border transition-colors ${
-                    activeTab === 'protocols'
-                      ? 'border-slate-900 bg-slate-900 text-white font-semibold'
-                      : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
+                  className={`px-2.5 py-1 rounded-sm border transition-colors ${activeTab === 'protocols'
+                    ? 'border-slate-900 bg-slate-900 text-white font-semibold'
+                    : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
                 >
                   {t('help.filterProtocols')} ({filteredProtocols.length})
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('troubleshooting')}
-                  className={`px-2.5 py-1 rounded-sm border transition-colors ${
-                    activeTab === 'troubleshooting'
-                      ? 'border-slate-900 bg-slate-900 text-white font-semibold'
-                      : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
+                  className={`px-2.5 py-1 rounded-sm border transition-colors ${activeTab === 'troubleshooting'
+                    ? 'border-slate-900 bg-slate-900 text-white font-semibold'
+                    : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
                 >
                   {t('help.filterTroubleshooting')} ({filteredTroubleshooting.length})
                 </button>
@@ -310,11 +307,10 @@ export const ProtocolHelpDrawer: React.FC = () => {
                             <div
                               key={protocol.id}
                               id={protocol.id}
-                              className={`rounded-md border transition-all ${
-                                isCurrentRoute
-                                  ? 'border-sky-600 bg-sky-50/20 shadow-xs'
-                                  : 'border-slate-300 bg-white hover:border-slate-400'
-                              }`}
+                              className={`rounded-md border transition-all ${isCurrentRoute
+                                ? 'border-sky-600 bg-sky-50/20 shadow-xs'
+                                : 'border-slate-300 bg-white hover:border-slate-400'
+                                }`}
                             >
                               {/* Section Accordion Trigger */}
                               <button

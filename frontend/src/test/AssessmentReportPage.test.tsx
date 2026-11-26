@@ -104,6 +104,13 @@ describe('AssessmentReportPage', () => {
     // Verify delta table
     expect(screen.getByText('+25.00')).toBeInTheDocument();
     expect(screen.getByText('-0.40')).toBeInTheDocument();
+
+    // Verify highlighted Patient Action Plan below the 4 sections (change detected -> clinician review)
+    const nextSteps = screen.getByTestId('patient-next-steps');
+    expect(nextSteps).toBeInTheDocument();
+    expect(screen.getByText('Priority Action · Clinician Review')).toBeInTheDocument();
+    expect(screen.getByText('Schedule Follow-Up Verification & Licensed Clinician Review')).toBeInTheDocument();
+    expect(screen.getByText('Schedule Repeat Verification')).toBeInTheDocument();
   });
 
   it('displays insufficient recording quality warning banner and unvalidated labels when quality is poor', async () => {
@@ -155,5 +162,100 @@ describe('AssessmentReportPage', () => {
 
     expect(screen.getByText(/extracted values are unvalidated and must not be presented as reliable/i)).toBeInTheDocument();
     expect(screen.getByText('Repeat Assessment Now')).toBeInTheDocument();
+
+    // Verify highlighted Patient Action Plan for insufficient quality
+    expect(screen.getByTestId('patient-next-steps')).toBeInTheDocument();
+    expect(screen.getByText('Action Required · Repeat Capture')).toBeInTheDocument();
+    expect(screen.getByText('Repeat Ocular Recording Under Calibrated Lighting')).toBeInTheDocument();
+    expect(screen.getByText('Start Repeat Assessment')).toBeInTheDocument();
+  });
+
+  it('displays routine monitoring patient action plan when quality is acceptable and trend is stable', async () => {
+    const mockStableDetail = {
+      assessment_id: 'asm-stable-report',
+      patient_id: 'OT-4092',
+      status: 'complete',
+      quality_status: 'acceptable',
+      assessment_at: '2026-11-16T12:00:00Z',
+      protocol_version: 'ocutrack-protocol-0.1',
+      review_message: 'No notable change detected in measured features compared with the selected baseline.',
+      quality: {
+        status: 'acceptable',
+        usable_frame_ratio: 0.98,
+        warnings: [],
+      },
+      longitudinal_comparison: {
+        status: 'comparable',
+        baseline_id: 'asm-baseline-001',
+        feature_deltas: {
+          constriction_latency: { delta: 2.0, unit: 'ms', direction: 'stable' },
+        },
+      },
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => mockStableDetail,
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={['/assessments/asm-stable-report/report']}
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <Routes>
+          <Route path="/assessments/:assessmentId/report" element={<AssessmentReportPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Stable Trend · Routine Care')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Maintain Routine Longitudinal Monitoring & Standard Care')).toBeInTheDocument();
+  });
+
+  it('shows actionable capture prompt and pseudonymous code when assessment is still in created state', async () => {
+    const mockPendingDetail = {
+      assessment_id: 'asm-created-only',
+      patient_id: 'patient-uuid-123',
+      pseudonymous_code: 'OT-5442',
+      test_type: 'both',
+      status: 'created',
+      quality_status: 'pending',
+      assessment_at: '2026-11-24T21:20:44Z',
+      protocol_version: 'ocutrack-protocol-0.1',
+      warnings: [],
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => mockPendingDetail,
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={['/assessments/asm-created-only/report']}
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <Routes>
+          <Route path="/assessments/:assessmentId/report" element={<AssessmentReportPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('OT-5442')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Assessment Capture Pending/i)).toBeInTheDocument();
+    expect(screen.getByText('Capture / Upload Video Now')).toBeInTheDocument();
   });
 });

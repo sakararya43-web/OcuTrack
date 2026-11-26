@@ -300,6 +300,71 @@ export const esPages = {
       'Características temporales analizadas para consistencia experimental de trayectoria. Este modelo está en validación investigativa y no debe usarse como evidencia diagnóstica.',
     regulatoryNoticeTitle: 'Aviso de Estado Regulatorio y Clínico',
     fetchError: 'Error al recuperar el informe de evaluación del servidor.',
+    patientNextSteps: {
+      sectionLabel: 'Plan de Acción para el Paciente',
+      repeatQuality: {
+        badge: 'Acción Requerida · Repetir Captura',
+        title: 'Repetir la Grabación Ocular con Iluminación Calibrada',
+        summary:
+          'Dado que esta grabación no cumplió con los umbrales de usabilidad clínica, los valores anteriores no están validados. Repita la prueba antes de la revisión clínica.',
+        steps: [
+          'Siéntese a 45–60 cm directamente frente a la cámara a la altura de los ojos, con el rostro centrado en la retícula.',
+          'Trasládese a una habitación con iluminación indirecta uniforme (300–500 lux) y elimine reflejos o contraluz.',
+          'Mantenga la cabeza quieta, evite hablar y reduzca el parpadeo durante las ventanas de captura de 15 s y 10 s.',
+        ],
+        ctaLabel: 'Iniciar Nueva Evaluación',
+      },
+      clinicalReview: {
+        badge: 'Acción Prioritaria · Revisión Clínica',
+        title: 'Programar Verificación de Seguimiento y Revisión Médica',
+        summary:
+          'Se observó un cambio medible respecto a su línea base personal previa. Comparta este informe con un profesional de salud autorizado y confirme la repetibilidad.',
+        steps: [
+          'Realice un escaneo de confirmación bajo las mismas condiciones de iluminación y postura para descartar fatiga o reflejos.',
+          'Presente o envíe este informe a su médico supervisor o neurólogo para una evaluación clínica formal.',
+          'Anote cualquier síntoma visual reciente, dolor de cabeza, cambio de sueño o ajuste de medicación antes de su consulta.',
+        ],
+        ctaLabel: 'Programar Verificación',
+        secondaryCtaLabel: 'Ver Expediente del Paciente',
+      },
+      standardizeRetest: {
+        badge: 'Estandarizar Condiciones · Repetir',
+        title: 'Igualar las Condiciones de Captura Base para Seguimiento',
+        summary:
+          'Esta grabación superó los controles de calidad, pero diferencias de iluminación, equipo o protocolo impidieron la comparación directa con su línea base.',
+        steps: [
+          'Utilice la misma sala, configuración de cámara e iluminación indirecta (300–500 lux) que en su evaluación base.',
+          'Descanse en la sala durante 2 minutos antes de iniciar para estabilizar la adaptación pupilar a 45–60 cm.',
+          'Consulte a un médico autorizado si experimenta nuevos síntomas visuales o neurológicos.',
+        ],
+        ctaLabel: 'Repetir con Ajuste Estándar',
+        secondaryCtaLabel: 'Ver Expediente del Paciente',
+      },
+      baselineEstablished: {
+        badge: 'Línea Base Registrada · Seguimiento',
+        title: 'Línea Base Personal Guardada — Planificar Visitas de Control',
+        summary:
+          'Su perfil ocular calibrado de esta sesión se ha establecido como referencia personal para futuras comparaciones.',
+        steps: [
+          'Regrese para su próxima evaluación de seguimiento en el intervalo recomendado por su equipo clínico.',
+          'Mantenga constante la iluminación y la distancia de 45–60 cm en futuras visitas para comparar cambios con precisión.',
+          'Continúe sus controles médicos habituales y consulte de inmediato si aparecen nuevos síntomas.',
+        ],
+        ctaLabel: 'Ver Expediente del Paciente',
+      },
+      routineMonitoring: {
+        badge: 'Tendencia Estable · Cuidado Rutinario',
+        title: 'Mantener el Monitoreo Longitudinal Rutinario y Cuidado Habitual',
+        summary:
+          'Las métricas registradas permanecieron consistentes con su línea base personal. Continúe el seguimiento programado junto con su atención médica habitual.',
+        steps: [
+          'Realice su próximo escaneo periódico de OcuTrack según lo programado bajo iluminación indirecta estable.',
+          'Descanse la vista regularmente frente a pantallas y mantenga una postura firme en futuras evaluaciones.',
+          'Consulte a un profesional de la salud si surgen nuevos síntomas visuales o neurológicos.',
+        ],
+        ctaLabel: 'Ver Expediente del Paciente',
+      },
+    },
   },
   aboutPage: {
     badge: 'Alcance Regulatorio y Metodológico',

@@ -52,6 +52,10 @@ from app.schemas.analysis import (
 class AssessmentDetail(BaseModel):
     assessment_id: str
     patient_id: str
+    pseudonymous_code: Optional[str] = None
+    test_type: Optional[str] = None
+    has_pupil_video: bool = False
+    has_pursuit_video: bool = False
     status: AssessmentStatus
     quality_status: QualityStatus
     assessment_at: datetime

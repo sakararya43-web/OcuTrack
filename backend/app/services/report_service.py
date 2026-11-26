@@ -21,13 +21,18 @@ from app.schemas.patients import AssessmentSummary
 
 FEATURE_LABELS = {
     "baseline_diameter": "Baseline Pupil Diameter",
+    "minimum_diameter": "Minimum Pupil Diameter",
     "constriction_latency": "Constriction Latency",
+    "response_latency_seconds": "Pupil Response Latency",
     "constriction_velocity": "Max Constriction Velocity",
     "constriction_amplitude": "Constriction Amplitude",
     "dilation_velocity": "Average Dilation Velocity",
     "tracking_gain": "Smooth Pursuit Gain",
     "rmse_error": "Gaze Tracking RMSE",
     "saccadic_intrusions": "Catch-up Saccades",
+    "mean_tracking_error": "Mean Tracking Error",
+    "tracking_continuity": "Tracking Continuity",
+    "corrective_movement_count": "Corrective Movement Candidates",
 }
 
 NON_DIAGNOSTIC_NOTICE = (
@@ -59,7 +64,15 @@ def build_assessment_detail(assessment: AssessmentModel) -> AssessmentDetail:
         if m.test_type == "pupil_reflex":
             pupil_features[m.feature_name] = feat_obj
             if m.series_data:
-                pupil_series = m.series_data
+                pupil_series = [
+                    {
+                        "t_ms": int(pt.get("t_ms", 0)),
+                        "value": pt.get("value") if pt.get("value") is not None else pt.get("diameter"),
+                        "valid": bool(pt.get("valid", True)),
+                    }
+                    for pt in m.series_data
+                    if isinstance(pt, dict)
+                ]
         elif m.test_type == "smooth_pursuit":
             pursuit_features[m.feature_name] = feat_obj
             if m.series_data:
@@ -136,9 +149,15 @@ def build_assessment_detail(assessment: AssessmentModel) -> AssessmentDetail:
                 usable_ratio = m.feature_value
                 break
 
+    patient_code = assessment.patient.pseudonymous_code if getattr(assessment, "patient", None) else None
+
     return AssessmentDetail(
         assessment_id=assessment.id,
         patient_id=assessment.patient_id,
+        pseudonymous_code=patient_code,
+        test_type=assessment.test_type,
+        has_pupil_video=bool(assessment.pupil_video_path),
+        has_pursuit_video=bool(assessment.pursuit_video_path),
         status=AssessmentStatus(assessment.status),
         quality_status=QualityStatus(assessment.quality_status),
         assessment_at=assessment.assessment_at,
@@ -173,15 +192,24 @@ def build_patient_history_summary(assessment: AssessmentModel) -> AssessmentSumm
     for m in (assessment.measurements or []):
         if m.feature_name in ["constriction_latency", "latency_ms"]:
             features_dict["latency_ms"] = m.feature_value
+        elif m.feature_name == "response_latency_seconds" and "latency_ms" not in features_dict and m.feature_value is not None:
+            features_dict["latency_ms"] = round(m.feature_value * 1000.0, 1)
         elif m.feature_name == "constriction_velocity":
             features_dict["constriction_velocity"] = m.feature_value
         elif m.feature_name == "tracking_gain":
             features_dict["tracking_gain"] = m.feature_value
+        elif m.feature_name == "tracking_continuity" and "tracking_gain" not in features_dict:
+            features_dict["tracking_gain"] = m.feature_value
         features_dict[m.feature_name] = m.feature_value
+
+    patient_code = assessment.patient.pseudonymous_code if getattr(assessment, "patient", None) else None
 
     return AssessmentSummary(
         assessment_id=assessment.id,
         patient_id=assessment.patient_id,
+        pseudonymous_code=patient_code,
+        test_type=assessment.test_type,
+        is_baseline=bool(assessment.is_baseline),
         status=AssessmentStatus(assessment.status),
         quality_status=QualityStatus(assessment.quality_status),
         assessment_at=assessment.assessment_at,

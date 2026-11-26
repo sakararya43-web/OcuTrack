@@ -34,6 +34,13 @@ def _build_patient_response(patient: PatientModel) -> PatientResponse:
     if has_change is None and len(patient.assessments or []) > 1:
         has_change = False
 
+    assessments_list = patient.assessments or []
+    latest_assessment = assessments_list[0] if assessments_list else None
+    latest_completed = next(
+        (a for a in assessments_list if a.status == "complete"),
+        None,
+    )
+
     return PatientResponse(
         patient_id=patient.id,
         pseudonymous_code=patient.pseudonymous_code,
@@ -45,7 +52,10 @@ def _build_patient_response(patient: PatientModel) -> PatientResponse:
         last_assessment_date=latest_assessment.assessment_at if latest_assessment else None,
         last_quality_status=latest_assessment.quality_status if latest_assessment else None,
         feature_change_recorded=has_change,
-        assessment_count=len(patient.assessments),
+        assessment_count=len(assessments_list),
+        latest_assessment_id=latest_assessment.id if latest_assessment else None,
+        latest_assessment_status=latest_assessment.status if latest_assessment else None,
+        latest_completed_assessment_id=latest_completed.id if latest_completed else None,
     )
 
 

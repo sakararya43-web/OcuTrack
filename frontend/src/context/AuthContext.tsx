@@ -46,27 +46,29 @@ export interface AuthContextValue {
 
 const STORAGE_KEY = 'ocutrack_staff_session';
 
-const isTestEnv =
-  typeof process !== 'undefined' &&
-  (process.env.NODE_ENV === 'test' ||
-    (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'test'));
+const clearPersistedSession = (): void => {
+  try {
+    if (typeof window !== 'undefined') {
+      window.localStorage?.removeItem?.(STORAGE_KEY);
+      window.sessionStorage?.removeItem?.(STORAGE_KEY);
+    }
+  } catch {
+    // ignore storage access errors
+  }
+};
+
+const isAutomatedTestEnv = (): boolean =>
+  (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'test');
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<StaffUser | null>(() => {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const saved = window.localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          return JSON.parse(saved);
-        }
-      }
-    } catch {
-      // ignore
-    }
+    // Never restore an authenticated staff session across reloads or browser restarts.
+    clearPersistedSession();
     // Default to clinician in automated test mode to prevent breaking legacy test runs
-    if (isTestEnv) {
+    if (isAutomatedTestEnv()) {
       return DEMO_CLINICIAN;
     }
     return null;
@@ -76,17 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const saveSession = (u: StaffUser | null) => {
     setUser(u);
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        if (u) {
-          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
-        } else {
-          window.localStorage.removeItem(STORAGE_KEY);
-        }
-      }
-    } catch {
-      // ignore
-    }
+    // Keep session purely in-memory so page reloads or closing the browser require re-authentication.
+    clearPersistedSession();
   };
 
   const loginDemo = (role: StaffRole = 'supervising_clinician') => {

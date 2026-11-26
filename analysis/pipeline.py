@@ -15,6 +15,7 @@ from analysis.contracts import (
     to_json_serializable,
 )
 from analysis.frame_sampling import sample_frames
+from analysis.face_localization import FaceLocalizer
 from analysis.ml.inference import TemporalModelRunner
 from analysis.pupil_features import extract_pupil_features
 from analysis.pupil_tracking import PupilTracker
@@ -125,7 +126,11 @@ def analyze_assessment(
                 with VideoReader(pupil_video_path, cfg) as reader:
                     sampled_frames, total_read, _ = sample_frames(reader, cfg)
                     preferred_eye = (pupil_metadata or {}).get("preferred_eye", "auto")
-                    tracker = PupilTracker(preferred_eye_side=preferred_eye)
+                    is_fallback_pupil = bool((pupil_metadata or {}).get("is_fallback_benchmark", False))
+                    tracker = PupilTracker(
+                        preferred_eye_side=preferred_eye,
+                        face_localizer=FaceLocalizer(force_fallback=is_fallback_pupil),
+                    )
                     measurements = tracker.track_sequence(sampled_frames)
 
                     series_data = [m.to_series_point() for m in measurements]
@@ -198,7 +203,11 @@ def analyze_assessment(
                 with VideoReader(pursuit_video_path, cfg) as reader:
                     sampled_frames, _, _ = sample_frames(reader, cfg)
                     preferred_eye = (pursuit_metadata or {}).get("preferred_eye", "auto")
-                    tracker = PursuitTracker(preferred_eye_side=preferred_eye)
+                    is_fallback_pursuit = bool((pursuit_metadata or {}).get("is_fallback_benchmark", False))
+                    tracker = PursuitTracker(
+                        preferred_eye_side=preferred_eye,
+                        face_localizer=FaceLocalizer(force_fallback=is_fallback_pursuit),
+                    )
                     raw_measurements = tracker.track_sequence(sampled_frames)
 
                     pursuit_feats, aligned_measurements, pursuit_warnings = (

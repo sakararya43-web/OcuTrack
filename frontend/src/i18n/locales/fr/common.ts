@@ -36,6 +36,7 @@ export const frCommon = {
     globe3D: 'GLOBE 3D',
     console: 'CONSOLE',
     cohorts: 'PATIENTS',
+    reports: 'RAPPORTS',
     overview: 'APERÇU',
     search: 'Recherche',
     guide: 'Guide',
@@ -45,6 +46,7 @@ export const frCommon = {
     overviewExperience: 'Aperçu et Expérience',
     clinicalConsole: 'Console Clinique',
     cohortRegistry: 'Registre des Cohortes',
+    reportsDirectory: 'Rapports Patients',
     clinicOverviewTracker: 'Aperçu Clinique et Suivi',
     staffPortal: 'Portail du Personnel',
     initiateNewTrial: 'Lancer un Nouvel Essai',
@@ -284,6 +286,7 @@ export const frCommon = {
     chwTitle: 'Examinateur Communautaire',
     chwSub: 'Aarav Sharma (FIELD-12)',
     protocolBadge: 'Protocole v0.1-CLINICAL',
+    loginRequiredNotice: "L'authentification du personnel est requise avant d'accéder à la console clinique.",
   },
   help: {
     guideButton: 'Guide du Protocole',

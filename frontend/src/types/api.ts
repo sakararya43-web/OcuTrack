@@ -52,6 +52,9 @@ export interface Patient {
   last_quality_status?: QualityStatus | null;
   feature_change_recorded?: boolean | null;
   assessment_count?: number;
+  latest_assessment_id?: string | null;
+  latest_assessment_status?: AssessmentStatus | null;
+  latest_completed_assessment_id?: string | null;
 }
 
 export interface DeviceMetadata {
@@ -137,6 +140,9 @@ export interface LongitudinalComparisonResult {
 export interface AssessmentSummary {
   assessment_id: string;
   patient_id: string;
+  pseudonymous_code?: string | null;
+  test_type?: 'pupil_reflex' | 'smooth_pursuit' | 'both' | null;
+  is_baseline?: boolean;
   status: AssessmentStatus;
   quality_status: QualityStatus;
   assessment_at: string;
@@ -152,6 +158,8 @@ export interface AssessmentSummary {
 }
 
 export interface AssessmentDetail extends AssessmentSummary {
+  has_pupil_video?: boolean;
+  has_pursuit_video?: boolean;
   quality?: QualityMetrics;
   pupil?: PupilTestResult;
   pursuit?: PursuitTestResult;

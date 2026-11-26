@@ -212,7 +212,9 @@ export const DashboardPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E2E8F0]">
-                  {patients.slice(0, 5).map((patient) => (
+                  {patients.map((patient) => {
+                    const reportId = patient.latest_completed_assessment_id || patient.latest_assessment_id;
+                    return (
                     <tr key={patient.patient_id} className="hover:bg-[#F8FAFC] transition-colors">
                       <td className="px-6 py-4 font-semibold text-[#0F172A]">
                         <Link
@@ -234,7 +236,19 @@ export const DashboardPage: React.FC = () => {
                       <td className="px-6 py-4">
                         <StatusBadge type="quality" status={patient.last_quality_status} />
                       </td>
-                      <td className="px-6 py-4 text-right space-x-3 text-[11px]">
+                      <td className="px-6 py-4 text-right space-x-3 text-[11px] whitespace-nowrap">
+                        {reportId && (
+                          <>
+                            <Link
+                              to={`/assessments/${reportId}/report`}
+                              onClick={() => soundFx.playClick()}
+                              className="text-[#0F766E] hover:underline font-semibold transition-colors"
+                            >
+                              Report
+                            </Link>
+                            <span className="text-[#E2E8F0]">&bull;</span>
+                          </>
+                        )}
                         <Link
                           to={`/patients/${patient.patient_id}`}
                           onClick={() => soundFx.playClick()}
@@ -252,7 +266,8 @@ export const DashboardPage: React.FC = () => {
                         </Link>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

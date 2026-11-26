@@ -17,7 +17,7 @@ import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
 import { useRecordingQuality } from '../hooks/useRecordingQuality';
 import { CameraPreview } from '../components/capture/CameraPreview';
 import { SampleVideoFallback } from '../components/capture/SampleVideoFallback';
-import { uploadPupilVideo } from '../services/assessmentService';
+import { getAssessment, triggerAnalysis, uploadPupilVideo } from '../services/assessmentService';
 import { PROTOCOL_VERSION } from '../lib/constants';
 import { ErrorAlert } from '../components/common/ErrorAlert';
 import { ApiClientError } from '../services/apiClient';
@@ -34,6 +34,20 @@ export const PupilTestPage: React.FC = () => {
   const [isFallbackMode, setIsFallbackMode] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
+  const [testType, setTestType] = useState<'both' | 'pupil_reflex' | 'smooth_pursuit'>('both');
+
+  useEffect(() => {
+    if (!assessmentId) return;
+    getAssessment(assessmentId)
+      .then((detail) => {
+        if (detail.test_type === 'pupil_reflex' || detail.test_type === 'smooth_pursuit' || detail.test_type === 'both') {
+          setTestType(detail.test_type);
+        }
+      })
+      .catch(() => {
+        // Default to 'both' if lookup fails
+      });
+  }, [assessmentId]);
 
   const TARGET_DURATION_S = 15;
 
@@ -90,9 +104,8 @@ export const PupilTestPage: React.FC = () => {
 
   const handleSampleSelected = (sampleVideo: RecordedVideo) => {
     soundFx.playClick();
-    recorder.discardRecording();
     setIsFallbackMode(true);
-    (recorder as any).recordedVideo = sampleVideo;
+    recorder.setExternalRecording(sampleVideo);
   };
 
   const recordedVideo = recorder.recordedVideo;
@@ -115,14 +128,22 @@ export const PupilTestPage: React.FC = () => {
     setUploadError(null);
 
     try {
+      const onsetMs = isFallbackMode ? 2000 : 5000;
       await uploadPupilVideo(assessmentId, recordedVideo.blob, {
         is_fallback_benchmark: isFallbackMode,
-        stimulus_onset_seconds: 5.0,
+        stimulus_onset_ms: onsetMs,
+        stimulus_onset_seconds: onsetMs / 1000,
         protocol_version: PROTOCOL_VERSION,
         source: isFallbackMode ? 'synthetic_benchmark' : 'webcam_live',
       });
-      soundFx.playSuccess();
-      navigate(`/assessments/${assessmentId}/pursuit-test`);
+      if (testType === 'pupil_reflex') {
+        await triggerAnalysis(assessmentId);
+        soundFx.playSuccess();
+        navigate(`/assessments/${assessmentId}/processing`);
+      } else {
+        soundFx.playSuccess();
+        navigate(`/assessments/${assessmentId}/pursuit-test`);
+      }
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
         setUploadError({ message: err.message, isUnavailable: err.isUnavailable });

@@ -175,22 +175,20 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                   setSelectedId(p.id);
                   soundFx.playClick();
                 }}
-                className={`text-left p-5 rounded-xl border transition-all relative ${
-                  isSelected
-                    ? 'bg-white border-[#0F172A] shadow-md ring-1 ring-[#0F172A]'
-                    : 'bg-[#F1F5F9] border-[#E2E8F0] hover:border-[#CBD5E1] hover:bg-white'
-                }`}
+                className={`text-left p-5 rounded-xl border transition-all relative ${isSelected
+                  ? 'bg-white border-[#0F172A] shadow-md ring-1 ring-[#0F172A]'
+                  : 'bg-[#F1F5F9] border-[#E2E8F0] hover:border-[#CBD5E1] hover:bg-white'
+                  }`}
               >
                 <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]/60 mb-3">
                   <span className="font-mono text-[11px] text-[#64748B]">{p.name}</span>
                   <span
-                    className={`font-mono text-[10px] px-2 py-0.5 rounded font-semibold uppercase ${
-                      p.severity === 'normal'
-                        ? 'bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0]'
-                        : p.severity === 'moderate'
+                    className={`font-mono text-[10px] px-2 py-0.5 rounded font-semibold uppercase ${p.severity === 'normal'
+                      ? 'bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0]'
+                      : p.severity === 'moderate'
                         ? 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]'
                         : 'bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA]'
-                    }`}
+                      }`}
                   >
                     {dict.simulator.severityLabels[p.severity]}
                   </span>
@@ -229,13 +227,12 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span
-                  className={`w-2.5 h-2.5 rounded-full animate-pulse ${
-                    current.severity === 'normal'
-                      ? 'bg-[#0F766E]'
-                      : current.severity === 'moderate'
+                  className={`w-2.5 h-2.5 rounded-full animate-pulse ${current.severity === 'normal'
+                    ? 'bg-[#0F766E]'
+                    : current.severity === 'moderate'
                       ? 'bg-[#D97706]'
                       : 'bg-[#DC2626]'
-                  }`}
+                    }`}
                 />
                 <h3 className="font-serif text-xl sm:text-2xl text-[#0F172A] font-normal">
                   {current.condition} {t('simulator.telemetrySuffix')}
@@ -253,11 +250,10 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                   setActiveTab('pupil');
                   soundFx.playClick();
                 }}
-                className={`px-3 py-1.5 rounded text-xs font-mono transition-colors ${
-                  activeTab === 'pupil'
-                    ? 'bg-[#0F172A] text-[#0F766E] font-semibold shadow-xs'
-                    : 'text-[#475569] hover:text-[#0F172A]'
-                }`}
+                className={`px-3 py-1.5 rounded text-xs font-mono transition-colors ${activeTab === 'pupil'
+                  ? 'bg-[#0F172A] text-[#0F766E] font-semibold shadow-xs'
+                  : 'text-[#475569] hover:text-[#0F172A]'
+                  }`}
               >
                 {t('simulator.tabPupil')}
               </button>
@@ -266,11 +262,10 @@ export const JudgeBenchmarkSimulator: React.FC = () => {
                   setActiveTab('pursuit');
                   soundFx.playClick();
                 }}
-                className={`px-3 py-1.5 rounded text-xs font-mono transition-colors ${
-                  activeTab === 'pursuit'
-                    ? 'bg-[#0F172A] text-[#0F766E] font-semibold shadow-xs'
-                    : 'text-[#475569] hover:text-[#0F172A]'
-                }`}
+                className={`px-3 py-1.5 rounded text-xs font-mono transition-colors ${activeTab === 'pursuit'
+                  ? 'bg-[#0F172A] text-[#0F766E] font-semibold shadow-xs'
+                  : 'text-[#475569] hover:text-[#0F172A]'
+                  }`}
               >
                 {t('simulator.tabPursuit')}
               </button>

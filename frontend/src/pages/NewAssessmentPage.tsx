@@ -151,12 +151,20 @@ export const NewAssessmentPage: React.FC = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
-              to={`/assessments/${createdAssessment.assessment_id}/pupil-test`}
+              to={
+                testType === 'smooth_pursuit'
+                  ? `/assessments/${createdAssessment.assessment_id}/pursuit-test`
+                  : `/assessments/${createdAssessment.assessment_id}/pupil-test`
+              }
               onClick={() => soundFx.playClick()}
               className="btn-ramp-primary text-xs py-2.5 px-5 shadow-sm"
             >
               <Video className="w-3.5 h-3.5" />
-              <span>{t('newAssessmentPage.proceedPupil')}</span>
+              <span>
+                {testType === 'smooth_pursuit'
+                  ? t('newAssessmentPage.proceedPursuit', 'Proceed to Smooth Pursuit Test')
+                  : t('newAssessmentPage.proceedPupil')}
+              </span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <button
