@@ -37,9 +37,10 @@ export const PupilTestPage: React.FC = () => {
 
   const TARGET_DURATION_S = 15;
 
-  const camera = useCamera();
+  const camera = useCamera('rural_clinic');
   const recorder = useMediaRecorder({
     maxDurationSeconds: TARGET_DURATION_S,
+    videoBitsPerSecond: camera.captureProfile === 'rural_clinic' ? 750_000 : 1_500_000,
   });
 
   // Schedule diffuse screen flash stimulus at 5-second mark
@@ -57,42 +58,43 @@ export const PupilTestPage: React.FC = () => {
     }
   }, [recorder.isRecording]);
 
-  const handleStartCountdown = () => {
+  const handleStartCountdown = async () => {
+    if (countdown !== null || camera.isLoading) return;
     soundFx.playClick();
     if (!camera.isCameraActive) {
-      camera.startCamera().then((success) => {
-        if (success) {
-          triggerCountdown();
-        }
-      });
-    } else {
-      triggerCountdown();
+      const success = await camera.startCamera();
+      if (!success) return;
     }
+    soundFx.playTick();
+    setCountdown(3);
   };
 
-  const triggerCountdown = () => {
-    setCountdown(3);
-    soundFx.playTick();
-    const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(interval);
-          if (camera.stream) {
-            recorder.startRecording(camera.stream);
-          }
-          return null;
-        }
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown <= 0) {
+      setCountdown(null);
+      const activeStream = camera.getStream();
+      if (activeStream) {
+        recorder.startRecording(activeStream);
+      }
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      const next = countdown - 1;
+      if (next > 0) {
         soundFx.playTick();
-        return prev - 1;
-      });
+      }
+      setCountdown(next);
     }, 1000);
-  };
+
+    return () => clearTimeout(timer);
+  }, [countdown, camera, recorder]);
 
   const handleSampleSelected = (sampleVideo: RecordedVideo) => {
     soundFx.playClick();
-    recorder.discardRecording();
     setIsFallbackMode(true);
-    (recorder as any).recordedVideo = sampleVideo;
+    recorder.setExternalRecording(sampleVideo);
   };
 
   const recordedVideo = recorder.recordedVideo;
@@ -117,8 +119,11 @@ export const PupilTestPage: React.FC = () => {
     try {
       await uploadPupilVideo(assessmentId, recordedVideo.blob, {
         is_fallback_benchmark: isFallbackMode,
+        stimulus_onset_ms: 5000,
         stimulus_onset_seconds: 5.0,
         protocol_version: PROTOCOL_VERSION,
+        capture_profile: camera.captureProfile,
+        observed_camera: camera.observedSettings || undefined,
         source: isFallbackMode ? 'synthetic_benchmark' : 'webcam_live',
       });
       soundFx.playSuccess();
@@ -174,14 +179,41 @@ export const PupilTestPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Instructions Card */}
-      <div className="panel-ramp p-5 flex items-start gap-3.5 text-xs leading-relaxed font-sans shadow-sm">
-        <div className="p-2 rounded-md bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A] shrink-0">
-          <SunMedium className="w-4 h-4" />
+      {/* Instructions & Rural Clinic Mode Card */}
+      <div className="panel-ramp p-5 space-y-3 text-xs leading-relaxed font-sans shadow-sm">
+        <div className="flex items-start gap-3.5">
+          <div className="p-2 rounded-md bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A] shrink-0">
+            <SunMedium className="w-4 h-4" />
+          </div>
+          <div className="space-y-0.5 text-[#475569] flex-1">
+            <strong className="text-[#0F172A] font-mono text-xs uppercase block font-semibold">{t('pupilTestPage.instructionLabel')}</strong>
+            {t('pupilTestPage.instructionText')}
+          </div>
         </div>
-        <div className="space-y-0.5 text-[#475569]">
-          <strong className="text-[#0F172A] font-mono text-xs uppercase block font-semibold">{t('pupilTestPage.instructionLabel')}</strong>
-          {t('pupilTestPage.instructionText')}
+        <div className="pt-2.5 border-t border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-start sm:items-center gap-2 text-[11px] text-[#475569]">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono font-semibold bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0] shrink-0">
+              {t('pupilTestPage.ruralModeBadge')}
+            </span>
+            <span>{t('pupilTestPage.ruralModeDesc')}</span>
+          </div>
+          {!recorder.isRecording && !recordedVideo && (
+            <button
+              type="button"
+              onClick={() => {
+                const nextProfile = camera.captureProfile === 'rural_clinic' ? 'standard' : 'rural_clinic';
+                camera.setCaptureProfile(nextProfile);
+                if (camera.isCameraActive) {
+                  camera.stopCamera();
+                }
+              }}
+              className="btn-ramp-secondary py-1 px-2.5 text-[11px] font-mono shrink-0 self-start sm:self-auto"
+            >
+              {camera.captureProfile === 'rural_clinic'
+                ? t('pupilTestPage.hdModeToggle')
+                : t('pupilTestPage.ruralModeToggle')}
+            </button>
+          )}
         </div>
       </div>
 
@@ -334,6 +366,7 @@ export const PupilTestPage: React.FC = () => {
           <div className="relative rounded-xl overflow-hidden shadow-ramp-card">
             <CameraPreview
               videoRef={camera.videoRef}
+              stream={camera.stream}
               isCameraActive={camera.isCameraActive}
               isLoading={camera.isLoading}
               error={camera.error}

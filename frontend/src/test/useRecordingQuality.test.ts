@@ -40,21 +40,38 @@ describe('useRecordingQuality / evaluateRecordingQuality', () => {
     expect(result.warnings.length).toBeGreaterThan(0);
   });
 
-  it('marks recording with low frame rate as insufficient', () => {
+  it('marks recording with critically low frame rate (< 8 FPS) as insufficient', () => {
     const result = evaluateRecordingQuality({
       durationMs: 15000,
       sizeBytes: 250000,
       testType: 'pupil_reflex',
       observedSettings: {
-        width: 1280,
-        height: 720,
-        frameRate: 10, // < 15 FPS
+        width: 640,
+        height: 480,
+        frameRate: 5, // < 8 FPS minimum rural-clinic floor
       },
     });
 
     expect(result.status).toBe('insufficient');
     expect(result.isAcceptable).toBe(false);
-    expect(result.warnings.some((w) => w.includes('15 FPS'))).toBe(true);
+    expect(result.warnings.some((w) => w.includes('8 FPS'))).toBe(true);
+  });
+
+  it('accepts rural-clinic low-res and 10 FPS capture with advisory warning', () => {
+    const result = evaluateRecordingQuality({
+      durationMs: 15000,
+      sizeBytes: 120000,
+      testType: 'pupil_reflex',
+      observedSettings: {
+        width: 320,
+        height: 240,
+        frameRate: 10, // Rural clinic webcam / low-light phone
+      },
+    });
+
+    expect(result.status).toBe('acceptable');
+    expect(result.isAcceptable).toBe(true);
+    expect(result.warnings.length).toBeGreaterThan(0);
   });
 
   it('handles labelled fallback benchmark sample as acceptable', () => {
@@ -72,13 +89,13 @@ describe('useRecordingQuality / evaluateRecordingQuality', () => {
 
   it('detects smooth pursuit test short duration', () => {
     const result = evaluateRecordingQuality({
-      durationMs: 3000, // < 5s for pursuit
+      durationMs: 3000, // < 4s for pursuit
       sizeBytes: 60000,
       testType: 'smooth_pursuit',
       observedSettings: {
-        width: 1280,
-        height: 720,
-        frameRate: 30,
+        width: 640,
+        height: 480,
+        frameRate: 24,
       },
     });
 

@@ -6,6 +6,7 @@ import { useTranslation } from '../../i18n';
 
 interface CameraPreviewProps {
   videoRef: React.RefObject<HTMLVideoElement>;
+  stream?: MediaStream | null;
   isCameraActive: boolean;
   isLoading: boolean;
   error: CameraError | null;
@@ -21,6 +22,7 @@ interface CameraPreviewProps {
 
 export const CameraPreview: React.FC<CameraPreviewProps> = ({
   videoRef,
+  stream = null,
   isCameraActive,
   isLoading,
   error,
@@ -34,6 +36,17 @@ export const CameraPreview: React.FC<CameraPreviewProps> = ({
   className = '',
 }) => {
   const { t } = useTranslation();
+
+  // Re-attach MediaStream when CameraPreview remounts (e.g., after Discard & Retake)
+  React.useEffect(() => {
+    const videoEl = videoRef.current;
+    if (videoEl && stream && isCameraActive && videoEl.srcObject !== stream) {
+      videoEl.srcObject = stream;
+      videoEl.play().catch(() => {
+        // Auto-play was prevented; video starts on user action
+      });
+    }
+  }, [videoRef, stream, isCameraActive]);
 
   return (
     <div className={`relative bg-[#0F1117] rounded-xl overflow-hidden aspect-video flex items-center justify-center border border-[#27282D] shadow-ramp-card ${className}`}>

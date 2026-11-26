@@ -367,3 +367,85 @@ def test_cli_saves_debug_frames(synthetic_pupil_video: Path, temp_dir: Path):
     assert proc.returncode == 0
     saved_frames = list(debug_dir.glob("*.jpg"))
     assert len(saved_frames) >= 80
+
+
+def test_face_localizer_detects_skin_toned_webcam_face_and_iris():
+    """Verifies GeometricFaceLocalizer finds off-center skin-toned face, eyes, and iris centers against bright background."""
+    frame = np.full((480, 640, 3), 235, dtype=np.uint8)
+    # Off-center face with realistic BGR skin tone (Cr ~ 152, Cb ~ 105)
+    fx, fy, fw, fh = 180, 90, 220, 280
+    cv2.ellipse(frame, (fx + fw // 2, fy + fh // 2), (fw // 2, fh // 2), 0, 0, 360, (145, 175, 220), -1)
+
+    # Left and right eyes with sclera, iris, and pupil
+    for ex in (fx + 55, fx + 165):
+        ey = fy + 95
+        cv2.ellipse(frame, (ex, ey), (28, 14), 0, 0, 360, (235, 235, 235), -1)
+        cv2.circle(frame, (ex, ey), 11, (95, 85, 80), -1)
+        cv2.circle(frame, (ex, ey), 5, (35, 35, 35), -1)
+
+    res = GeometricFaceLocalizer.localize(frame)
+    assert res.face_detected is True
+    assert res.left_iris_center is not None
+    assert res.right_iris_center is not None
+    assert abs(res.left_iris_center[0] - (fx + 55)) <= 12
+    assert abs(res.right_iris_center[0] - (fx + 165)) <= 12
+
+
+def test_pupil_segmenter_handles_auto_exposed_webcam_brightness():
+    """Verifies PupilSegmenter segments pupils whose pixel intensity exceeds 90 due to webcam auto-exposure."""
+    crop = np.full((80, 120, 3), 210, dtype=np.uint8)
+    cv2.circle(crop, (60, 40), 28, (145, 145, 145), -1)  # Iris
+    cv2.circle(crop, (60, 40), 12, (95, 95, 95), -1)     # Auto-exposed pupil (>90 intensity)
+
+    segmenter = PupilSegmenter()
+    cx, cy, diameter, conf, is_valid, err = segmenter.segment(crop)
+    assert is_valid is True
+    assert err is None
+    assert cx == pytest.approx(60.0, abs=3.0)
+    assert cy == pytest.approx(40.0, abs=3.0)
+    assert diameter == pytest.approx(24.0, abs=4.0)
+
+
+def test_pupil_segmenter_handles_dim_low_res_rural_crop():
+    """Verifies PupilSegmenter segments small dim eye crops from 320x240 low-light rural webcams."""
+    crop = np.full((24, 36, 3), 65, dtype=np.uint8)  # Dim indoor illumination
+    cv2.circle(crop, (18, 12), 8, (45, 45, 45), -1)  # Low-contrast iris
+    cv2.circle(crop, (18, 12), 4, (14, 14, 14), -1)  # Small pupil (8px diameter)
+
+    segmenter = PupilSegmenter()
+    cx, cy, diameter, conf, is_valid, err = segmenter.segment(crop)
+    assert is_valid is True
+    assert err is None
+    assert cx == pytest.approx(18.0, abs=2.5)
+    assert cy == pytest.approx(12.0, abs=2.5)
+    assert diameter == pytest.approx(8.0, abs=2.5)
+
+
+def test_pupil_tracker_recovers_from_initial_outlier_and_rejects_isolated_spike():
+    """Verifies PupilTracker unlocks after consecutive rejections and strips isolated spikes."""
+    from analysis.contracts import SampledFrame
+
+    tracker = PupilTracker(face_localizer=FaceLocalizer(force_fallback=True))
+
+    # Build a synthetic sequence where frame 0 has an oversized iris-like outlier,
+    # frames 1-7 have steady 20px pupil diameter, frame 4 has a 1-frame spike (would break without filter).
+    base_frame = generate_synthetic_face_frame(width=640, height=480, pupil_radius=10)
+    outlier_frame = generate_synthetic_face_frame(width=640, height=480, pupil_radius=20)
+    spike_frame = generate_synthetic_face_frame(width=640, height=480, pupil_radius=18)
+
+    sampled = []
+    for idx in range(8):
+        if idx == 0:
+            img = outlier_frame
+        elif idx == 4:
+            img = spike_frame
+        else:
+            img = base_frame
+        sampled.append(SampledFrame(frame_index=idx, timestamp_ms=idx * 33.3, frame=img, is_valid=True))
+
+    results = tracker.track_sequence(sampled)
+    valid_after_recovery = [m for m in results[3:] if m.valid]
+    assert len(valid_after_recovery) >= 3
+    # Isolated frame-4 spike should be invalidated or stabilized close to the ~20px pupil stream
+    diams = [m.diameter for m in valid_after_recovery if m.diameter is not None]
+    assert max(diams) - min(diams) < 8.0

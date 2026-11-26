@@ -11,12 +11,12 @@ import { soundFx } from '../../lib/soundFx';
 import { useTranslation } from '../../i18n';
 
 const CODE_SNIPPETS: Record<string, string> = {
-  frontend: `// Client-Side Scientific Quality Gate
-const validateRecording = (frames: VideoFrame[], lux: number) => {
+  frontend: `// Client-Side Rural-Clinic Adaptive Quality Gate
+const validateRecording = (frames: VideoFrame[], width: number, height: number) => {
   const fps = frames.length / (durationMs / 1000);
-  if (fps < 25.0) throw new QualityError("FPS_FLOOR_VIOLATION");
-  if (lux < 0.28) throw new QualityError("SCOTOPIC_AMBIENT_UNDEREXPOSURE");
-  return { status: "QUALIFIED_FOR_PIPELINE", fps, lux };
+  if (fps < 8.0) throw new QualityError("FPS_BELOW_RURAL_FLOOR");
+  if (Math.min(width, height) < 240) throw new QualityError("RESOLUTION_BELOW_QVGA");
+  return { status: "QUALIFIED_FOR_PIPELINE", fps, adaptiveUpscale: width < 640 };
 };`,
   cv: `// 11.7 mm Anthropometric Ruler Normalization
 const IRIS_DIAMETER_MM = 11.70;

@@ -52,9 +52,16 @@ def uploaded_assessment(client: TestClient) -> dict:
     return {"patient_id": patient_id, "assessment_id": assessment_id}
 
 
-def test_analyze_when_engine_unavailable_returns_503(client: TestClient, uploaded_assessment: dict):
-    # Ensure no engine injected
+def test_analyze_when_engine_unavailable_returns_503(
+    client: TestClient,
+    uploaded_assessment: dict,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from app.services import analysis_orchestrator
+
+    # Ensure no engine injected and simulate unavailable analysis package
     reset_analysis_engine()
+    monkeypatch.setattr(analysis_orchestrator, "ANALYSIS_ENGINE_AVAILABLE", False)
 
     asm_id = uploaded_assessment["assessment_id"]
     response = client.post(f"/api/assessments/{asm_id}/analyze")
@@ -245,3 +252,39 @@ def test_aditya_real_analysis_engine_integration(client: TestClient, uploaded_as
     data = response.json()
     assert data["assessment_id"] == asm_id
     assert data["status"] in ["complete", "failed"]
+
+
+def test_analyze_persists_analysis_engine_series_and_normalizes_diameter(
+    client: TestClient,
+    uploaded_assessment: dict,
+):
+    asm_id = uploaded_assessment["assessment_id"]
+
+    def engine_like_aditya(*args, **kwargs):
+        return {
+            "quality": {"status": "acceptable", "usable_frame_ratio": 0.95, "warnings": []},
+            "pupil": {
+                "status": "complete",
+                "features": {
+                    "baseline_diameter": {"value": 28.4, "unit": "px_or_normalized", "label": "Baseline pupil size"},
+                },
+                "series": [{"t_ms": 0, "diameter": 28.4, "valid": True}],
+            },
+            "pursuit": {
+                "status": "complete",
+                "features": {
+                    "mean_tracking_error": {"value": 0.04, "unit": "normalized_screen_units", "label": "Mean tracking error"},
+                    "tracking_continuity": {"value": 0.96, "unit": "ratio", "label": "Tracking continuity"},
+                },
+                "series": [{"t_ms": 0, "target_x": 0.5, "eye_x": 0.49, "valid": True}],
+            },
+        }
+
+    set_analysis_engine(engine_like_aditya)
+    response = client.post(f"/api/assessments/{asm_id}/analyze")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["pupil"]["series"] is not None
+    assert data["pupil"]["series"][0]["value"] == pytest.approx(28.4)
+    assert data["pursuit"]["series"] is not None
+    assert data["pursuit"]["series"][0]["eye_x"] == pytest.approx(0.49)

@@ -101,9 +101,9 @@ export const CLINICAL_PROTOCOLS: ProtocolSection[] = [
       'Pre-flight setup protocol for configuring ocular measurement sessions: selecting test batteries, verifying lighting, and positioning patient.',
     parameters: [
       { label: 'Available Batteries', value: 'Pupil Light Reflex, Smooth Pursuit, Combined' },
-      { label: 'Ambient Lux', value: '300-500 lux indirect ambient light (avoid directional glare)' },
-      { label: 'Capture Hardware', value: 'Front-facing standard or wide-angle webcam (>= 720p)' },
-      { label: 'Required FPS', value: '30 frames per second minimum calibrated rate' },
+      { label: 'Ambient Lux', value: 'Diffuse daylight or indoor bulb (CLAHE low-light lift enabled)' },
+      { label: 'Capture Hardware', value: 'Basic webcam or budget smartphone (≥ 320×240 QVGA; 480p recommended)' },
+      { label: 'Required FPS', value: '8–30 FPS adaptive (8 FPS rural-clinic floor; 24–30 FPS ideal)' },
     ],
     checklist: [
       'Select registered pseudonymous patient from roster.',
@@ -126,7 +126,7 @@ export const CLINICAL_PROTOCOLS: ProtocolSection[] = [
       { label: 'Dark Adaptation', value: '5.0 seconds baseline recording' },
       { label: 'Stimulus Flash', value: 'Full-screen white flash at 5.0 s (approx. 0.8 s duration)' },
       { label: 'Constriction Window', value: '10.0 seconds optical recovery monitoring' },
-      { label: 'Sampling Frequency', value: '30 FPS hardware synchronized' },
+      { label: 'Sampling Frequency', value: '8–30 FPS adaptive (rural-clinic compatible)' },
     ],
     checklist: [
       'Position subject face centered inside the onscreen guide oval.',
@@ -150,7 +150,7 @@ export const CLINICAL_PROTOCOLS: ProtocolSection[] = [
       { label: 'Stimulus Trajectory', value: 'Horizontal sinusoidal sweep (0.2-0.4 Hz)' },
       { label: 'Sweeping Velocity', value: '15-30 deg/sec visual angle' },
       { label: 'Target Morphology', value: 'High-contrast clinical fixation point (teal reticle)' },
-      { label: 'Sampling Requirement', value: '>= 30 FPS with zero dropped frame compensation' },
+      { label: 'Sampling Requirement', value: '≥ 8 FPS adaptive (≥ 15 FPS recommended)' },
     ],
     checklist: [
       'Seat subject with head stationary and chin level.',
@@ -173,7 +173,7 @@ export const CLINICAL_PROTOCOLS: ProtocolSection[] = [
       { label: 'Minimum Diameter', value: 'Peak constriction trough diameter reached (mm)' },
       { label: 'Constriction Velocity', value: 'Maximum rate of pupil diameter narrowing (mm/s)' },
       { label: 'Constriction Latency', value: 'Time from stimulus flash onset to constriction start (ms)' },
-      { label: 'Quality Criterion', value: 'Acceptable when usable eye frame ratio >= 80%' },
+      { label: 'Quality Criterion', value: 'Acceptable when usable eye frame ratio >= 60% (ideal >= 80%)' },
     ],
     checklist: [
       'Inspect Recording Quality status: do not base review on "Insufficient Quality" captures.',
@@ -248,7 +248,7 @@ export const TROUBLESHOOTING_ITEMS: TroubleshootingCard[] = [
     id: 'trouble-quality',
     question: 'Why was my recording marked "Insufficient Recording Quality"?',
     cause:
-      'OcuTrack strictly requires at least 80% of video frames to exhibit high-confidence ocular feature visibility. Excessive blinking, turning the head away, severe directional glare, or extreme low light will trigger a quality flag.',
+      'OcuTrack is optimized for rural clinics (accepting ≥ 320×240, ≥ 8 FPS, and ≥ 60% usable frames with low-light enhancement). However, unreadable/empty video streams, extreme darkness where pupils are invisible, < 8 FPS freezes, or severe motion blur will still trigger a quality flag.',
     remedy: [
       'Check subject distance: reposition face between 45-60 cm from the camera.',
       'Instruct the subject not to talk, squint, or turn their head during the capture countdown.',

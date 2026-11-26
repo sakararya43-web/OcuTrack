@@ -15,16 +15,18 @@ class AnalysisConfig:
     min_duration_sec: float = 2.0
     max_duration_sec: float = 60.0
 
-    # Frame rate thresholds (in FPS)
-    min_fps: float = 15.0
+    # Frame rate thresholds (in FPS) — tuned to support rural clinic webcams & budget phones
+    min_fps: float = 8.0
+    recommended_fps: float = 15.0
     target_fps: float = 30.0
 
     # Frame count limits
-    min_frames: int = 30
+    min_frames: int = 16
     max_frames: int = 1800
 
     # Quality ratio threshold: minimum proportion of successfully decoded frames
-    min_usable_frame_ratio: float = 0.80
+    min_usable_frame_ratio: float = 0.60
+    recommended_usable_frame_ratio: float = 0.80
 
     # Dimension bounds
     min_width: int = 320
@@ -54,10 +56,12 @@ class AnalysisConfig:
             "min_duration_sec",
             "max_duration_sec",
             "min_fps",
+            "recommended_fps",
             "target_fps",
             "min_frames",
             "max_frames",
             "min_usable_frame_ratio",
+            "recommended_usable_frame_ratio",
             "min_width",
             "min_height",
             "recommended_width",

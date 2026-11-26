@@ -21,11 +21,16 @@ from app.schemas.patients import AssessmentSummary
 
 FEATURE_LABELS = {
     "baseline_diameter": "Baseline Pupil Diameter",
+    "minimum_diameter": "Minimum Pupil Diameter",
     "constriction_latency": "Constriction Latency",
+    "response_latency_seconds": "Pupil Response Latency",
     "constriction_velocity": "Max Constriction Velocity",
     "constriction_amplitude": "Constriction Amplitude",
     "dilation_velocity": "Average Dilation Velocity",
     "tracking_gain": "Smooth Pursuit Gain",
+    "mean_tracking_error": "Mean Tracking Error",
+    "tracking_continuity": "Tracking Continuity",
+    "corrective_movement_count": "Corrective Movement Candidates",
     "rmse_error": "Gaze Tracking RMSE",
     "saccadic_intrusions": "Catch-up Saccades",
 }
@@ -35,6 +40,22 @@ NON_DIAGNOSTIC_NOTICE = (
     "ocular measurements for research and clinical review. It does not diagnose "
     "Parkinson’s disease, concussion, diabetic neuropathy, or any neurological condition."
 )
+
+
+def _normalize_pupil_series(raw_series: list) -> list:
+    """Maps analysis engine 'diameter' key to API schema 'value' key while preserving existing fields."""
+    normalized = []
+    for pt in raw_series:
+        if isinstance(pt, dict):
+            val = pt.get("value")
+            if val is None and "diameter" in pt:
+                val = pt.get("diameter")
+            normalized.append({
+                "t_ms": pt.get("t_ms", 0),
+                "value": val,
+                "valid": pt.get("valid", True),
+            })
+    return normalized
 
 
 def build_assessment_detail(assessment: AssessmentModel) -> AssessmentDetail:
@@ -59,7 +80,7 @@ def build_assessment_detail(assessment: AssessmentModel) -> AssessmentDetail:
         if m.test_type == "pupil_reflex":
             pupil_features[m.feature_name] = feat_obj
             if m.series_data:
-                pupil_series = m.series_data
+                pupil_series = _normalize_pupil_series(m.series_data)
         elif m.test_type == "smooth_pursuit":
             pursuit_features[m.feature_name] = feat_obj
             if m.series_data:
@@ -173,6 +194,8 @@ def build_patient_history_summary(assessment: AssessmentModel) -> AssessmentSumm
     for m in (assessment.measurements or []):
         if m.feature_name in ["constriction_latency", "latency_ms"]:
             features_dict["latency_ms"] = m.feature_value
+        elif m.feature_name == "response_latency_seconds" and m.feature_value is not None:
+            features_dict.setdefault("latency_ms", round(m.feature_value * 1000.0, 2))
         elif m.feature_name == "constriction_velocity":
             features_dict["constriction_velocity"] = m.feature_value
         elif m.feature_name == "tracking_gain":

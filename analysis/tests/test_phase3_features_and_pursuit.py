@@ -442,3 +442,36 @@ def test_cli_assessment_mode_json(
     assert out_json["pupil"]["features"]["baseline_diameter"]["value"] is not None
     assert out_json["pursuit"]["status"] == "complete"
     assert out_json["pursuit"]["features"]["mean_tracking_error"]["value"] is not None
+
+
+def test_parse_dict_wrapped_target_trajectory_from_frontend():
+    meta = {
+        "trajectory": {
+            "path_version": "horizontal-sweep-v1",
+            "duration_ms": 10000,
+            "coordinates_normalized": [
+                {"t_ms": 0, "x": 0.5, "y": 0.5},
+                {"t_ms": 100, "x": 0.6, "y": 0.5},
+            ],
+        }
+    }
+    ts, xs, ys = PursuitTracker._parse_target_trajectory(meta)
+    assert ts is not None and len(ts) == 2
+    assert xs[1] == pytest.approx(0.6)
+
+
+def test_extract_pupil_features_supports_stimulus_onset_seconds():
+    measurements = [
+        PupilMeasurement(
+            frame_index=i,
+            t_ms=i * 100,
+            eye_side="left",
+            diameter=30.0 if i < 20 else 20.0,
+            confidence=0.9,
+            valid=True,
+        )
+        for i in range(40)
+    ]
+    features, _ = extract_pupil_features(measurements, metadata={"stimulus_onset_seconds": 2.0})
+    assert features["baseline_diameter"]["value"] == pytest.approx(30.0, abs=0.5)
+    assert features["response_latency_seconds"]["value"] is not None

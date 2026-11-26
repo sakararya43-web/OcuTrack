@@ -73,6 +73,8 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
   const startTimeRef = useRef<number | null>(null);
   const recordedCoordsRef = useRef<TargetCoordinate[]>([]);
   const hasCompletedRef = useRef<boolean>(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     if (!isActive) {
@@ -124,8 +126,8 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
             y: pos.y,
           });
 
-          if (onComplete) {
-            onComplete({
+          if (onCompleteRef.current) {
+            onCompleteRef.current({
               path_version: PURSUIT_PATH_VERSION,
               duration_ms: PURSUIT_DURATION_MS,
               coordinates_normalized: recordedCoordsRef.current,
@@ -142,7 +144,7 @@ export const SmoothPursuitTarget: React.FC<SmoothPursuitTargetProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isActive, onComplete]);
+  }, [isActive]);
 
   const progressPercent = Math.min(100, (elapsedMs / PURSUIT_DURATION_MS) * 100);
 

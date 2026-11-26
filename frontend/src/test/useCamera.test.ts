@@ -92,5 +92,40 @@ describe('useCamera Hook', () => {
     expect(mockTrack.stop).toHaveBeenCalled();
     expect(result.current.isCameraActive).toBe(false);
     expect(result.current.stream).toBeNull();
+    expect(result.current.getStream()).toBeNull();
+  });
+
+  it('falls back to relaxed constraints on OverconstrainedError and exposes getStream', async () => {
+    const mockTrack = {
+      stop: vi.fn(),
+      getSettings: vi.fn().mockReturnValue({ width: 640, height: 480, frameRate: 30 }),
+    };
+    const mockStream = {
+      getTracks: vi.fn().mockReturnValue([mockTrack]),
+      getVideoTracks: vi.fn().mockReturnValue([mockTrack]),
+      active: true,
+    };
+    const overconstrained = new DOMException('Overconstrained', 'OverconstrainedError');
+    const mockGetUserMedia = vi
+      .fn()
+      .mockRejectedValueOnce(overconstrained)
+      .mockResolvedValueOnce(mockStream);
+
+    Object.defineProperty(global.navigator, 'mediaDevices', {
+      value: { getUserMedia: mockGetUserMedia },
+      writable: true,
+      configurable: true,
+    });
+
+    const { result } = renderHook(() => useCamera());
+
+    let success = false;
+    await act(async () => {
+      success = await result.current.startCamera();
+    });
+
+    expect(success).toBe(true);
+    expect(mockGetUserMedia).toHaveBeenCalledTimes(2);
+    expect(result.current.getStream()).toBe(mockStream);
   });
 });

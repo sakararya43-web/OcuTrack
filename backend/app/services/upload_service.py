@@ -40,6 +40,21 @@ def validate_metadata_json(raw_json: Optional[str]) -> Dict[str, Any]:
         raise ValidationError(f"Invalid metadata_json payload: {str(e)}")
 
 
+MIME_TO_EXTENSION = {
+    "video/webm": ".webm",
+    "video/mp4": ".mp4",
+    "video/quicktime": ".mov",
+    "video/x-matroska": ".mkv",
+}
+
+
+def _normalize_mime_type(raw_content_type: Optional[str]) -> str:
+    """Strips MIME parameters such as ';codecs=vp9' and lowercases the base media type."""
+    if not raw_content_type:
+        return ""
+    return raw_content_type.split(";", 1)[0].strip().lower()
+
+
 async def save_and_validate_video(
     file: UploadFile,
     test_type: str,
@@ -60,15 +75,17 @@ async def save_and_validate_video(
             f"Unsupported file extension '{ext}'. Allowed extensions: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
         )
 
-    # 2. Content-type check
-    content_type = (file.content_type or "").lower()
+    # 2. Content-type check (strip optional parameters like ;codecs=vp9)
+    raw_content_type = (file.content_type or "").strip().lower()
+    content_type = _normalize_mime_type(raw_content_type)
     if content_type and content_type not in ALLOWED_MIME_TYPES:
         raise ValidationError(
-            f"Unsupported MIME type '{content_type}'. Supported video types: {', '.join(sorted(ALLOWED_MIME_TYPES))}"
+            f"Unsupported MIME type '{raw_content_type}'. Supported video types: {', '.join(sorted(ALLOWED_MIME_TYPES))}"
         )
 
     # 3. Server-generated safe temporary path to prevent path traversal
-    safe_filename = f"{assessment_id}_{test_type}_{uuid.uuid4().hex}.webm"
+    safe_ext = ext if ext in ALLOWED_EXTENSIONS else MIME_TO_EXTENSION.get(content_type, ".webm")
+    safe_filename = f"{assessment_id}_{test_type}_{uuid.uuid4().hex}{safe_ext}"
     temp_path = upload_dir / safe_filename
 
     max_bytes = settings.MAX_UPLOAD_MB * 1024 * 1024
@@ -110,8 +127,8 @@ async def save_and_validate_video(
         if not ret or frame is None or frame.size == 0:
             raise ValidationError("Uploaded video contains no decodable frames or is corrupted.")
 
-        # Duration validation (with small 5s tolerance buffer for browser MediaRecorder timestamp jitter)
-        if fps > 0 and frame_count > 0:
+        # Duration validation (guard against VFR WebM headers reporting fps=0, fps=1000, or negative frame_count)
+        if 1.0 <= fps <= 240.0 and 0 < frame_count < 1_000_000:
             duration_s = frame_count / fps
             max_allowed = settings.MAX_VIDEO_SECONDS + 5
             if duration_s > max_allowed:

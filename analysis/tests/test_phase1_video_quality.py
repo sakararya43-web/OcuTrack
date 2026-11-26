@@ -79,8 +79,14 @@ def too_short_video(temp_dir: Path) -> Path:
 
 @pytest.fixture
 def low_fps_video(temp_dir: Path) -> Path:
-    vid_path = temp_dir / "low_10fps.mp4"
-    return create_synthetic_video(vid_path, duration_sec=3.0, fps=10.0)
+    vid_path = temp_dir / "low_5fps.mp4"
+    return create_synthetic_video(vid_path, duration_sec=3.5, fps=5.0)
+
+
+@pytest.fixture
+def rural_10fps_video(temp_dir: Path) -> Path:
+    vid_path = temp_dir / "rural_10fps_qvga.mp4"
+    return create_synthetic_video(vid_path, duration_sec=3.0, fps=10.0, width=320, height=240)
 
 
 @pytest.fixture
@@ -218,6 +224,26 @@ def test_assess_video_quality_low_fps(low_fps_video: Path):
     assert res.status == QualityStatus.INSUFFICIENT
     warning_texts = " ".join(res.warnings).lower()
     assert "low frame rate" in warning_texts
+
+
+def test_assess_video_quality_rural_low_fps_and_qvga_accepted(rural_10fps_video: Path):
+    res = assess_video_quality(rural_10fps_video)
+    assert res.status == QualityStatus.ACCEPTABLE
+    assert res.details["frame_count"] >= 28
+    warning_texts = " ".join(res.warnings).lower()
+    assert "low-fps clinic device" in warning_texts
+
+
+def test_video_reader_preserves_all_frames_without_seek(valid_video: Path):
+    with VideoReader(valid_video) as reader:
+        meta = reader.probe_metadata()
+        frames_first_pass = list(reader.read_frames())
+        frames_second_pass = list(reader.read_frames())
+
+    assert len(frames_first_pass) == meta.frame_count
+    assert len(frames_second_pass) == meta.frame_count
+    assert frames_first_pass[0].frame_index == 0
+    assert frames_first_pass[1].frame_index == 1
 
 
 def test_assess_video_quality_missing_file(temp_dir: Path):

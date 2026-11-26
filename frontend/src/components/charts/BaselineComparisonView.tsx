@@ -15,11 +15,24 @@ export const BaselineComparisonView: React.FC<BaselineComparisonViewProps> = ({
   const { t } = useTranslation();
 
   if (!comparison || comparison.status === 'not_available') {
+    const isBaselineEstablished = Boolean(comparison?.baseline_id);
     return (
-      <div className={`p-8 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-2 font-mono ${className}`}>
-        <h4 className="text-xs uppercase tracking-wider text-[#0F172A] font-semibold">{t('charts.baseline.title')}</h4>
-        <p className="text-xs text-[#475569] max-w-md mx-auto font-sans font-normal">
+      <div className={`p-6 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] space-y-2.5 ${className}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h4 className="text-xs font-mono uppercase tracking-wider text-[#0F172A] font-semibold">
+            {t('charts.baseline.title')}
+          </h4>
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#F0FDF4] text-[#0F766E] border border-[#BBF7D0]">
+            {isBaselineEstablished ? 'Baseline Saved (Visit #1)' : 'Waiting for Baseline'}
+          </span>
+        </div>
+        <p className="text-xs text-[#334155] font-sans font-medium">
           {comparison?.comparability_reason || t('charts.baseline.noBaselineDesc')}
+        </p>
+        <p className="text-xs text-[#475569] font-sans leading-relaxed">
+          {isBaselineEstablished
+            ? 'There is no earlier visit to compare against yet. Today’s measurements are saved as this patient’s personal reference — when they return for a 2nd assessment, changes (Δ) will appear here automatically.'
+            : 'Complete at least one acceptable-quality recording for this patient to establish their personal baseline.'}
         </p>
       </div>
     );

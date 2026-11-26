@@ -101,6 +101,12 @@ def extract_pupil_features(
         except (ValueError, TypeError):
             stimulus_onset_ms = None
             warnings.append("[Pupil Features] Invalid stimulus_onset_ms format in metadata.")
+    elif "stimulus_onset_seconds" in meta and meta["stimulus_onset_seconds"] is not None:
+        try:
+            stimulus_onset_ms = float(meta["stimulus_onset_seconds"]) * 1000.0
+        except (ValueError, TypeError):
+            stimulus_onset_ms = None
+            warnings.append("[Pupil Features] Invalid stimulus_onset_seconds format in metadata.")
 
     # Determine baseline window
     if stimulus_onset_ms is not None:

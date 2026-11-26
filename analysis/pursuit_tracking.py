@@ -100,15 +100,23 @@ class PursuitTracker:
             self._history.append(m)
             return m, face_res, bbox
 
-        # 3. Locate pupil center within crop
+        # 3. Locate pupil/iris center within crop
         crop_cx, crop_cy, _, _, is_valid_seg, seg_err = self.segmenter.segment(crop)
 
         if is_valid_seg and crop_cx is not None and crop_cy is not None:
             frame_cx, frame_cy = EyeRegionExtractor.crop_to_frame_coordinates(crop_cx, crop_cy, bbox)
         else:
-            # Fall back to geometric center of the eye bounding box
-            bx, by, bw, bh = bbox
-            frame_cx, frame_cy = float(bx + bw / 2.0), float(by + bh / 2.0)
+            # Prefer localized iris center before falling back to static eye bounding box center
+            iris_center = (
+                face_res.right_iris_center
+                if self.tracked_eye_side == EyeSide.RIGHT.value
+                else face_res.left_iris_center
+            )
+            if iris_center is not None:
+                frame_cx, frame_cy = float(iris_center[0]), float(iris_center[1])
+            else:
+                bx, by, bw, bh = bbox
+                frame_cx, frame_cy = float(bx + bw / 2.0), float(by + bh / 2.0)
 
         # Normalize to screen/frame coordinate range [0.0, 1.0]
         norm_eye_x = max(0.0, min(1.0, frame_cx / float(w)))
@@ -170,12 +178,17 @@ class PursuitTracker:
         if not metadata:
             return None, None, None
 
-        # Accept "trajectory", "target_trajectory", or "target_points"
+        # Accept "trajectory", "target_trajectory", "target_points", or "target_path"
+        # Either as a direct list or a dict containing "coordinates_normalized" / "points"
         raw_traj = (
             metadata.get("trajectory")
             or metadata.get("target_trajectory")
             or metadata.get("target_points")
+            or metadata.get("target_path")
         )
+
+        if isinstance(raw_traj, dict):
+            raw_traj = raw_traj.get("coordinates_normalized") or raw_traj.get("points")
 
         if not raw_traj or not isinstance(raw_traj, list):
             return None, None, None

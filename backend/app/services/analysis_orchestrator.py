@@ -123,37 +123,70 @@ def orchestrate_analysis(
 
         # Persist pupil features
         pupil_data = validated.get("pupil", {})
-        pupil_features = pupil_data.get("features", {})
-        pupil_series = pupil_data.get("series", [])
+        pupil_features = pupil_data.get("features") or {}
+        pupil_series = pupil_data.get("series") or []
+        saved_pupil_series = False
         for feat_name, feat_obj in pupil_features.items():
             if isinstance(feat_obj, dict):
+                attach_series = (
+                    pupil_series
+                    if pupil_series and not saved_pupil_series and (feat_name == "baseline_diameter" or len(pupil_features) == 1)
+                    else None
+                )
+                if attach_series is not None:
+                    saved_pupil_series = True
                 measurement = MeasurementModel(
                     assessment_id=assessment.id,
                     test_type="pupil_reflex",
                     feature_name=feat_name,
                     feature_value=feat_obj.get("value"),
                     unit=feat_obj.get("unit", "a.u."),
-                    series_data=pupil_series if feat_name == "baseline_diameter" else None,
+                    series_data=attach_series,
                     created_at=utc_now(),
                 )
                 db.add(measurement)
+        if pupil_series and not saved_pupil_series:
+            # Fallback if baseline_diameter was absent from pupil_features
+            first_pupil = next(
+                (m for m in db.new if isinstance(m, MeasurementModel) and m.test_type == "pupil_reflex"),
+                None,
+            )
+            if first_pupil is not None:
+                first_pupil.series_data = pupil_series
 
         # Persist pursuit features
         pursuit_data = validated.get("pursuit", {})
-        pursuit_features = pursuit_data.get("features", {})
-        pursuit_series = pursuit_data.get("series", [])
+        pursuit_features = pursuit_data.get("features") or {}
+        pursuit_series = pursuit_data.get("series") or []
+        saved_pursuit_series = False
         for feat_name, feat_obj in pursuit_features.items():
             if isinstance(feat_obj, dict):
+                attach_series = (
+                    pursuit_series
+                    if pursuit_series
+                    and not saved_pursuit_series
+                    and feat_name in ("tracking_gain", "mean_tracking_error")
+                    else None
+                )
+                if attach_series is not None:
+                    saved_pursuit_series = True
                 measurement = MeasurementModel(
                     assessment_id=assessment.id,
                     test_type="smooth_pursuit",
                     feature_name=feat_name,
                     feature_value=feat_obj.get("value"),
                     unit=feat_obj.get("unit", "a.u."),
-                    series_data=pursuit_series if feat_name == "tracking_gain" else None,
+                    series_data=attach_series,
                     created_at=utc_now(),
                 )
                 db.add(measurement)
+        if pursuit_series and not saved_pursuit_series:
+            first_pursuit = next(
+                (m for m in db.new if isinstance(m, MeasurementModel) and m.test_type == "smooth_pursuit"),
+                None,
+            )
+            if first_pursuit is not None:
+                first_pursuit.series_data = pursuit_series
 
         # 3. Persist Model Run
         temporal_data = validated.get("temporal_model", {})

@@ -66,9 +66,9 @@ export function evaluateRecordingQuality(
   const sec = (durationMs / 1000).toFixed(1);
   const durationLabel = t('quality.durationName');
 
-  // 1. Duration check
+  // 1. Duration check (tolerant of rural clinic early stops that still cover flash/sweep)
   if (testType === 'pupil_reflex') {
-    if (durationMs < 8000) {
+    if (durationMs < 6000) {
       checks.push({
         name: durationLabel,
         passed: false,
@@ -94,7 +94,7 @@ export function evaluateRecordingQuality(
     }
   } else {
     // smooth_pursuit (10s nominal)
-    if (durationMs < 5000) {
+    if (durationMs < 4000) {
       checks.push({
         name: durationLabel,
         passed: false,
@@ -120,11 +120,11 @@ export function evaluateRecordingQuality(
     }
   }
 
-  // 2. Video file size check (minimum decodability payload)
+  // 2. Video file size check (supports compressed low-res rural clinic streams >= 8 KB)
   if (sizeBytes !== undefined) {
     const kb = (sizeBytes / 1024).toFixed(1);
     const fileLabel = t('quality.fileSizeName');
-    if (sizeBytes < 20000) {
+    if (sizeBytes < 8000) {
       checks.push({
         name: fileLabel,
         passed: false,
@@ -142,12 +142,15 @@ export function evaluateRecordingQuality(
     }
   }
 
-  // 3. Resolution check
+  // 3. Resolution check (orientation-agnostic; supports QVGA 320x240+ rural devices)
   const width = observedSettings?.width;
   const height = observedSettings?.height;
   if (width && height) {
     const resLabel = t('quality.resolutionName');
-    if (width < 640 || height < 480) {
+    const shortSide = Math.min(width, height);
+    const longSide = Math.max(width, height);
+
+    if (shortSide < 240 || longSide < 320) {
       checks.push({
         name: resLabel,
         passed: false,
@@ -155,7 +158,7 @@ export function evaluateRecordingQuality(
         message: t('quality.resLowErr', { w: width, h: height }),
       });
       warnings.push(t('quality.resLowWarn'));
-    } else if (width < 1280 || height < 720) {
+    } else if (shortSide < 480 || longSide < 640) {
       checks.push({
         name: resLabel,
         passed: true,
@@ -173,11 +176,11 @@ export function evaluateRecordingQuality(
     }
   }
 
-  // 4. Frame rate check
+  // 4. Frame rate check (8 FPS minimum floor for low-end/dim-room rural clinic webcams)
   const frameRate = observedSettings?.frameRate;
   if (frameRate) {
     const fpsLabel = t('quality.frameRateName');
-    if (frameRate < 15) {
+    if (frameRate < 8) {
       checks.push({
         name: fpsLabel,
         passed: false,
@@ -185,7 +188,7 @@ export function evaluateRecordingQuality(
         message: t('quality.fpsLowErr', { fps: frameRate }),
       });
       warnings.push(t('quality.fpsLowWarn'));
-    } else if (frameRate < 24) {
+    } else if (frameRate < 15) {
       checks.push({
         name: fpsLabel,
         passed: true,
