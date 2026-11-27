@@ -40,7 +40,7 @@ OcuTrack turns standard laptop webcams into calibrated, objective ocular measure
 1. **Standardized Pupillary Light Reflex (PLR) Capture**: 15-second protocol measuring dark-adapted resting baseline, flash response at 5.0s, maximum constriction velocity, and redilation kinetics at 30 FPS.
 2. **Horizontal Smooth-Pursuit Kinematics (SPEM)**: 10-second horizontal sinusoidal target tracking evaluating velocity tracking gain, root-mean-square spatial error (RMSE), and catch-up saccadic intrusions.
 3. **Intra-Individual Longitudinal Comparison ($\Delta$)**: Evaluates percent changes against each patient's own historical baseline rather than noisy, uncalibrated population averages.
-4. **Rural-Clinic Capture & Quality Gating**: Client-side validation (`useRecordingQuality`) with automatic `OverconstrainedError` camera fallback — supporting down to `320×240` QVGA resolution (`1280×720` recommended), `8 FPS` minimum floor (`15 FPS` recommended, `30 FPS` target), and `&ge; 60%` usable frame ratio (`80%` recommended).
+4. **Rural-Clinic Capture & Quality Gating**: Client-side validation (`useRecordingQuality`) with automatic `OverconstrainedError` camera fallback — supporting down to `320×240` QVGA resolution (`1280×720` recommended), `8 FPS` minimum floor (`15 FPS` recommended, `30 FPS` target), and &ge; 60% usable frame ratio (80% recommended).
 
 ---
 
