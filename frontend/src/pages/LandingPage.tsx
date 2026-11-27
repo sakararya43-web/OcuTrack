@@ -1,5 +1,4 @@
 import React from 'react';
-import { DisclaimerBanner } from '../components/layout/DisclaimerBanner';
 import { Header } from '../components/layout/Header';
 import { HelloMondayHero } from '../components/landing/HelloMondayHero';
 import { HelloMondayMarquee } from '../components/landing/HelloMondayMarquee';
@@ -18,10 +17,7 @@ import { JudgeFloatingHUD } from '../components/landing/JudgeFloatingHUD';
 export const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-[#0F172A] selection:bg-[#0F172A] selection:text-white overflow-x-hidden">
-      {/* 1. Protocol Notice Banner */}
-      <DisclaimerBanner />
-
-      {/* 3. Creative Studio Header with Mega-Menu & Patient Search */}
+      {/* 1. Creative Studio Header with Mega-Menu & Patient Search */}
       <Header />
 
       <main>

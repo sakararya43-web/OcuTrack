@@ -1,7 +1,6 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Header } from './Header';
-import { DisclaimerBanner } from './DisclaimerBanner';
 import { APP_NAME, PROTOCOL_VERSION } from '../../lib/constants';
 import { ArrowUpRight, Lock, ShieldCheck } from 'lucide-react';
 import { useTranslation } from '../../i18n';
@@ -11,7 +10,6 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-[#0F172A] selection:bg-[#0F172A] selection:text-white relative">
-      <DisclaimerBanner />
       <Header />
 
       <main className="flex-1 max-w-[1440px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10">

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
-import { NON_DIAGNOSTIC_DISCLAIMER } from '../lib/constants';
 
 describe('App Root and Navigation', () => {
   beforeEach(() => {
@@ -14,7 +13,7 @@ describe('App Root and Navigation', () => {
     render(<App />);
     expect(screen.getAllByText('OcuTrack')[0]).toBeInTheDocument();
     expect(screen.getByText('ENTER RESEARCH CONSOLE')).toBeInTheDocument();
-    expect(screen.getAllByText(NON_DIAGNOSTIC_DISCLAIMER)[0]).toBeInTheDocument();
+    expect(screen.getByText('Start Clinical Screening')).toBeInTheDocument();
     await waitFor(() => {
       expect(document.body).toBeInTheDocument();
     });
