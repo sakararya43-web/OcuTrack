@@ -20,6 +20,10 @@
 **AI for Medicine: A Global Student Hackathon on the Future of Care**  
 *Track: Ocular Biometrics, Neurology & Longitudinal Change Monitoring*
 
+<br />
+
+<img src="docs/assets/ocutrack-hero.jpg" alt="OcuTrack Quantitative Ocular Telemetry Interface" width="100%" />
+
 </div>
 
 ---
