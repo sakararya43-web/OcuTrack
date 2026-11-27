@@ -10,9 +10,9 @@ export const LanguageSwitcher: React.FC<{ className?: string }> = ({ className }
     <div
       role="group"
       aria-label="Language selector"
-      className={`relative inline-flex items-center rounded-md border border-slate-200 bg-slate-100 p-0.5 text-[11px] font-mono select-none shrink-0 ${className || ''}`}
+      className={`relative inline-flex items-center rounded-md border border-slate-200 bg-slate-100 p-0.5 text-[10.5px] font-mono select-none shrink-0 ${className || ''}`}
     >
-      <Globe className="w-3 h-3 text-slate-500 ml-1.5 mr-1 hidden sm:inline-block" aria-hidden="true" />
+      <Globe className="w-3 h-3 text-slate-500 ml-1 mr-0.5 hidden min-[1640px]:inline-block" aria-hidden="true" />
       {supportedLanguages.map((lang) => {
         const isActive = language === lang.code;
         return (
@@ -22,7 +22,7 @@ export const LanguageSwitcher: React.FC<{ className?: string }> = ({ className }
             onClick={() => setLanguage(lang.code as SupportedLanguage)}
             aria-pressed={isActive}
             title={lang.nativeName}
-            className={`relative z-10 px-1.5 py-0.5 text-[11px] font-semibold rounded-sm transition-colors duration-150 ${
+            className={`relative z-10 px-1 py-0.5 text-[10.5px] font-semibold rounded-sm transition-colors duration-150 ${
               isActive
                 ? 'text-white'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
