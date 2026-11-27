@@ -22,7 +22,7 @@
 
 <br />
 
-<img src="docs/assets/ocutrack-hero.jpg" alt="OcuTrack Quantitative Ocular Telemetry Interface" width="100%" />
+<img src="docs/assets/ocutrack-hero.png" alt="OcuTrack Quantitative Ocular Telemetry Interface" width="100%" />
 
 </div>
 
