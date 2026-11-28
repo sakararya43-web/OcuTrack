@@ -16,6 +16,12 @@ import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
 import { useRecordingQuality } from '../hooks/useRecordingQuality';
 import { CameraPreview } from '../components/capture/CameraPreview';
 import {
+  CalibrationCheck,
+  CalibrationResult,
+  CalibrationStatusBadge,
+  buildCalibrationUploadMetadata,
+} from '../components/capture/CalibrationCheck';
+import {
   SmoothPursuitTarget,
   TargetTrajectoryMetadata,
   PURSUIT_DURATION_MS,
@@ -41,6 +47,7 @@ export const PursuitTestPage: React.FC = () => {
   const [trajectoryMetadata, setTrajectoryMetadata] = useState<TargetTrajectoryMetadata | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
+  const [calibrationResult, setCalibrationResult] = useState<CalibrationResult | null>(null);
 
   const TARGET_DURATION_S = PURSUIT_DURATION_MS / 1000;
 
@@ -53,13 +60,23 @@ export const PursuitTestPage: React.FC = () => {
     },
   });
 
+  // Reset calibration whenever live camera stream stops or disconnects
+  useEffect(() => {
+    if (!camera.isCameraActive) {
+      setCalibrationResult(null);
+    }
+  }, [camera.isCameraActive]);
+
   const handleStartCountdown = async () => {
     if (countdown !== null || camera.isLoading) return;
     soundFx.playClick();
     if (!camera.isCameraActive) {
       const success = await camera.startCamera();
       if (!success) return;
+      // Camera is now active; CalibrationCheck runs automatically before recording can begin
+      return;
     }
+    if (!calibrationResult) return;
     soundFx.playTick();
     setCountdown(3);
   };
@@ -137,6 +154,7 @@ export const PursuitTestPage: React.FC = () => {
         capture_profile: camera.captureProfile,
         observed_camera: camera.observedSettings || undefined,
         source: isFallbackMode ? 'synthetic_benchmark' : 'webcam_live',
+        ...buildCalibrationUploadMetadata(calibrationResult, isFallbackMode),
       });
 
       // Trigger asynchronous analysis
@@ -177,7 +195,15 @@ export const PursuitTestPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto font-mono text-xs">
+          {calibrationResult && !isFallbackMode && (
+            <CalibrationStatusBadge
+              result={calibrationResult}
+              canRecalibrate={!recorder.isRecording && !recordedVideo}
+              onRecalibrate={() => setCalibrationResult(null)}
+              testId="pursuit-calibration-badge"
+            />
+          )}
           <span className="text-[#64748B]">{t('pursuitTestPage.targetLabel')}</span>
           <span className="px-2.5 py-1 bg-white border border-[#E2E8F0] rounded text-[#0F172A] font-semibold">
             {t('pursuitTestPage.targetSpec', { sec: TARGET_DURATION_S })}
@@ -378,13 +404,20 @@ export const PursuitTestPage: React.FC = () => {
       ) : (
         /* Capture Arena */
         <div className="space-y-6">
-          {/* Target Arena */}
-          <div className="rounded-xl overflow-hidden shadow-ramp-card">
-            <SmoothPursuitTarget
-              isActive={isTargetActive}
-              onComplete={handleTargetComplete}
+          {/* 5-Point Calibration Check or Smooth Pursuit Target Arena */}
+          {camera.isCameraActive && !calibrationResult ? (
+            <CalibrationCheck
+              videoRef={camera.videoRef}
+              onCalibrationComplete={(result) => setCalibrationResult(result)}
             />
-          </div>
+          ) : (
+            <div className="rounded-xl overflow-hidden shadow-ramp-card">
+              <SmoothPursuitTarget
+                isActive={isTargetActive}
+                onComplete={handleTargetComplete}
+              />
+            </div>
+          )}
 
           {/* Picture-in-Picture or camera preview below target */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
@@ -440,14 +473,22 @@ export const PursuitTestPage: React.FC = () => {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={handleStartCountdown}
-                    className="btn-ramp-primary w-full justify-center text-xs py-2.5 shadow-sm"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>{t('pursuitTestPage.startRecording')}</span>
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={handleStartCountdown}
+                      disabled={camera.isCameraActive && !calibrationResult}
+                      className="btn-ramp-primary rounded-md w-full justify-center text-xs py-2.5 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>{t('pursuitTestPage.startRecording')}</span>
+                    </button>
+                    {camera.isCameraActive && !calibrationResult && (
+                      <p className="text-[11px] font-mono text-[#475569] leading-snug">
+                        {t('capture.calibration.unlockHint')}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 

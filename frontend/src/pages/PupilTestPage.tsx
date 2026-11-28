@@ -16,6 +16,12 @@ import { useCamera } from '../hooks/useCamera';
 import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
 import { useRecordingQuality } from '../hooks/useRecordingQuality';
 import { CameraPreview } from '../components/capture/CameraPreview';
+import {
+  CalibrationCheck,
+  CalibrationResult,
+  CalibrationStatusBadge,
+  buildCalibrationUploadMetadata,
+} from '../components/capture/CalibrationCheck';
 import { SampleVideoFallback } from '../components/capture/SampleVideoFallback';
 import { getAssessment, triggerAnalysis, uploadPupilVideo } from '../services/assessmentService';
 import { PROTOCOL_VERSION } from '../lib/constants';
@@ -35,6 +41,7 @@ export const PupilTestPage: React.FC = () => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
   const [testType, setTestType] = useState<'both' | 'pupil_reflex' | 'smooth_pursuit'>('both');
+  const [calibrationResult, setCalibrationResult] = useState<CalibrationResult | null>(null);
 
   useEffect(() => {
     if (!assessmentId) return;
@@ -72,13 +79,23 @@ export const PupilTestPage: React.FC = () => {
     }
   }, [recorder.isRecording]);
 
+  // Reset calibration whenever live camera stream stops or disconnects
+  useEffect(() => {
+    if (!camera.isCameraActive) {
+      setCalibrationResult(null);
+    }
+  }, [camera.isCameraActive]);
+
   const handleStartCountdown = async () => {
     if (countdown !== null || camera.isLoading) return;
     soundFx.playClick();
     if (!camera.isCameraActive) {
       const success = await camera.startCamera();
       if (!success) return;
+      // Camera is now active; CalibrationCheck runs automatically before recording can begin
+      return;
     }
+    if (!calibrationResult) return;
     soundFx.playTick();
     setCountdown(3);
   };
@@ -140,6 +157,7 @@ export const PupilTestPage: React.FC = () => {
         capture_profile: camera.captureProfile,
         observed_camera: camera.observedSettings || undefined,
         source: isFallbackMode ? 'synthetic_benchmark' : 'webcam_live',
+        ...buildCalibrationUploadMetadata(calibrationResult, isFallbackMode),
       });
       if (testType === 'pupil_reflex') {
         await triggerAnalysis(assessmentId);
@@ -192,7 +210,15 @@ export const PupilTestPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto font-mono text-xs">
+          {calibrationResult && !isFallbackMode && (
+            <CalibrationStatusBadge
+              result={calibrationResult}
+              canRecalibrate={!recorder.isRecording && !recordedVideo}
+              onRecalibrate={() => setCalibrationResult(null)}
+              testId="pupil-calibration-badge"
+            />
+          )}
           <span className="text-[#64748B]">{t('pupilTestPage.targetLabel')}</span>
           <span className="px-2.5 py-1 bg-white border border-[#E2E8F0] rounded text-[#0F172A] font-semibold">
             {t('pupilTestPage.targetSpec', { sec: TARGET_DURATION_S })}
@@ -384,6 +410,14 @@ export const PupilTestPage: React.FC = () => {
       ) : (
         /* Live Recording Camera Preview */
         <div className="space-y-6">
+          {/* 5-Point Pre-Test Calibration Check (runs automatically once camera stream is active) */}
+          {camera.isCameraActive && !calibrationResult && (
+            <CalibrationCheck
+              videoRef={camera.videoRef}
+              onCalibrationComplete={(result) => setCalibrationResult(result)}
+            />
+          )}
+
           <div className="relative rounded-xl overflow-hidden shadow-ramp-card">
             <CameraPreview
               videoRef={camera.videoRef}
@@ -431,10 +465,12 @@ export const PupilTestPage: React.FC = () => {
           )}
 
           {/* Controls Bar */}
-          <div className="panel-ramp p-4 flex items-center justify-between">
+          <div className="panel-ramp p-4 flex items-center justify-between gap-3">
             <div className="text-xs font-mono text-[#475569]">
               {recorder.isRecording
                 ? t('pupilTestPage.autoStopHint')
+                : camera.isCameraActive && !calibrationResult
+                ? t('capture.calibration.unlockHint')
                 : t('pupilTestPage.countdownHint')}
             </div>
 
@@ -455,7 +491,8 @@ export const PupilTestPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleStartCountdown}
-                  className="btn-ramp-primary text-xs py-2 px-4 shadow-sm"
+                  disabled={camera.isCameraActive && !calibrationResult}
+                  className="btn-ramp-primary rounded-md text-xs py-2 px-4 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>{t('pupilTestPage.startRecording')}</span>

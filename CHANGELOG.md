@@ -6,6 +6,60 @@ All notable changes to this project are documented here in reverse-chronological
 
 ## [Unreleased] — 2026-11-28
 
+### Added — Feature: Reusable 5-Point Pre-Test Calibration Check (All Tests)
+
+**Task Source:** Uploaded specification (`Feature: Reusable 5-Point Pre-Test Calibration Check (All Tests)`)
+
+#### New Files
+- `frontend/src/components/capture/CalibrationCheck.tsx`
+  — Reusable 5-second **Quick 5-Point Calibration Check** component accepting `videoRef`,
+    `onCalibrationComplete(result)`, and optional `onSkipForDemo`. Animates a medical crosshair
+    target across 5 coordinates (`50%, 50%` -> `20%, 22%` -> `80%, 22%` -> `80%, 78%` ->
+    `20%, 78%`, 1s each) using Framer Motion spring physics with `useReducedMotion()` support.
+    Samples live camera frames onto an off-screen `160x120` `<canvas>` at ~15 FPS
+    (`67ms` interval), computes frame-to-frame pixel luminance MAD (`extractLuminanceSamples`,
+    `computeFrameJitterMetrics`), ambient brightness drift, and a live monospaced `tabular-nums`
+    **Calibration Stability Score (0%–100%)** + **Jitter Meter**.
+    - Pass gate (`score >= 75%`): displays `CALIBRATION STABLE`, rectangular `Proceed to Capture`
+      button, and 1.5s auto-unlock.
+    - High-jitter gate (`score < 75%`): displays amber warning banner (`High tracking jitter
+      detected. Steady the device or rest it on a stable surface before capturing.`), rectangular
+      `Recalibrate (5s)` button, and rectangular `Override & Proceed` button logging
+      `low_calibration_stability`.
+  — Also exports `CalibrationStatusBadge` (compact `rounded-sm` header badge + `Recalibrate`
+    button) and `buildCalibrationUploadMetadata()` shared by both test pages without duplication.
+
+- `frontend/src/test/CalibrationCheck.test.tsx`
+  — 6 unit & integration tests covering real luminance/MAD jitter scoring, 5-coordinate sweep
+    & 1.5s auto-unlock, high-jitter warning + `Recalibrate (5s)` + `Override & Proceed`
+    (`low_calibration_stability`), integration gating on `PupilTestPage` & `PursuitTestPage`,
+    header badge + `Recalibrate`, unblocked `SampleVideoFallback`, and EN/HI/ES/FR i18n parity.
+
+#### Modified Files
+- `frontend/src/pages/PupilTestPage.tsx`
+  — Automatically runs `CalibrationCheck` once live webcam activates before unlocking
+    `Start 15s Recording`; renders `CalibrationStatusBadge` (`Calibration: XX% (Passed)` /
+    `(Override)`) + `Recalibrate` button in header; forwards calibration metadata +
+    `low_calibration_stability` note without altering backend schemas; keeps `SampleVideoFallback`
+    completely unblocked.
+- `frontend/src/pages/PursuitTestPage.tsx`
+  — Same calibration gate in the top full-width target arena before `SmoothPursuitTarget` and
+    `Start Pursuit Recording (10s)` unlock, keeping `<CameraPreview>` live underneath, plus
+    header `CalibrationStatusBadge` and unblocked `SampleVideoFallback`.
+- `frontend/src/i18n/locales/{en,hi,es,fr}/pages.ts`
+  — Added `capture.calibration` translations (`title`, `subtitle`, `stabilityLabel`,
+    `jitterMeterLabel`, `stableBadge`, `highJitterWarning`, `recalibrate5sBtn`, `overrideBtn`,
+    `headerPassed`, `headerOverride`, `recalibrateShort`, `unlockHint`, etc.) across all 4 locales.
+
+#### Verification & Scaffolding Audit
+- Audited `CalibrationCheck.tsx`, `PupilTestPage.tsx`, `PursuitTestPage.tsx`, and existing
+  sources: zero `TODO`/`FIXME`/`stub`/scaffolding markers, zero `rounded-full` buttons/badges,
+  zero gradients, zero emoji icons, zero em dashes.
+- `frontend`: `npm run build` passed (`tsc -b && vite build`, zero errors).
+- `frontend`: `npm run test -- --run` passed (**17 test files, 68 tests passed**).
+
+---
+
 ### Added — Feature: One-Click Clinical Handoff Report (Monochrome PDF Export)
 
 **Task Source:** Uploaded specification (`Feature: One-Click Clinical Handoff Report (Monochrome PDF Export)`)
