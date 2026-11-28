@@ -6,6 +6,63 @@ All notable changes to this project are documented here in reverse-chronological
 
 ## [Unreleased] — 2026-11-28
 
+### Added — Feature: Real-Time Pre-Capture Quality Gate (Edge CV)
+
+**Task Source:** Uploaded specification (`Feature: Real-Time Pre-Capture Quality Gate (Edge CV)`)
+
+#### New Files
+- `frontend/src/hooks/usePreCaptureQualityGate.ts`
+  — Edge-CV React hook running a throttled ~9 FPS (`110ms` interval, pauses when
+    `document.hidden`) quality loop over `videoRef`. Initializes `@mediapipe/tasks-vision`
+    `FaceLandmarker` (`runningMode: 'VIDEO'`, `numFaces: 1`,
+    `outputFacialTransformationMatrixes: true`) with offline/CDN resilience (`navigator.onLine`,
+    3.5s init timeout, and `try/catch` fallback to `LITE MODE` canvas-only lighting analysis).
+    Exports `analyzeFrameLighting()`, `extractHeadPoseEuler()` (4x4 matrix Euler extraction +
+    landmark geometry fallback), `evaluateEyeVisibility()` (central safe-frame + Eye Aspect
+    Ratio check), and `buildPreCaptureQualityMetadata()`.
+    Thresholds: Ambient Lighting (`65 <= meanLuminance <= 215`, low glare), Head Pose
+    (`|yaw| <= 12°`, `|pitch| <= 12°`, `|roll| <= 10°`), Eye Visibility (`EAR >= 0.16`, eyes
+    inside central `[0.12, 0.88]` bounds).
+
+- `frontend/src/components/capture/PreCaptureQualityGate.tsx`
+  — Clinical Precision Maximalism telemetry HUD strip displaying 3 rectangular (`rounded-sm`)
+    badges (`Sun` Ambient Lighting, `Compass` Head Pose `Y/P/R`, `Eye` Eye Visibility `EAR` or
+    `LITE MODE`), concise corrective prompts when any check warns, subtle rectangular
+    **Proceed Anyway** override button (`rounded-md`), and `QualityReticleOverlay` corner
+    alignment brackets shifting from amber to clinical teal when `allPassed` is true.
+
+- `frontend/src/test/PreCaptureQualityGate.test.tsx`
+  — 7 unit & integration tests covering lighting thresholds, Euler pose extraction & tilt
+    warnings, EAR + safe-frame eye visibility, live mocked MediaPipe FaceLandmarker HUD &
+    reticle transitions, offline `LITE MODE` fallback & override metadata, `PupilTestPage` /
+    `PursuitTestPage` integration + `SampleVideoFallback` bypass, and EN/HI/ES/FR parity.
+
+#### Modified Files
+- `frontend/src/pages/PupilTestPage.tsx` & `frontend/src/pages/PursuitTestPage.tsx`
+  — Mounted `usePreCaptureQualityGate`, `PreCaptureQualityGate` HUD, and
+    `QualityReticleOverlay` on live camera feeds before recording starts; highlighted primary
+    Start Recording button with `btn-ramp-accent` when `allPassed` is true; wired
+    `Proceed Anyway` override (`pre_capture_quality_override` metadata note); bypassed gate
+    automatically on `SampleVideoFallback` without changing backend schemas.
+- `frontend/src/hooks/useCamera.ts` — Hardened `stopCamera()` track cleanup when inspecting
+  streams without `getTracks` or empty track lists.
+- `frontend/src/i18n/locales/{en,hi,es,fr}/pages.ts` — Added `capture.qualityGate` labels,
+  badges, corrective prompts, and override strings across all 4 locales.
+- `frontend/src/test/CalibrationCheck.test.tsx` — Flushed 3.5s MediaPipe LITE MODE fallback
+  timer before asserting Start Recording unlock on `PupilTestPage`.
+- `frontend/package.json` & `frontend/package-lock.json` — Installed `@mediapipe/tasks-vision`
+  (`^1.2.3`).
+
+#### Verification & Scaffolding Audit
+- Scanned `frontend/src`, `backend/app`, and `analysis` for `TODO`/`FIXME`/`stub`/scaffolding
+  markers and anti-slop compliance (`rounded-full` buttons/badges, gradients, em dashes): zero
+  scaffolding found.
+- `frontend`: `npm run build` passed (`tsc -b && vite build`, zero errors).
+- `frontend`: `npm run test -- --run` passed (**18 test files, 75 tests passed**).
+- `backend`: `pytest -q` (with local writable `TEMP_UPLOAD_DIR`) passed (**46 tests passed**).
+
+---
+
 ### Added — Feature: Reusable 5-Point Pre-Test Calibration Check (All Tests)
 
 **Task Source:** Uploaded specification (`Feature: Reusable 5-Point Pre-Test Calibration Check (All Tests)`)

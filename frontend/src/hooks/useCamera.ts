@@ -95,7 +95,11 @@ export function useCamera(initialProfile: CaptureProfile = 'rural_clinic'): UseC
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => {
+      const tracks =
+        typeof streamRef.current.getTracks === 'function'
+          ? streamRef.current.getTracks()
+          : [];
+      (tracks || []).forEach((track) => {
         try {
           track.stop();
         } catch {

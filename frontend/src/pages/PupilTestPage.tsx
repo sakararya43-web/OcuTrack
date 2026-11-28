@@ -15,7 +15,15 @@ import {
 import { useCamera } from '../hooks/useCamera';
 import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
 import { useRecordingQuality } from '../hooks/useRecordingQuality';
+import {
+  usePreCaptureQualityGate,
+  buildPreCaptureQualityMetadata,
+} from '../hooks/usePreCaptureQualityGate';
 import { CameraPreview } from '../components/capture/CameraPreview';
+import {
+  PreCaptureQualityGate,
+  QualityReticleOverlay,
+} from '../components/capture/PreCaptureQualityGate';
 import {
   CalibrationCheck,
   CalibrationResult,
@@ -42,6 +50,7 @@ export const PupilTestPage: React.FC = () => {
   const [uploadError, setUploadError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
   const [testType, setTestType] = useState<'both' | 'pupil_reflex' | 'smooth_pursuit'>('both');
   const [calibrationResult, setCalibrationResult] = useState<CalibrationResult | null>(null);
+  const [qualityGateOverridden, setQualityGateOverridden] = useState<boolean>(false);
 
   useEffect(() => {
     if (!assessmentId) return;
@@ -63,6 +72,10 @@ export const PupilTestPage: React.FC = () => {
     maxDurationSeconds: TARGET_DURATION_S,
     videoBitsPerSecond: camera.captureProfile === 'rural_clinic' ? 750_000 : 1_500_000,
   });
+  const isQualityGateActive =
+    camera.isCameraActive && !recorder.recordedVideo && !recorder.isRecording && !isFallbackMode;
+  const qualityGate = usePreCaptureQualityGate(camera.videoRef, isQualityGateActive);
+  const isPreCaptureReady = qualityGate.allPassed || qualityGateOverridden;
 
   // Schedule diffuse screen flash stimulus at 5-second mark
   useEffect(() => {
@@ -79,10 +92,11 @@ export const PupilTestPage: React.FC = () => {
     }
   }, [recorder.isRecording]);
 
-  // Reset calibration whenever live camera stream stops or disconnects
+  // Reset calibration and quality override whenever live camera stream stops or disconnects
   useEffect(() => {
     if (!camera.isCameraActive) {
       setCalibrationResult(null);
+      setQualityGateOverridden(false);
     }
   }, [camera.isCameraActive]);
 
@@ -95,7 +109,7 @@ export const PupilTestPage: React.FC = () => {
       // Camera is now active; CalibrationCheck runs automatically before recording can begin
       return;
     }
-    if (!calibrationResult) return;
+    if (!calibrationResult || !isPreCaptureReady) return;
     soundFx.playTick();
     setCountdown(3);
   };
@@ -158,6 +172,7 @@ export const PupilTestPage: React.FC = () => {
         observed_camera: camera.observedSettings || undefined,
         source: isFallbackMode ? 'synthetic_benchmark' : 'webcam_live',
         ...buildCalibrationUploadMetadata(calibrationResult, isFallbackMode),
+        ...buildPreCaptureQualityMetadata(qualityGate, qualityGateOverridden, isFallbackMode),
       });
       if (testType === 'pupil_reflex') {
         await triggerAnalysis(assessmentId);
@@ -410,6 +425,15 @@ export const PupilTestPage: React.FC = () => {
       ) : (
         /* Live Recording Camera Preview */
         <div className="space-y-6">
+          {/* Edge CV Pre-Capture Quality Gate HUD (hidden when using Sample Video Fallback) */}
+          {camera.isCameraActive && !isFallbackMode && !recorder.isRecording && (
+            <PreCaptureQualityGate
+              gate={qualityGate}
+              isOverridden={qualityGateOverridden}
+              onOverrideProceed={() => setQualityGateOverridden(true)}
+            />
+          )}
+
           {/* 5-Point Pre-Test Calibration Check (runs automatically once camera stream is active) */}
           {camera.isCameraActive && !calibrationResult && (
             <CalibrationCheck
@@ -431,6 +455,13 @@ export const PupilTestPage: React.FC = () => {
               onToggleTorch={camera.toggleTorch}
               isRecording={recorder.isRecording}
             />
+
+            {camera.isCameraActive && !recorder.isRecording && !isFallbackMode && (
+              <QualityReticleOverlay
+                allPassed={qualityGate.allPassed}
+                isOverridden={qualityGateOverridden}
+              />
+            )}
 
             {/* Countdown Overlay */}
             {countdown !== null && (
@@ -471,6 +502,8 @@ export const PupilTestPage: React.FC = () => {
                 ? t('pupilTestPage.autoStopHint')
                 : camera.isCameraActive && !calibrationResult
                 ? t('capture.calibration.unlockHint')
+                : camera.isCameraActive && !isPreCaptureReady
+                ? t('capture.qualityGate.resolveOrOverrideHint')
                 : t('pupilTestPage.countdownHint')}
             </div>
 
@@ -491,8 +524,12 @@ export const PupilTestPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleStartCountdown}
-                  disabled={camera.isCameraActive && !calibrationResult}
-                  className="btn-ramp-primary rounded-md text-xs py-2 px-4 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={camera.isCameraActive && (!calibrationResult || !isPreCaptureReady)}
+                  className={`${
+                    camera.isCameraActive && calibrationResult && qualityGate.allPassed
+                      ? 'btn-ramp-accent'
+                      : 'btn-ramp-primary'
+                  } rounded-md text-xs py-2 px-4 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>{t('pupilTestPage.startRecording')}</span>

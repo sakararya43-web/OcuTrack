@@ -295,9 +295,12 @@ describe('CalibrationCheck & Jitter Scoring', () => {
     Object.defineProperty(videoEl, 'videoWidth', { value: 640, configurable: true });
     Object.defineProperty(videoEl, 'videoHeight', { value: 480, configurable: true });
 
-    // Wait out 5s calibration sequence + click Proceed to Capture
-    act(() => {
-      vi.advanceTimersByTime(5200);
+    // Wait out 5s calibration sequence (flushing MediaPipe LITE MODE fallback at 3.5s) + click Proceed to Capture
+    await act(async () => {
+      vi.advanceTimersByTime(3600);
+      await Promise.resolve();
+      await Promise.resolve();
+      vi.advanceTimersByTime(1600);
     });
     const proceedBtn = screen.getByRole('button', { name: /Proceed to Capture/i });
     fireEvent.click(proceedBtn);

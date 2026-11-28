@@ -14,7 +14,15 @@ import {
 import { useCamera } from '../hooks/useCamera';
 import { useMediaRecorder, RecordedVideo } from '../hooks/useMediaRecorder';
 import { useRecordingQuality } from '../hooks/useRecordingQuality';
+import {
+  usePreCaptureQualityGate,
+  buildPreCaptureQualityMetadata,
+} from '../hooks/usePreCaptureQualityGate';
 import { CameraPreview } from '../components/capture/CameraPreview';
+import {
+  PreCaptureQualityGate,
+  QualityReticleOverlay,
+} from '../components/capture/PreCaptureQualityGate';
 import {
   CalibrationCheck,
   CalibrationResult,
@@ -48,6 +56,7 @@ export const PursuitTestPage: React.FC = () => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<{ message: string; isUnavailable: boolean } | null>(null);
   const [calibrationResult, setCalibrationResult] = useState<CalibrationResult | null>(null);
+  const [qualityGateOverridden, setQualityGateOverridden] = useState<boolean>(false);
 
   const TARGET_DURATION_S = PURSUIT_DURATION_MS / 1000;
 
@@ -59,11 +68,16 @@ export const PursuitTestPage: React.FC = () => {
       setIsTargetActive(false);
     },
   });
+  const isQualityGateActive =
+    camera.isCameraActive && !recorder.recordedVideo && !recorder.isRecording && !isFallbackMode;
+  const qualityGate = usePreCaptureQualityGate(camera.videoRef, isQualityGateActive);
+  const isPreCaptureReady = qualityGate.allPassed || qualityGateOverridden;
 
-  // Reset calibration whenever live camera stream stops or disconnects
+  // Reset calibration and quality override whenever live camera stream stops or disconnects
   useEffect(() => {
     if (!camera.isCameraActive) {
       setCalibrationResult(null);
+      setQualityGateOverridden(false);
     }
   }, [camera.isCameraActive]);
 
@@ -76,7 +90,7 @@ export const PursuitTestPage: React.FC = () => {
       // Camera is now active; CalibrationCheck runs automatically before recording can begin
       return;
     }
-    if (!calibrationResult) return;
+    if (!calibrationResult || !isPreCaptureReady) return;
     soundFx.playTick();
     setCountdown(3);
   };
@@ -155,6 +169,7 @@ export const PursuitTestPage: React.FC = () => {
         observed_camera: camera.observedSettings || undefined,
         source: isFallbackMode ? 'synthetic_benchmark' : 'webcam_live',
         ...buildCalibrationUploadMetadata(calibrationResult, isFallbackMode),
+        ...buildPreCaptureQualityMetadata(qualityGate, qualityGateOverridden, isFallbackMode),
       });
 
       // Trigger asynchronous analysis
@@ -419,13 +434,22 @@ export const PursuitTestPage: React.FC = () => {
             </div>
           )}
 
+          {/* Edge CV Pre-Capture Quality Gate HUD (hidden when using Sample Video Fallback) */}
+          {camera.isCameraActive && !isFallbackMode && !recorder.isRecording && (
+            <PreCaptureQualityGate
+              gate={qualityGate}
+              isOverridden={qualityGateOverridden}
+              onOverrideProceed={() => setQualityGateOverridden(true)}
+            />
+          )}
+
           {/* Picture-in-Picture or camera preview below target */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <div className="space-y-2">
               <h4 className="text-xs font-mono uppercase tracking-wider text-[#64748B] font-semibold">
                 {t('pursuitTestPage.cameraPreviewTitle')}
               </h4>
-              <div className="rounded-xl overflow-hidden shadow-sm">
+              <div className="relative rounded-xl overflow-hidden shadow-sm">
                 <CameraPreview
                   videoRef={camera.videoRef}
                   stream={camera.stream}
@@ -438,6 +462,12 @@ export const PursuitTestPage: React.FC = () => {
                   isRecording={recorder.isRecording}
                   showOverlay={false}
                 />
+                {camera.isCameraActive && !recorder.isRecording && !isFallbackMode && (
+                  <QualityReticleOverlay
+                    allPassed={qualityGate.allPassed}
+                    isOverridden={qualityGateOverridden}
+                  />
+                )}
               </div>
             </div>
 
@@ -477,8 +507,12 @@ export const PursuitTestPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleStartCountdown}
-                      disabled={camera.isCameraActive && !calibrationResult}
-                      className="btn-ramp-primary rounded-md w-full justify-center text-xs py-2.5 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={camera.isCameraActive && (!calibrationResult || !isPreCaptureReady)}
+                      className={`${
+                        camera.isCameraActive && calibrationResult && qualityGate.allPassed
+                          ? 'btn-ramp-accent'
+                          : 'btn-ramp-primary'
+                      } rounded-md w-full justify-center text-xs py-2.5 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       <span>{t('pursuitTestPage.startRecording')}</span>
@@ -486,6 +520,11 @@ export const PursuitTestPage: React.FC = () => {
                     {camera.isCameraActive && !calibrationResult && (
                       <p className="text-[11px] font-mono text-[#475569] leading-snug">
                         {t('capture.calibration.unlockHint')}
+                      </p>
+                    )}
+                    {camera.isCameraActive && calibrationResult && !isPreCaptureReady && (
+                      <p className="text-[11px] font-mono text-[#92400E] leading-snug">
+                        {t('capture.qualityGate.resolveOrOverrideHint')}
                       </p>
                     )}
                   </div>
