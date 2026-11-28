@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AssessmentReportPage } from '../pages/AssessmentReportPage';
+import { AuthProvider } from '../context/AuthContext';
+import * as exportPdfModule from '../lib/exportClinicalPdf';
 
 describe('AssessmentReportPage', () => {
   beforeEach(() => {
@@ -262,5 +264,84 @@ describe('AssessmentReportPage', () => {
     });
     expect(screen.getByText(/Assessment Capture Pending/i)).toBeInTheDocument();
     expect(screen.getByText('Capture / Upload Video Now')).toBeInTheDocument();
+  });
+
+  it('exports clinical PDF summary with AuthContext metadata and handles errors gracefully', async () => {
+    const mockDetail = {
+      assessment_id: 'asm-pdf-test',
+      patient_id: 'p-1',
+      pseudonymous_code: 'OT-7788',
+      test_type: 'both',
+      status: 'complete',
+      quality_status: 'acceptable',
+      assessment_at: '2026-11-28T10:30:00Z',
+      protocol_version: 'ocutrack-protocol-0.1',
+      review_message: 'No notable change detected in measured features.',
+      quality: { status: 'acceptable', usable_frame_ratio: 0.94, warnings: [] },
+      pupil: {
+        status: 'complete',
+        features: {
+          baseline_diameter: { value: 4.6, unit: 'mm', label: 'Baseline Diameter' },
+          constriction_latency: { value: 235, unit: 'ms', label: 'Constriction Latency' },
+        },
+        series: [
+          { t_ms: 0, value: 4.6, valid: true },
+          { t_ms: 5000, value: 4.6, valid: true },
+          { t_ms: 5500, value: 3.1, valid: true },
+        ],
+      },
+      longitudinal_comparison: {
+        status: 'comparable',
+        baseline_id: 'asm-base-1',
+        feature_deltas: {
+          constriction_latency: { delta: 5.0, percentage_delta: 2.2, unit: 'ms', direction: 'stable' },
+        },
+      },
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => mockDetail,
+    });
+
+    const exportSpy = vi
+      .spyOn(exportPdfModule, 'exportClinicalSummaryPdf')
+      .mockResolvedValueOnce('OcuTrack_Clinical_Summary_OT-7788_20261128.pdf')
+      .mockRejectedValueOnce(new Error('Canvas capture unavailable'));
+
+    render(
+      <AuthProvider>
+        <MemoryRouter
+          initialEntries={['/assessments/asm-pdf-test/report']}
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
+          <Routes>
+            <Route path="/assessments/:assessmentId/report" element={<AssessmentReportPage />} />
+          </Routes>
+        </MemoryRouter>
+      </AuthProvider>
+    );
+
+    const exportBtn = await screen.findByRole('button', { name: /Export Clinical Summary \(PDF\)/i });
+    expect(exportBtn).toBeInTheDocument();
+    expect(exportBtn.className).not.toContain('rounded-full');
+
+    fireEvent.click(exportBtn);
+
+    await waitFor(() => {
+      expect(exportSpy).toHaveBeenCalledTimes(1);
+    });
+    const [templateEl, passedPatientCode, passedDate] = exportSpy.mock.calls[0];
+    expect(passedPatientCode).toBe('OT-7788');
+    expect(passedDate).toBe('2026-11-28T10:30:00Z');
+    expect(templateEl.textContent).toContain('NEURO-TRIAGE-04');
+    expect(templateEl.textContent).toContain('NON-DIAGNOSTIC SCREENING SUMMARY - FOR CLINICAL REVIEW ONLY');
+
+    // Trigger second click to verify graceful inline error handling
+    fireEvent.click(exportBtn);
+    await waitFor(() => {
+      expect(screen.getByText('Canvas capture unavailable')).toBeInTheDocument();
+    });
   });
 });

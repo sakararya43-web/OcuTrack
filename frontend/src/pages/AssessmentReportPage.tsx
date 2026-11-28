@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   FileText,
@@ -23,6 +23,7 @@ import {
   Loader2,
   FolderOpen,
   Sparkles,
+  FileDown,
 } from 'lucide-react';
 import { getAssessment, triggerAnalysis } from '../services/assessmentService';
 import { getPatients, getPatientHistory } from '../services/patientService';
@@ -40,6 +41,10 @@ import { NON_DIAGNOSTIC_DISCLAIMER } from '../lib/constants';
 import { ApiClientError } from '../services/apiClient';
 import { soundFx } from '../lib/soundFx';
 import { useTranslation } from '../i18n';
+import { useOptionalAuth } from '../context/AuthContext';
+import { TactileButton } from '../components/motion/TactileButton';
+import { ClinicalHandoffTemplate } from '../components/reports/ClinicalHandoffTemplate';
+import { exportClinicalSummaryPdf } from '../lib/exportClinicalPdf';
 
 type GuidanceKey =
   | 'repeatQuality'
@@ -147,6 +152,7 @@ export const AssessmentReportPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const navigate = useNavigate();
   const { t, dict } = useTranslation();
+  const auth = useOptionalAuth();
 
   const [assessment, setAssessment] = useState<AssessmentDetail | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -156,6 +162,10 @@ export const AssessmentReportPage: React.FC = () => {
   const [isTriggeringAnalysis, setIsTriggeringAnalysis] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [simpleMode, setSimpleMode] = useState<boolean>(true);
+  const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
+  const [pdfExportError, setPdfExportError] = useState<string | null>(null);
+  const [showHandoffTemplate, setShowHandoffTemplate] = useState<boolean>(false);
+  const clinicalHandoffRef = useRef<HTMLDivElement>(null);
 
   const fetchReport = async () => {
     if (!assessmentId) return;
@@ -212,6 +222,46 @@ export const AssessmentReportPage: React.FC = () => {
       );
     } finally {
       setIsTriggeringAnalysis(false);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!assessment) return;
+    soundFx.playClick();
+    setIsExportingPdf(true);
+    setPdfExportError(null);
+    setShowHandoffTemplate(true);
+    // Allow React to mount the off-screen template and paint Recharts SVGs before capture
+    await new Promise<void>((resolve) => {
+      if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => setTimeout(resolve, 120));
+        });
+      } else {
+        setTimeout(resolve, 120);
+      }
+    });
+    try {
+      if (!clinicalHandoffRef.current) {
+        throw new Error(t('reportPage.pdfExportError'));
+      }
+      const patientCode =
+        assessment.pseudonymous_code ||
+        patients.find((p) => p.patient_id === assessment.patient_id)?.pseudonymous_code ||
+        assessment.patient_id;
+      await exportClinicalSummaryPdf(
+        clinicalHandoffRef.current,
+        patientCode,
+        assessment.assessment_at
+      );
+      soundFx.playSuccess();
+    } catch (err: unknown) {
+      setPdfExportError(
+        err instanceof Error ? err.message : t('reportPage.pdfExportError')
+      );
+    } finally {
+      setIsExportingPdf(false);
+      setShowHandoffTemplate(false);
     }
   };
 
@@ -409,6 +459,21 @@ export const AssessmentReportPage: React.FC = () => {
             <Printer className="w-3.5 h-3.5" />
             <span>{t('reportPage.printReport')}</span>
           </button>
+          <TactileButton
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleExportPdf}
+            disabled={isExportingPdf}
+            className="py-1.5 px-3 text-xs font-mono rounded-md text-[#0F172A] border-[#CBD5E1] hover:bg-[#F8FAFC]"
+          >
+            {isExportingPdf ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <FileDown className="w-3.5 h-3.5" />
+            )}
+            <span>{isExportingPdf ? t('reportPage.pdfGenerating') : t('reportPage.exportClinicalPdf')}</span>
+          </TactileButton>
         </div>
       </div>
 
@@ -945,6 +1010,39 @@ export const AssessmentReportPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* PDF Export error alert */}
+      {pdfExportError && (
+        <div className="mt-4 print:hidden">
+          <ErrorAlert message={pdfExportError} />
+        </div>
+      )}
+
+      {/* Off-screen ClinicalHandoffTemplate — mounted on demand off-screen (kept visible for html2canvas) */}
+      {showHandoffTemplate && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: '-9999px',
+            width: 794,
+            pointerEvents: 'none',
+            zIndex: -1,
+          }}
+          aria-hidden="true"
+          data-testid="clinical-handoff-offscreen"
+        >
+          <ClinicalHandoffTemplate
+            ref={clinicalHandoffRef}
+            assessment={assessment}
+            patientCode={displayPatientCode}
+            ageBand={currentPatient?.age_band}
+            facilityId={auth?.user?.ward}
+            staffId={auth?.user ? `${auth.user.name} (${auth.user.email || auth.user.id})` : undefined}
+            patientVisits={patientVisits}
+          />
+        </div>
+      )}
     </div>
   );
 };

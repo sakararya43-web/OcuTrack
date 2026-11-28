@@ -182,3 +182,11 @@ export const useAuth = (): AuthContextValue => {
   }
   return context;
 };
+
+/**
+ * Safe optional AuthContext reader for standalone components or unit tests
+ * rendered outside AuthProvider.
+ */
+export const useOptionalAuth = (): AuthContextValue | undefined => {
+  return useContext(AuthContext);
+};

@@ -101,6 +101,7 @@ export interface PursuitSeriesPoint {
 export interface QualityMetrics {
   status: QualityStatus;
   usable_frame_ratio?: number | null;
+  fps_estimate?: number | null;
   warnings: string[];
 }
 
@@ -126,6 +127,7 @@ export interface TemporalModelResult {
 
 export interface FeatureDelta {
   delta: number | null;
+  percentage_delta?: number | null;
   unit: string;
   direction?: 'increased' | 'decreased' | 'stable' | 'unknown';
 }

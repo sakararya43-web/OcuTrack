@@ -317,6 +317,9 @@ export const esPages = {
       'Características temporales analizadas para consistencia experimental de trayectoria. Este modelo está en validación investigativa y no debe usarse como evidencia diagnóstica.',
     regulatoryNoticeTitle: 'Aviso de Estado Regulatorio y Clínico',
     fetchError: 'Error al recuperar el informe de evaluación del servidor.',
+    exportClinicalPdf: 'Exportar Resumen Clínico (PDF)',
+    pdfGenerating: 'Generando PDF...',
+    pdfExportError: 'Error al exportar el PDF clínico. Por favor, inténtelo de nuevo.',
     patientNextSteps: {
       sectionLabel: 'Plan de Acción para el Paciente',
       repeatQuality: {

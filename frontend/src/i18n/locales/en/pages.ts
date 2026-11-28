@@ -317,6 +317,9 @@ export const enPages = {
       'Temporal sequence features analyzed for experimental trajectory consistency. This model is under research validation and must not be used as clinical diagnostic evidence.',
     regulatoryNoticeTitle: 'Notice of Regulatory & Clinical Status',
     fetchError: 'Failed to retrieve assessment report from backend.',
+    exportClinicalPdf: 'Export Clinical Summary (PDF)',
+    pdfGenerating: 'Generating PDF...',
+    pdfExportError: 'Clinical PDF export failed. Please try again.',
     patientNextSteps: {
       sectionLabel: 'Patient Action Plan',
       repeatQuality: {

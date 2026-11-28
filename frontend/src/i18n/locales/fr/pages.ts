@@ -317,6 +317,9 @@ export const frPages = {
       'Caractéristiques temporelles analysées pour la cohérence expérimentale de trajectoire. Modèle en cours de validation, non utilisable comme preuve diagnostique.',
     regulatoryNoticeTitle: 'Avis de Statut Réglementaire et Clinique',
     fetchError: 'Échec de récupération du rapport depuis le serveur.',
+    exportClinicalPdf: 'Exporter le Résumé Clinique (PDF)',
+    pdfGenerating: 'Génération du PDF...',
+    pdfExportError: "L'export PDF clinique a échoué. Veuillez réessayer.",
     patientNextSteps: {
       sectionLabel: "Plan d'Action Patient",
       repeatQuality: {
