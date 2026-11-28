@@ -20,6 +20,10 @@
 **AI for Medicine: A Global Student Hackathon on the Future of Care**  
 *Track: Ocular Biometrics, Neurology & Longitudinal Change Monitoring*
 
+<br />
+
+<img src="docs/assets/ocutrack-hero.png" alt="OcuTrack Quantitative Ocular Telemetry Interface" width="100%" />
+
 </div>
 
 ---
@@ -36,7 +40,7 @@ OcuTrack turns standard laptop webcams into calibrated, objective ocular measure
 1. **Standardized Pupillary Light Reflex (PLR) Capture**: 15-second protocol measuring dark-adapted resting baseline, flash response at 5.0s, maximum constriction velocity, and redilation kinetics at 30 FPS.
 2. **Horizontal Smooth-Pursuit Kinematics (SPEM)**: 10-second horizontal sinusoidal target tracking evaluating velocity tracking gain, root-mean-square spatial error (RMSE), and catch-up saccadic intrusions.
 3. **Intra-Individual Longitudinal Comparison ($\Delta$)**: Evaluates percent changes against each patient's own historical baseline rather than noisy, uncalibrated population averages.
-4. **Automated Usability & Quality Gating**: Client-side validation (`useRecordingQuality`) enforcing &ge; 720p resolution, frame rate calibration (&ge; 25-30 FPS), and &ge; 80% ocular feature visibility.
+4. **Rural-Clinic Capture & Quality Gating**: Client-side validation (`useRecordingQuality`) with automatic `OverconstrainedError` camera fallback — supporting down to `320×240` QVGA resolution (`1280×720` recommended), `8 FPS` minimum floor (`15 FPS` recommended, `30 FPS` target), and &ge; 60% usable frame ratio (80% recommended).
 
 ---
 
@@ -77,6 +81,11 @@ OcuTrack turns standard laptop webcams into calibrated, objective ocular measure
 - **Three.js 3D Eye Anatomy Explorer**: Anatomical visualization demonstrating MediaPipe iris contour localization and corneal light reflection tracking.
 - **Interactive PLR & Pursuit Sandboxes**: Interactive constriction slider and sinusoidal velocity tracking target with realistic audio/haptic telemetry feedback.
 
+### 6. Universal Reports Directory (`/reports`) & Simplified Clinical Summaries
+- **Cross-Patient Reports Directory**: Filter and search all logged assessments across patients by participant code or review status (`GET /api/assessments`).
+- **Plain-English Clinical Summary**: Translates raw pupillary metrics, pursuit kinematics, and TCN sequence dynamics (`SequenceDynamicsSection`) into clear, non-diagnostic clinician-ready observations on `/assessments/:id/report`.
+- **Governance & Methodology Routes**: Dedicated scope, limitations, privacy policy, and terms views (`/about`, `/privacy`, `/terms`) alongside the standalone [interactive-explainer.html](interactive-explainer.html) walkthrough.
+
 ---
 
 ## Two Ways to Run OcuTrack
@@ -89,7 +98,7 @@ The capture suite adapts automatically to demo environment capabilities while pr
 | **Participant Guidance** | Elliptical reticle overlay with live eye-alignment centering | Automated benchmark playback with documented frame timestamps |
 | **Stimulus Source** | Standardized diffuse screen flash stimulus at 5.0s | Pre-synchronized stimulus onset benchmark dataset |
 | **Tracking Target** | Interactive 10s smooth pursuit sinusoidal target (`horizontal-sweep-v1`) | Full pre-computed 200-point trajectory metadata alignment |
-| **Pre-Upload Quality Gate** | Live evaluation of duration, resolution (720p), and FPS (&ge; 25) | Verified calibrated reference container specs |
+| **Pre-Upload Quality Gate** | Live evaluation of duration (&ge; 6s PLR / &ge; 4s SPEM), resolution (&ge; 320×240 floor, 720p ideal), and FPS (&ge; 8 floor, 15+ ideal) | Verified calibrated reference container specs |
 | **Report Labelling** | Labelled as **Live Participant Recording** | Explicitly labelled **"Fallback Benchmark Sample"** |
 | **Clinical Integrity** | Full biometric extraction & longitudinal comparison | Full biometric extraction & longitudinal comparison |
 
@@ -189,7 +198,7 @@ flowchart TD
         CreateSession --> PupilTest["Test 1: Pupil Light Reflex (/assessments/:id/pupil-test)"]:::capture
         
         PupilTest --> LiveCam1["Webcam Preview with Reticle Guide\n- 5s Dark Adaptation Baseline\n- Full-Screen Flash at 5.0s\n- 10s Optical Recovery Tracking"]
-        LiveCam1 --> QualityCheck1["useRecordingQuality\n- Duration &ge; 12s\n- Resolution &ge; 720p\n- FPS &ge; 25"]
+        LiveCam1 --> QualityCheck1["useRecordingQuality\n- Duration &ge; 6s (12s nominal)\n- Resolution &ge; 320x240 (720p ideal)\n- FPS &ge; 8 (15+ ideal)"]
         
         QualityCheck1 -->|"Fallback needed"| Fallback1["Labelled Synthetic Benchmark"]:::gate
         QualityCheck1 -->|"Passed"| UploadPupil["Upload Video (POST /pupil-video)\n- Binary WebM/MP4 + metadata_json"]:::api
@@ -198,7 +207,7 @@ flowchart TD
         UploadPupil --> PursuitTest["Test 2: Smooth-Pursuit Test (/assessments/:id/pursuit-test)"]:::capture
         
         PursuitTest --> LiveCam2["Horizontal Target Sweeper\n- 10s Sinusoidal Reticle (0.2-0.4 Hz)\n- Synchronized Coordinate Stream\n- Zero Head Motion Guidance"]
-        LiveCam2 --> QualityCheck2["useRecordingQuality\n- Duration &ge; 8s\n- Trajectory Points Logged"]
+        LiveCam2 --> QualityCheck2["useRecordingQuality\n- Duration &ge; 4s (8s nominal)\n- Trajectory Points Logged"]
         
         QualityCheck2 -->|"Passed"| UploadPursuit["Upload Pursuit & Trajectory (POST /pursuit-video)\n+ Trigger Analysis (POST /analyze)"]:::api
     end
@@ -289,7 +298,7 @@ npm install
 npm run dev
 ```
 
-The frontend will start at **`http://localhost:5173`** (or `http://localhost:3000`).
+The frontend will start at **`http://localhost:3000`**.
 
 To run the automated test suite:
 ```bash
@@ -324,7 +333,7 @@ python -m pytest tests
 ```
 
 ### 3. Evaluator Fast-Track Quickstart
-1. Open `http://localhost:5173`.
+1. Open `http://localhost:3000`.
 2. On `/login`, click **"Dr. Elena Vance (Clinician)"** or **"Aarav Sharma (Community Health Worker)"** for instant one-click evaluator login without entering credentials.
 3. Use the top navigation bar to switch between **English**, **हिन्दी**, **Español**, or **Français**.
 4. Press **`Shift + ?`** (or click **Protocol Guide** in the header) to open the screen-aware clinical guidance drawer.
@@ -369,7 +378,8 @@ OcuTrack strictly enforces neutral, observation-based communication across the e
 
 | Document | Purpose |
 |---|---|
-| [Shared Integration Contract](docs/integration-contract.md) | Locked specification of all 11 API endpoints, schemas, status enums, biometric units, and video constraints |
+| [Shared Integration Contract](docs/integration-contract.md) | Specification of API endpoints (12 REST routes including `/api/assessments`), schemas, status enums, biometric units, and video constraints |
+| [Interactive Explainer](interactive-explainer.html) | Standalone interactive browser walkthrough explaining OcuTrack's reflex tests, 11.7 mm iris ruler, and ephemeral privacy |
 | [Hackathon Demo Guide](docs/demo-guide.md) | Step-by-step evaluator presentation guide for live and benchmark demonstrations |
 | [Product Requirements Document (PRD)](PRD.md) | Parent specification detailing medical context, non-diagnostic guardrails, and functional requirements |
 | [Sakar Implementation Plan](sakarImplementation.md) | Frontend architecture, hook specifications, component hierarchy, and verification checklist |

@@ -205,7 +205,7 @@ export const HelloMondayHero: React.FC = () => {
             </div>
 
             {/* Clear, Product-Focused Headline */}
-            <h1 className="font-sans text-4xl sm:text-5xl lg:text-[56px] font-bold leading-[1.08] tracking-tight text-[#0F172A]">
+            <h1 className="font-mono text-4xl sm:text-5xl lg:text-[52px] font-bold leading-[1.12] tracking-tight text-[#0F172A]">
               {t('hero.title', 'Quantitative Ocular Telemetry and Involuntary Reflex Screening')}
             </h1>
 
